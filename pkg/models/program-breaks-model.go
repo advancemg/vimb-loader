@@ -4,7 +4,7 @@ import (
 	goConvert "github.com/advancemg/go-convert"
 )
 
-type SwaggerGetProgramBrakesRequest struct {
+type SwaggerGetProgramBreaksRequest struct {
 	SellingDirectionID string `json:"sellingDirectionID"`
 	InclProgAttr       string `json:"inclProgAttr"`
 	InclForecast       string `json:"inclForecast"`
