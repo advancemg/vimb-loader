@@ -22,7 +22,7 @@ type GetSpots struct {
 	goConvert.UnsortedMap
 }
 
-func (request GetSpots) GetData() (*StreamResponse, error) {
+func (request *GetSpots) GetData() (*StreamResponse, error) {
 	xmlRequestHeader := goConvert.New()
 	body := goConvert.New()
 	SellingDirectionID, exist := request.Get("SellingDirectionID")

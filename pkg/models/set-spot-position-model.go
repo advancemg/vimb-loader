@@ -13,7 +13,7 @@ type SetSpotPosition struct {
 	goConvert.UnsortedMap
 }
 
-func (request SetSpotPosition) GetData() (*StreamResponse, error) {
+func (request *SetSpotPosition) GetData() (*StreamResponse, error) {
 	xmlRequestHeader := goConvert.New()
 	body := goConvert.New()
 	SpotID, exist := request.Get("SpotID")

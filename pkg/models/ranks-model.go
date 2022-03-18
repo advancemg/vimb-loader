@@ -11,7 +11,7 @@ type GetRanks struct {
 	goConvert.UnsortedMap
 }
 
-func (request GetRanks) GetData() (*StreamResponse, error) {
+func (request *GetRanks) GetData() (*StreamResponse, error) {
 	xmlRequestHeader := goConvert.New()
 	xmlRequestHeader.Set("GetRanks", "")
 	req, err := xmlRequestHeader.ToXml()

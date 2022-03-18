@@ -22,7 +22,7 @@ type GetProgramBreaks struct {
 	goConvert.UnsortedMap
 }
 
-func (request GetProgramBreaks) GetData() (*StreamResponse, error) {
+func (request *GetProgramBreaks) GetData() (*StreamResponse, error) {
 	attributes := goConvert.New()
 	attributes.Set("xmlns:xsi", "\"http://www.w3.org/2001/XMLSchema-instance\"")
 	xmlRequestHeader := goConvert.New()

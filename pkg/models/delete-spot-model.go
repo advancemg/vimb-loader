@@ -12,7 +12,7 @@ type DeleteSpot struct {
 	goConvert.UnsortedMap
 }
 
-func (request DeleteSpot) GetData() (*StreamResponse, error) {
+func (request *DeleteSpot) GetData() (*StreamResponse, error) {
 	xmlRequestHeader := goConvert.New()
 	body := goConvert.New()
 	SpotID, exist := request.Get("SpotID")

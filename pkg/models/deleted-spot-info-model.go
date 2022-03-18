@@ -16,7 +16,7 @@ type GetDeletedSpotInfo struct {
 	goConvert.UnsortedMap
 }
 
-func (request GetDeletedSpotInfo) GetData() (*StreamResponse, error) {
+func (request *GetDeletedSpotInfo) GetData() (*StreamResponse, error) {
 	xmlRequestHeader := goConvert.New()
 	body := goConvert.New()
 	dateStart, exist := request.Get("DateStart")

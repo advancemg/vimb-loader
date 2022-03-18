@@ -12,7 +12,7 @@ type DeleteMPlanFilm struct {
 	goConvert.UnsortedMap
 }
 
-func (request DeleteMPlanFilm) GetData() (*StreamResponse, error) {
+func (request *DeleteMPlanFilm) GetData() (*StreamResponse, error) {
 	xmlRequestHeader := goConvert.New()
 	body := goConvert.New()
 	CommInMplID, exist := request.Get("CommInMplID")
