@@ -1,0 +1,212 @@
+basePath: /
+definitions:
+  models.StreamResponse:
+    properties:
+      body:
+        items:
+          type: integer
+        type: array
+      request:
+        type: string
+    type: object
+  models.SwaggerGetAdvMessagesRequest:
+    properties:
+      Advertisers:
+        items:
+          properties:
+            ID:
+              type: string
+          type: object
+        type: array
+      AdvertisingMessageIDs:
+        items:
+          properties:
+            ID:
+              type: string
+          type: object
+        type: array
+      Aspects:
+        items:
+          properties:
+            ID:
+              type: string
+          type: object
+        type: array
+      CreationDateEnd:
+        type: string
+      CreationDateStart:
+        type: string
+      FillMaterialTags:
+        type: string
+    type: object
+  models.SwaggerGetBudgetsRequest:
+    properties:
+      AdvertiserList:
+        items:
+          properties:
+            ID:
+              type: string
+          type: object
+        type: array
+      ChannelList:
+        items:
+          properties:
+            ID:
+              type: string
+          type: object
+        type: array
+      EndMonth:
+        type: string
+      SellingDirectionID:
+        type: string
+      StartMonth:
+        type: string
+    type: object
+  models.SwaggerGetChannelsRequest:
+    properties:
+      SellingDirectionID:
+        type: string
+    type: object
+  models.SwaggerGetProgramBrakesRequest:
+    properties:
+      AudRatDec:
+        type: string
+      CnlList:
+        items:
+          properties:
+            Cnl:
+              type: string
+          type: object
+        type: array
+      EndDate:
+        type: string
+      InclForecast:
+        type: string
+      InclProgAttr:
+        type: string
+      LightMode:
+        type: string
+      ProtocolVersion:
+        type: string
+      SellingDirectionID:
+        type: string
+      StartDate:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: Документация
+  title: ВИМБ API
+  version: "1.0"
+paths:
+  /api/v1:
+    get:
+      consumes:
+      - application/json
+      description: Проверка статуса сервиса
+      operationId: routes-health
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      summary: Проверка статуса сервиса
+      tags:
+      - Проверка сервиса
+  /api/v1/get-adv-messages:
+    post:
+      consumes:
+      - application/json
+      description: Возвращает список роликов, созданных в указанный период времени.
+        Список отфильтрован по правам НВ.
+      operationId: routes-get-adv-messages
+      parameters:
+      - description: Запрос
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.SwaggerGetAdvMessagesRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.StreamResponse'
+      summary: Возвращает список роликов, созданных в указанный период времени. Список
+        отфильтрован по правам НВ.
+      tags:
+      - Ролики
+  /api/v1/get-budgets:
+    post:
+      consumes:
+      - application/json
+      description: Возвращает данные по сделкам в разрезе канало-периодов.
+      operationId: routes-get-budgets
+      parameters:
+      - description: Запрос
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.SwaggerGetBudgetsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.StreamResponse'
+      summary: Возвращает данные по сделкам в разрезе канало-периодов.
+      tags:
+      - Сделки
+  /api/v1/get-channels:
+    post:
+      consumes:
+      - application/json
+      description: Результат включает активные в настоящий момент для размещения каналы,
+        а также каналы, которые станут активными в течение ближайших трех месяцев.
+      operationId: routes-get-channels
+      parameters:
+      - description: Запрос
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.SwaggerGetChannelsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.StreamResponse'
+      summary: Возвращает отфильтрованный по правам НВ список каналов (точек врезки)
+        указанного направления продаж.
+      tags:
+      - Сделки
+  /api/v1/get-program-brakes:
+    post:
+      consumes:
+      - application/json
+      description: Возвращает Данные по блокам + занятые объемы блоков.
+      operationId: routes-get-program-brakes
+      parameters:
+      - description: Запрос
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.SwaggerGetProgramBrakesRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.StreamResponse'
+      summary: Возвращает Данные по блокам + занятые объемы блоков.
+      tags:
+      - Блоки
+swagger: "2.0"

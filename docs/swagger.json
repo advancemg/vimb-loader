@@ -1,0 +1,320 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Документация",
+        "title": "ВИМБ API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "basePath": "/",
+    "paths": {
+        "/api/v1": {
+            "get": {
+                "description": "Проверка статуса сервиса",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Проверка сервиса"
+                ],
+                "summary": "Проверка статуса сервиса",
+                "operationId": "routes-health",
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/v1/get-adv-messages": {
+            "post": {
+                "description": "Возвращает список роликов, созданных в указанный период времени. Список отфильтрован по правам НВ.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Ролики"
+                ],
+                "summary": "Возвращает список роликов, созданных в указанный период времени. Список отфильтрован по правам НВ.",
+                "operationId": "routes-get-adv-messages",
+                "parameters": [
+                    {
+                        "description": "Запрос",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerGetAdvMessagesRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.StreamResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/get-budgets": {
+            "post": {
+                "description": "Возвращает данные по сделкам в разрезе канало-периодов.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Сделки"
+                ],
+                "summary": "Возвращает данные по сделкам в разрезе канало-периодов.",
+                "operationId": "routes-get-budgets",
+                "parameters": [
+                    {
+                        "description": "Запрос",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerGetBudgetsRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.StreamResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/get-channels": {
+            "post": {
+                "description": "Результат включает активные в настоящий момент для размещения каналы, а также каналы, которые станут активными в течение ближайших трех месяцев.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Сделки"
+                ],
+                "summary": "Возвращает отфильтрованный по правам НВ список каналов (точек врезки) указанного направления продаж.",
+                "operationId": "routes-get-channels",
+                "parameters": [
+                    {
+                        "description": "Запрос",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerGetChannelsRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.StreamResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/get-program-brakes": {
+            "post": {
+                "description": "Возвращает Данные по блокам + занятые объемы блоков.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Блоки"
+                ],
+                "summary": "Возвращает Данные по блокам + занятые объемы блоков.",
+                "operationId": "routes-get-program-brakes",
+                "parameters": [
+                    {
+                        "description": "Запрос",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerGetProgramBrakesRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.StreamResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "models.StreamResponse": {
+            "type": "object",
+            "properties": {
+                "body": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "request": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.SwaggerGetAdvMessagesRequest": {
+            "type": "object",
+            "properties": {
+                "Advertisers": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "ID": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "AdvertisingMessageIDs": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "ID": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "Aspects": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "ID": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "CreationDateEnd": {
+                    "type": "string"
+                },
+                "CreationDateStart": {
+                    "type": "string"
+                },
+                "FillMaterialTags": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.SwaggerGetBudgetsRequest": {
+            "type": "object",
+            "properties": {
+                "AdvertiserList": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "ID": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "ChannelList": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "ID": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "EndMonth": {
+                    "type": "string"
+                },
+                "SellingDirectionID": {
+                    "type": "string"
+                },
+                "StartMonth": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.SwaggerGetChannelsRequest": {
+            "type": "object",
+            "properties": {
+                "SellingDirectionID": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.SwaggerGetProgramBrakesRequest": {
+            "type": "object",
+            "properties": {
+                "AudRatDec": {
+                    "type": "string"
+                },
+                "CnlList": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "Cnl": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "EndDate": {
+                    "type": "string"
+                },
+                "InclForecast": {
+                    "type": "string"
+                },
+                "InclProgAttr": {
+                    "type": "string"
+                },
+                "LightMode": {
+                    "type": "string"
+                },
+                "ProtocolVersion": {
+                    "type": "string"
+                },
+                "SellingDirectionID": {
+                    "type": "string"
+                },
+                "StartDate": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
