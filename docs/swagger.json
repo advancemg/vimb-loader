@@ -1,0 +1,1053 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Документация",
+        "title": "ВИМБ API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "basePath": "/",
+    "paths": {
+        "/api/v1": {
+            "get": {
+                "description": "Проверка статуса сервиса",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Проверка сервиса"
+                ],
+                "summary": "Проверка статуса сервиса",
+                "operationId": "routes-health",
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/v1/adv-messages": {
+            "post": {
+                "description": "Возвращает список роликов, созданных в указанный период времени. Список отфильтрован по правам НВ.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Справочники"
+                ],
+                "summary": "Возвращает список роликов, созданных в указанный период времени. Список отфильтрован по правам НВ.",
+                "operationId": "routes-get-adv-messages",
+                "parameters": [
+                    {
+                        "description": "Запрос",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerGetAdvMessagesRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.StreamResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/budgets": {
+            "post": {
+                "description": "Возвращает данные по сделкам в разрезе канало-периодов.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Сделки"
+                ],
+                "summary": "Возвращает данные по сделкам в разрезе канало-периодов.",
+                "operationId": "routes-get-budgets",
+                "parameters": [
+                    {
+                        "description": "Запрос",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerGetBudgetsRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.StreamResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/channels": {
+            "post": {
+                "description": "Результат включает активные в настоящий момент для размещения каналы, а также каналы, которые станут активными в течение ближайших трех месяцев.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Справочники"
+                ],
+                "summary": "Возвращает отфильтрованный по правам НВ список каналов (точек врезки) указанного направления продаж.",
+                "operationId": "routes-get-channels",
+                "parameters": [
+                    {
+                        "description": "Запрос",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerGetChannelsRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.StreamResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/customers-with-advertisers": {
+            "post": {
+                "description": "Возвращает список заказчиков с рекламодеталями для заданного направления продаж.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Сделки"
+                ],
+                "summary": "Возвращает список заказчиков с рекламодеталями для заданного направления продаж.",
+                "operationId": "routes-customers-with-advertisers",
+                "parameters": [
+                    {
+                        "description": "Запрос",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerGetCustomersWithAdvertisersRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.StreamResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/mediaplan": {
+            "put": {
+                "description": "Создает новый медиаплан.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Медиапланы"
+                ],
+                "summary": "Создает новый медиаплан.",
+                "operationId": "routes-add-mediaplans",
+                "parameters": [
+                    {
+                        "description": "Запрос",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerAddMPlanRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.StreamResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Возвращает доступные медиапланы. Минимальный кванта периода начитки - 1 месяц (с первого по последнее число).",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Медиапланы"
+                ],
+                "summary": "Возвращает доступные медиапланы. Минимальный кванта периода начитки - 1 месяц (с первого по последнее число).",
+                "operationId": "routes-get-mediaplans",
+                "parameters": [
+                    {
+                        "description": "Запрос",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerGetMPLansRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.StreamResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/mediaplan/change-film-planned-inventory": {
+            "post": {
+                "description": "Метод допускает массовое редактирование, при этом все ролики должны относиться к одному медиаплану.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Медиапланы"
+                ],
+                "summary": "Замена планового инвентаря роликов в медиаплане.",
+                "operationId": "routes-change-mediaplan-film-planned-inventory",
+                "parameters": [
+                    {
+                        "description": "Запрос",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerChangeMPlanFilmPlannedInventoryRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.StreamResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/mediaplan/film": {
+            "post": {
+                "description": "“Втягивает” ролик в медиаплан. Период ролика в медиаплане устанавливается равным периоду медиаплана.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Медиапланы"
+                ],
+                "summary": "“Втягивает” ролик в медиаплан. Период ролика в медиаплане устанавливается равным периоду медиаплана.",
+                "operationId": "routes-add-mediaplan-film",
+                "parameters": [
+                    {
+                        "description": "Запрос",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerAddMPlanFilmRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.StreamResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Одним из требований для удаления является отсутствие соответствующего этому роличному сплиту размещения.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Медиапланы"
+                ],
+                "summary": "Удаляет ролик из медиаплана.",
+                "operationId": "routes-delete-mediaplan-film",
+                "parameters": [
+                    {
+                        "description": "Запрос",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerDeleteMPlanFilmRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.StreamResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/program-breaks": {
+            "post": {
+                "description": "Возвращает Данные по блокам + занятые объемы блоков.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Блоки"
+                ],
+                "summary": "Возвращает Данные по блокам + занятые объемы блоков.",
+                "operationId": "routes-get-program-breaks",
+                "parameters": [
+                    {
+                        "description": "Запрос",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerGetProgramBreaksRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.StreamResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/ranks": {
+            "post": {
+                "description": "Возвращает справочник рангов размещения.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Справочники"
+                ],
+                "summary": "Возвращает справочник рангов размещения.",
+                "operationId": "routes-get-ranks",
+                "parameters": [
+                    {
+                        "description": "Запрос",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerGetRanksRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.StreamResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/spot": {
+            "put": {
+                "description": "Постановка спота в блок.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Споты"
+                ],
+                "summary": "Постановка спота в блок.",
+                "operationId": "routes-add-spot",
+                "parameters": [
+                    {
+                        "description": "Запрос",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerAddSpotRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.StreamResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Возвращает список спотов.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Споты"
+                ],
+                "summary": "Возвращает список спотов.",
+                "operationId": "routes-get-spots",
+                "parameters": [
+                    {
+                        "description": "Запрос",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerGetSpotsRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.StreamResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Удаление спота в блоке.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Споты"
+                ],
+                "summary": "Удаление спота в блоке.",
+                "operationId": "routes-delete-spot",
+                "parameters": [
+                    {
+                        "description": "Запрос",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerDeleteSpotRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.StreamResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/spot/change": {
+            "post": {
+                "description": "Замена спота в блок.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Споты"
+                ],
+                "summary": "Замена спота в блок.",
+                "operationId": "routes-change-spot",
+                "parameters": [
+                    {
+                        "description": "Запрос",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerChangeSpotRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.StreamResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/spot/change-films": {
+            "post": {
+                "description": "Заменяет в спотах существующие ролики в медиапланах на указанные в CommInMplIDs (не больше трех).",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Споты"
+                ],
+                "summary": "Заменяет в спотах существующие ролики в медиапланах на указанные в CommInMplIDs (не больше трех).",
+                "operationId": "routes-change-films",
+                "parameters": [
+                    {
+                        "description": "Запрос",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerChangeFilmsRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.StreamResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/spot/deleted-info": {
+            "post": {
+                "description": "Возвращает информацию об удаленных за период спотах",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Споты"
+                ],
+                "summary": "Возвращает информацию об удаленных за период спотах",
+                "operationId": "routes-get-deleted-spots-info",
+                "parameters": [
+                    {
+                        "description": "Запрос",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerGetDeletedSpotInfoRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.StreamResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/spot/set-position": {
+            "post": {
+                "description": "Выполняет позиционирование спота..",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Споты"
+                ],
+                "summary": "Выполняет позиционирование спота..",
+                "operationId": "routes-set-spot-position",
+                "parameters": [
+                    {
+                        "description": "Запрос",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerSetSpotPositionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.StreamResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "models.StreamResponse": {
+            "type": "object",
+            "properties": {
+                "body": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "request": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.SwaggerAddMPlanFilmRequest": {
+            "type": "object",
+            "properties": {
+                "EndDate": {
+                    "type": "string"
+                },
+                "FilmID": {
+                    "type": "string"
+                },
+                "MplID": {
+                    "type": "string"
+                },
+                "StartDate": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.SwaggerAddMPlanRequest": {
+            "type": "object",
+            "properties": {
+                "BrandID": {
+                    "type": "string"
+                },
+                "DateFrom": {
+                    "type": "string"
+                },
+                "DateTo": {
+                    "type": "string"
+                },
+                "MplCnlID": {
+                    "type": "string"
+                },
+                "MplName": {
+                    "type": "string"
+                },
+                "MultiSpotsInBlock": {
+                    "type": "string"
+                },
+                "OrdID": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.SwaggerAddSpotRequest": {
+            "type": "object",
+            "properties": {
+                "AuctionBidValue": {
+                    "type": "string"
+                },
+                "BlockID": {
+                    "type": "string"
+                },
+                "FilmID": {
+                    "type": "string"
+                },
+                "FixedPosition": {
+                    "type": "string"
+                },
+                "Position": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.SwaggerChangeFilmsRequest": {
+            "type": "object",
+            "properties": {
+                "ChangeFilms": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "CommInMplIDs": {
+                                "type": "string"
+                            },
+                            "FakeSpotIDs": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "models.SwaggerChangeMPlanFilmPlannedInventoryRequest": {
+            "type": "object",
+            "properties": {
+                "Data": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "CommInMpl": {
+                                "type": "object",
+                                "properties": {
+                                    "ID": {
+                                        "type": "string"
+                                    },
+                                    "Inventory": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "models.SwaggerChangeSpotRequest": {
+            "type": "object",
+            "properties": {
+                "FilmID": {
+                    "type": "string"
+                },
+                "FirstSpotID": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.SwaggerDeleteMPlanFilmRequest": {
+            "type": "object",
+            "properties": {
+                "CommInMplID": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.SwaggerDeleteSpotRequest": {
+            "type": "object",
+            "properties": {
+                "SpotID": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.SwaggerGetAdvMessagesRequest": {
+            "type": "object",
+            "properties": {
+                "Advertisers": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "ID": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "AdvertisingMessageIDs": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "ID": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "Aspects": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "ID": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "CreationDateEnd": {
+                    "type": "string"
+                },
+                "CreationDateStart": {
+                    "type": "string"
+                },
+                "FillMaterialTags": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.SwaggerGetBudgetsRequest": {
+            "type": "object",
+            "properties": {
+                "AdvertiserList": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "ID": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "ChannelList": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "ID": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "EndMonth": {
+                    "type": "string"
+                },
+                "SellingDirectionID": {
+                    "type": "string"
+                },
+                "StartMonth": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.SwaggerGetChannelsRequest": {
+            "type": "object",
+            "properties": {
+                "SellingDirectionID": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.SwaggerGetCustomersWithAdvertisersRequest": {
+            "type": "object",
+            "properties": {
+                "SellingDirectionID": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.SwaggerGetDeletedSpotInfoRequest": {
+            "type": "object",
+            "properties": {
+                "Agreements": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "ID": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "DateEnd": {
+                    "type": "string"
+                },
+                "DateStart": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.SwaggerGetMPLansRequest": {
+            "type": "object",
+            "properties": {
+                "AdtList": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "AdtID": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "ChannelList": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "Cnl": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "EndMonth": {
+                    "type": "string"
+                },
+                "IncludeEmpty": {
+                    "type": "string"
+                },
+                "SellingDirectionID": {
+                    "type": "string"
+                },
+                "StartMonth": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.SwaggerGetProgramBreaksRequest": {
+            "type": "object",
+            "properties": {
+                "AudRatDec": {
+                    "description": "Внимание! Этот элемент является устаревшим. Его значение игнорируется (при расчетах всегда используется значение 9) и скоро он будет удален. Кол-во десятичных знаков округления. Допустимы значения 1..9. По умолчанию - 9. (int, nillable)",
+                    "type": "string",
+                    "example": "2"
+                },
+                "CnlList": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "Cnl": {
+                                "description": "ID канала (int, not nillable)",
+                                "type": "string",
+                                "example": "1018566"
+                            }
+                        }
+                    }
+                },
+                "EndDate": {
+                    "description": "Дата окончания периода (включительно) в формате YYYYMMDD",
+                    "type": "string",
+                    "example": "20170702"
+                },
+                "InclForecast": {
+                    "description": "Признак \"Как заполнять секцию прогнозных рейтингов\". 0 - Не заполнять,  1 - Заполнять только ЦА программатика, 2 - Заполнять всеми возможными ЦА",
+                    "type": "string",
+                    "example": "1"
+                },
+                "InclProgAttr": {
+                    "description": "Флаг \"Заполнять секцию ProMaster\". 1 - да, 0 - нет. (int, not nillable)",
+                    "type": "string",
+                    "example": "1"
+                },
+                "LightMode": {
+                    "description": "Флаг \"облегченного режима\". Выходной xml имеет другой формат",
+                    "type": "string",
+                    "example": "0"
+                },
+                "ProtocolVersion": {
+                    "description": "Флаг \"ожидаемый формат ответа\". (int, nillable). Допускается отсутствие этого элемента, в этом случае используется формат по умолчанию (1.0). 1 - старый формат (1.0), 2 - Новый формат (2.0), null - формат по-умолчанию (1.0). Внимание! В ближайших версиях этот элемент станет обязательным и не нулабельным.",
+                    "type": "string",
+                    "example": "2"
+                },
+                "SellingDirectionID": {
+                    "description": "ID направления продаж",
+                    "type": "string",
+                    "example": "21"
+                },
+                "StartDate": {
+                    "description": "Дата начала периода в формате YYYYMMDD",
+                    "type": "string",
+                    "example": "20170701"
+                }
+            }
+        },
+        "models.SwaggerGetRanksRequest": {
+            "type": "object"
+        },
+        "models.SwaggerGetSpotsRequest": {
+            "type": "object",
+            "properties": {
+                "EndDate": {
+                    "type": "string"
+                },
+                "InclOrdBlocks": {
+                    "type": "string"
+                },
+                "SellingDirectionID": {
+                    "type": "string"
+                },
+                "StartDate": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.SwaggerSetSpotPositionRequest": {
+            "type": "object",
+            "properties": {
+                "Distance": {
+                    "type": "string"
+                },
+                "SpotID": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
