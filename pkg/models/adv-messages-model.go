@@ -23,7 +23,7 @@ type GetAdvMessages struct {
 	goConvert.UnsortedMap
 }
 
-func (request GetAdvMessages) GetData() ([]byte, error) {
+func (request GetAdvMessages) GetData() (*StreamResponse, error) {
 	attributes := goConvert.New()
 	attributes.Set("xmlns:xsi", "\"http://www.w3.org/2001/XMLSchema-instance\"")
 	xmlRequestHeader := goConvert.New()
@@ -54,5 +54,12 @@ func (request GetAdvMessages) GetData() ([]byte, error) {
 	}
 	xmlRequestHeader.Set("GetAdvMessages", body)
 	xmlRequestHeader.Set("attributes", attributes)
-	return xmlRequestHeader.ToXml()
+	req, err := xmlRequestHeader.ToXml()
+	if err != nil {
+		return nil, err
+	}
+	return &StreamResponse{
+		Body:    nil,
+		Request: string(req),
+	}, nil
 }

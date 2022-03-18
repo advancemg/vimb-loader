@@ -23,8 +23,8 @@ func main() {
 	var jsStruct models.GetProgramBreaks
 	json.Unmarshal(js, &jsStruct)
 	sorted, _ := jsStruct.GetData()
-	fmt.Println(string(sorted))
-	res, err := vimb.Request(sorted)
+	fmt.Println(sorted.Request)
+	res, err := vimb.Request([]byte(sorted.Request))
 	if err != nil {
 		println(err.Error())
 	}
