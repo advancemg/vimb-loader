@@ -12,7 +12,7 @@ import (
 // @Summary Возвращает список заказчиков с рекламодеталями для заданного направления продаж.
 // @Description Возвращает список заказчиков с рекламодеталями для заданного направления продаж.
 // @ID routes-customers-with-advertisers
-// @Tags Каналы
+// @Tags Сделки
 // @Param body body models.SwaggerGetCustomersWithAdvertisersRequest true  "Запрос"
 // @Accept json
 // @Produce json
@@ -24,7 +24,7 @@ func PostGetCustomersWithAdvertisers(w http.ResponseWriter, r *http.Request) {
 		(w).WriteHeader(http.StatusOK)
 		return
 	}
-	var request models.GetChannels
+	var request models.GetCustomersWithAdvertisers
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
 		(w).WriteHeader(http.StatusBadRequest)

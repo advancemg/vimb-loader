@@ -8,23 +8,23 @@ import (
 	"net/http"
 )
 
-// PostGetProgramBreaks godoc
-// @Summary Возвращает Данные по блокам + занятые объемы блоков.
-// @Description Возвращает Данные по блокам + занятые объемы блоков.
-// @ID routes-get-program-breaks
-// @Tags Блоки
-// @Param body body models.SwaggerGetProgramBreaksRequest true  "Запрос"
+// DeleteMPlanFilm godoc
+// @Summary Удаляет ролик из медиаплана.
+// @Description Одним из требований для удаления является отсутствие соответствующего этому роличному сплиту размещения.
+// @ID routes-delete-mediaplan-film
+// @Tags Медиапланы
+// @Param body body models.SwaggerDeleteMPlanFilmRequest true  "Запрос"
 // @Accept json
 // @Produce json
 // @Success 200 {object} models.StreamResponse
-// @Router /api/v1/program-breaks [post]
-func PostGetProgramBreaks(w http.ResponseWriter, r *http.Request) {
+// @Router /api/v1/mediaplan/film [delete]
+func DeleteMPlanFilm(w http.ResponseWriter, r *http.Request) {
 	setupResponse(&w, r)
 	if (*r).Method == "OPTIONS" {
 		(w).WriteHeader(http.StatusOK)
 		return
 	}
-	var request models.GetProgramBreaks
+	var request models.DeleteMPlanFilm
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
 		(w).WriteHeader(http.StatusBadRequest)

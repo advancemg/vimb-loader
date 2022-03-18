@@ -8,23 +8,23 @@ import (
 	"net/http"
 )
 
-// PostGetProgramBreaks godoc
-// @Summary Возвращает Данные по блокам + занятые объемы блоков.
-// @Description Возвращает Данные по блокам + занятые объемы блоков.
-// @ID routes-get-program-breaks
-// @Tags Блоки
-// @Param body body models.SwaggerGetProgramBreaksRequest true  "Запрос"
+// PostGetDeletedSpotInfo godoc
+// @Summary Возвращает информацию об удаленных за период спотах
+// @Description Возвращает информацию об удаленных за период спотах
+// @ID routes-get-deleted-spots-info
+// @Tags Споты
+// @Param body body models.SwaggerGetDeletedSpotInfoRequest true  "Запрос"
 // @Accept json
 // @Produce json
 // @Success 200 {object} models.StreamResponse
-// @Router /api/v1/program-breaks [post]
-func PostGetProgramBreaks(w http.ResponseWriter, r *http.Request) {
+// @Router /api/v1/spot/deleted-info [post]
+func PostGetDeletedSpotInfo(w http.ResponseWriter, r *http.Request) {
 	setupResponse(&w, r)
 	if (*r).Method == "OPTIONS" {
 		(w).WriteHeader(http.StatusOK)
 		return
 	}
-	var request models.GetProgramBreaks
+	var request models.GetDeletedSpotInfo
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
 		(w).WriteHeader(http.StatusBadRequest)

@@ -12,12 +12,12 @@ import (
 // @Summary Возвращает список роликов, созданных в указанный период времени. Список отфильтрован по правам НВ.
 // @Description Возвращает список роликов, созданных в указанный период времени. Список отфильтрован по правам НВ.
 // @ID routes-get-adv-messages
-// @Tags Ролики
+// @Tags Справочники
 // @Param body body models.SwaggerGetAdvMessagesRequest true  "Запрос"
 // @Accept json
 // @Produce json
 // @Success 200 {object} models.StreamResponse
-// @Router /api/v1/get-adv-messages [post]
+// @Router /api/v1/adv-messages [post]
 func PostGetAdvMessages(w http.ResponseWriter, r *http.Request) {
 	setupResponse(&w, r)
 	if (*r).Method == "OPTIONS" {

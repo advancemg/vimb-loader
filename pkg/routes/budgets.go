@@ -17,7 +17,7 @@ import (
 // @Accept json
 // @Produce json
 // @Success 200 {object} models.StreamResponse
-// @Router /api/v1/get-budgets [post]
+// @Router /api/v1/budgets [post]
 func PostGetBudgets(w http.ResponseWriter, r *http.Request) {
 	setupResponse(&w, r)
 	if (*r).Method == "OPTIONS" {

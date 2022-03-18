@@ -12,12 +12,12 @@ import (
 // @Summary Возвращает отфильтрованный по правам НВ список каналов (точек врезки) указанного направления продаж.
 // @Description Результат включает активные в настоящий момент для размещения каналы, а также каналы, которые станут активными в течение ближайших трех месяцев.
 // @ID routes-get-channels
-// @Tags Каналы
+// @Tags Справочники
 // @Param body body models.SwaggerGetChannelsRequest true  "Запрос"
 // @Accept json
 // @Produce json
 // @Success 200 {object} models.StreamResponse
-// @Router /api/v1/get-channels [post]
+// @Router /api/v1/channels [post]
 func PostGetChannels(w http.ResponseWriter, r *http.Request) {
 	setupResponse(&w, r)
 	if (*r).Method == "OPTIONS" {

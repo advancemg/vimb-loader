@@ -24,11 +24,30 @@ func main() {
 	route := mux.NewRouter()
 	route.PathPrefix("/api/v1/docs").Handler(httpSwagger.WrapHandler)
 	route.HandleFunc("/api/v1", routes.Health).Methods("GET", "OPTIONS")
-	route.HandleFunc("/api/v1/get-program-brakes", routes.PostGetProgramBreaks).Methods("POST", "OPTIONS")
-	route.HandleFunc("/api/v1/get-adv-messages", routes.PostGetAdvMessages).Methods("POST", "OPTIONS")
-	route.HandleFunc("/api/v1/get-budgets", routes.PostGetBudgets).Methods("POST", "OPTIONS")
-	route.HandleFunc("/api/v1/get-channels", routes.PostGetChannels).Methods("POST", "OPTIONS")
+	/*dictionaries*/
+	route.HandleFunc("/api/v1/channels", routes.PostGetChannels).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/adv-messages", routes.PostGetAdvMessages).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/ranks", routes.PostGetRanks).Methods("POST", "OPTIONS")
+	/*networks*/
+	route.HandleFunc("/api/v1/program-breaks", routes.PostGetProgramBreaks).Methods("POST", "OPTIONS")
+	/*deals*/
+	route.HandleFunc("/api/v1/budgets", routes.PostGetBudgets).Methods("POST", "OPTIONS")
 	route.HandleFunc("/api/v1/customers-with-advertisers", routes.PostGetCustomersWithAdvertisers).Methods("POST", "OPTIONS")
+	/*mediaPlans*/
+	route.HandleFunc("/api/v1/mediaplan", routes.PutAddMPlan).Methods("PUT", "OPTIONS")
+	route.HandleFunc("/api/v1/mediaplan", routes.PostGetMPLans).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/mediaplan/film ", routes.PostAddMPlanFilm).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/mediaplan/film", routes.DeleteMPlanFilm).Methods("DELETE", "OPTIONS")
+	route.HandleFunc("/api/v1/mediaplan/change-film-planned-inventory", routes.PostChangeMPlanFilmPlannedInventory).Methods("POST", "OPTIONS")
+	/*spots*/
+	route.HandleFunc("/api/v1/spot", routes.PostGetSpots).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/spot", routes.PutAddSpot).Methods("PUT", "OPTIONS")
+	route.HandleFunc("/api/v1/spot", routes.DeleteSpot).Methods("DELETE", "OPTIONS")
+	route.HandleFunc("/api/v1/spot/change", routes.PostChangeSpot).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/spot/set-position", routes.PostSetSpotPosition).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/spot/change-films", routes.PostChangeFilms).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/spot/deleted-info", routes.PostGetDeletedSpotInfo).Methods("POST", "OPTIONS")
+
 	s := &http.Server{
 		Addr:         port,
 		WriteTimeout: time.Second * 15,
