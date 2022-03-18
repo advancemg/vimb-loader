@@ -1,5 +1,6 @@
 package models
 
+
 import (
 	goConvert "github.com/advancemg/go-convert"
 )
@@ -11,6 +12,7 @@ type SwaggerGetChannelsRequest struct {
 type GetChannels struct {
 	goConvert.UnsortedMap
 }
+
 
 func (request GetChannels) GetData() (*StreamResponse, error) {
 	xmlRequestHeader := goConvert.New()

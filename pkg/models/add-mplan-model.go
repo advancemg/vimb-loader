@@ -1,5 +1,6 @@
 package models
 
+
 import (
 	goConvert "github.com/advancemg/go-convert"
 )
@@ -17,6 +18,7 @@ type SwaggerAddMPlanRequest struct {
 type AddMPlan struct {
 	goConvert.UnsortedMap
 }
+
 
 func (request AddMPlan) GetData() (*StreamResponse, error) {
 	attributes := goConvert.New()

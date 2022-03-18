@@ -6,7 +6,6 @@ swagger-init:
 	${GO} get github.com/alecthomas/template
 	swag init -g cmd/api/api-service.go
 	go mod tidy
-
 git-update:
 	git rm -rf --cached .
 	git add .

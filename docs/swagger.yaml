@@ -9,6 +9,91 @@ definitions:
       request:
         type: string
     type: object
+  models.SwaggerAddMPlanFilmRequest:
+    properties:
+      EndDate:
+        type: string
+      FilmID:
+        type: string
+      MplID:
+        type: string
+      StartDate:
+        type: string
+    type: object
+  models.SwaggerAddMPlanRequest:
+    properties:
+      BrandID:
+        type: string
+      DateFrom:
+        type: string
+      DateTo:
+        type: string
+      MplCnlID:
+        type: string
+      MplName:
+        type: string
+      MultiSpotsInBlock:
+        type: string
+      OrdID:
+        type: string
+    type: object
+  models.SwaggerAddSpotRequest:
+    properties:
+      AuctionBidValue:
+        type: string
+      BlockID:
+        type: string
+      FilmID:
+        type: string
+      FixedPosition:
+        type: string
+      Position:
+        type: string
+    type: object
+  models.SwaggerChangeFilmsRequest:
+    properties:
+      ChangeFilms:
+        items:
+          properties:
+            CommInMplIDs:
+              type: string
+            FakeSpotIDs:
+              type: string
+          type: object
+        type: array
+    type: object
+  models.SwaggerChangeMPlanFilmPlannedInventoryRequest:
+    properties:
+      Data:
+        items:
+          properties:
+            CommInMpl:
+              properties:
+                ID:
+                  type: string
+                Inventory:
+                  type: string
+              type: object
+          type: object
+        type: array
+    type: object
+  models.SwaggerChangeSpotRequest:
+    properties:
+      FilmID:
+        type: string
+      FirstSpotID:
+        type: string
+    type: object
+  models.SwaggerDeleteMPlanFilmRequest:
+    properties:
+      CommInMplID:
+        type: string
+    type: object
+  models.SwaggerDeleteSpotRequest:
+    properties:
+      SpotID:
+        type: string
+    type: object
   models.SwaggerGetAdvMessagesRequest:
     properties:
       Advertisers:
@@ -67,30 +152,121 @@ definitions:
       SellingDirectionID:
         type: string
     type: object
-  models.SwaggerGetProgramBrakesRequest:
+  models.SwaggerGetCustomersWithAdvertisersRequest:
     properties:
-      AudRatDec:
+      SellingDirectionID:
         type: string
-      CnlList:
+    type: object
+  models.SwaggerGetDeletedSpotInfoRequest:
+    properties:
+      Agreements:
+        items:
+          properties:
+            ID:
+              type: string
+          type: object
+        type: array
+      DateEnd:
+        type: string
+      DateStart:
+        type: string
+    type: object
+  models.SwaggerGetMPLansRequest:
+    properties:
+      AdtList:
+        items:
+          properties:
+            AdtID:
+              type: string
+          type: object
+        type: array
+      ChannelList:
         items:
           properties:
             Cnl:
               type: string
           type: object
         type: array
+      EndMonth:
+        type: string
+      IncludeEmpty:
+        type: string
+      SellingDirectionID:
+        type: string
+      StartMonth:
+        type: string
+    type: object
+  models.SwaggerGetProgramBreaksRequest:
+    properties:
+      AudRatDec:
+        description: Внимание! Этот элемент является устаревшим. Его значение игнорируется
+          (при расчетах всегда используется значение 9) и скоро он будет удален. Кол-во
+          десятичных знаков округления. Допустимы значения 1..9. По умолчанию - 9.
+          (int, nillable)
+        example: "2"
+        type: string
+      CnlList:
+        items:
+          properties:
+            Cnl:
+              description: ID канала (int, not nillable)
+              example: "1018566"
+              type: string
+          type: object
+        type: array
       EndDate:
+        description: Дата окончания периода (включительно) в формате YYYYMMDD
+        example: "20170702"
         type: string
       InclForecast:
+        description: Признак "Как заполнять секцию прогнозных рейтингов". 0 - Не заполнять,  1
+          - Заполнять только ЦА программатика, 2 - Заполнять всеми возможными ЦА
+        example: "1"
         type: string
       InclProgAttr:
+        description: Флаг "Заполнять секцию ProMaster". 1 - да, 0 - нет. (int, not
+          nillable)
+        example: "1"
         type: string
       LightMode:
+        description: Флаг "облегченного режима". Выходной xml имеет другой формат
+        example: "0"
         type: string
       ProtocolVersion:
+        description: Флаг "ожидаемый формат ответа". (int, nillable). Допускается
+          отсутствие этого элемента, в этом случае используется формат по умолчанию
+          (1.0). 1 - старый формат (1.0), 2 - Новый формат (2.0), null - формат по-умолчанию
+          (1.0). Внимание! В ближайших версиях этот элемент станет обязательным и
+          не нулабельным.
+        example: "2"
+        type: string
+      SellingDirectionID:
+        description: ID направления продаж
+        example: "21"
+        type: string
+      StartDate:
+        description: Дата начала периода в формате YYYYMMDD
+        example: "20170701"
+        type: string
+    type: object
+  models.SwaggerGetRanksRequest:
+    type: object
+  models.SwaggerGetSpotsRequest:
+    properties:
+      EndDate:
+        type: string
+      InclOrdBlocks:
         type: string
       SellingDirectionID:
         type: string
       StartDate:
+        type: string
+    type: object
+  models.SwaggerSetSpotPositionRequest:
+    properties:
+      Distance:
+        type: string
+      SpotID:
         type: string
     type: object
 info:
@@ -102,33 +278,33 @@ paths:
   /api/v1:
     get:
       consumes:
-        - application/json
+      - application/json
       description: Проверка статуса сервиса
       operationId: routes-health
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: ""
       summary: Проверка статуса сервиса
       tags:
-        - Проверка сервиса
-  /api/v1/get-adv-messages:
+      - Проверка сервиса
+  /api/v1/adv-messages:
     post:
       consumes:
-        - application/json
+      - application/json
       description: Возвращает список роликов, созданных в указанный период времени.
         Список отфильтрован по правам НВ.
       operationId: routes-get-adv-messages
       parameters:
-        - description: Запрос
-          in: body
-          name: body
-          required: true
-          schema:
-            $ref: '#/definitions/models.SwaggerGetAdvMessagesRequest'
+      - description: Запрос
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.SwaggerGetAdvMessagesRequest'
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: OK
@@ -137,22 +313,22 @@ paths:
       summary: Возвращает список роликов, созданных в указанный период времени. Список
         отфильтрован по правам НВ.
       tags:
-        - Ролики
-  /api/v1/get-budgets:
+      - Справочники
+  /api/v1/budgets:
     post:
       consumes:
-        - application/json
+      - application/json
       description: Возвращает данные по сделкам в разрезе канало-периодов.
       operationId: routes-get-budgets
       parameters:
-        - description: Запрос
-          in: body
-          name: body
-          required: true
-          schema:
-            $ref: '#/definitions/models.SwaggerGetBudgetsRequest'
+      - description: Запрос
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.SwaggerGetBudgetsRequest'
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: OK
@@ -160,23 +336,23 @@ paths:
             $ref: '#/definitions/models.StreamResponse'
       summary: Возвращает данные по сделкам в разрезе канало-периодов.
       tags:
-        - Сделки
-  /api/v1/get-channels:
+      - Сделки
+  /api/v1/channels:
     post:
       consumes:
-        - application/json
+      - application/json
       description: Результат включает активные в настоящий момент для размещения каналы,
         а также каналы, которые станут активными в течение ближайших трех месяцев.
       operationId: routes-get-channels
       parameters:
-        - description: Запрос
-          in: body
-          name: body
-          required: true
-          schema:
-            $ref: '#/definitions/models.SwaggerGetChannelsRequest'
+      - description: Запрос
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.SwaggerGetChannelsRequest'
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: OK
@@ -185,22 +361,166 @@ paths:
       summary: Возвращает отфильтрованный по правам НВ список каналов (точек врезки)
         указанного направления продаж.
       tags:
-        - Сделки
-  /api/v1/get-program-brakes:
+      - Справочники
+  /api/v1/customers-with-advertisers:
     post:
       consumes:
-        - application/json
-      description: Возвращает Данные по блокам + занятые объемы блоков.
-      operationId: routes-get-program-brakes
+      - application/json
+      description: Возвращает список заказчиков с рекламодеталями для заданного направления
+        продаж.
+      operationId: routes-customers-with-advertisers
       parameters:
-        - description: Запрос
-          in: body
-          name: body
-          required: true
-          schema:
-            $ref: '#/definitions/models.SwaggerGetProgramBrakesRequest'
+      - description: Запрос
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.SwaggerGetCustomersWithAdvertisersRequest'
       produces:
-        - application/json
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.StreamResponse'
+      summary: Возвращает список заказчиков с рекламодеталями для заданного направления
+        продаж.
+      tags:
+      - Сделки
+  /api/v1/mediaplan:
+    post:
+      consumes:
+      - application/json
+      description: Возвращает доступные медиапланы. Минимальный кванта периода начитки
+        - 1 месяц (с первого по последнее число).
+      operationId: routes-get-mediaplans
+      parameters:
+      - description: Запрос
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.SwaggerGetMPLansRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.StreamResponse'
+      summary: Возвращает доступные медиапланы. Минимальный кванта периода начитки
+        - 1 месяц (с первого по последнее число).
+      tags:
+      - Медиапланы
+    put:
+      consumes:
+      - application/json
+      description: Создает новый медиаплан.
+      operationId: routes-add-mediaplans
+      parameters:
+      - description: Запрос
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.SwaggerAddMPlanRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.StreamResponse'
+      summary: Создает новый медиаплан.
+      tags:
+      - Медиапланы
+  /api/v1/mediaplan/change-film-planned-inventory:
+    post:
+      consumes:
+      - application/json
+      description: Метод допускает массовое редактирование, при этом все ролики должны
+        относиться к одному медиаплану.
+      operationId: routes-change-mediaplan-film-planned-inventory
+      parameters:
+      - description: Запрос
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.SwaggerChangeMPlanFilmPlannedInventoryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.StreamResponse'
+      summary: Замена планового инвентаря роликов в медиаплане.
+      tags:
+      - Медиапланы
+  /api/v1/mediaplan/film:
+    delete:
+      consumes:
+      - application/json
+      description: Одним из требований для удаления является отсутствие соответствующего
+        этому роличному сплиту размещения.
+      operationId: routes-delete-mediaplan-film
+      parameters:
+      - description: Запрос
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.SwaggerDeleteMPlanFilmRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.StreamResponse'
+      summary: Удаляет ролик из медиаплана.
+      tags:
+      - Медиапланы
+    post:
+      consumes:
+      - application/json
+      description: “Втягивает” ролик в медиаплан. Период ролика в медиаплане устанавливается
+        равным периоду медиаплана.
+      operationId: routes-add-mediaplan-film
+      parameters:
+      - description: Запрос
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.SwaggerAddMPlanFilmRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.StreamResponse'
+      summary: “Втягивает” ролик в медиаплан. Период ролика в медиаплане устанавливается
+        равным периоду медиаплана.
+      tags:
+      - Медиапланы
+  /api/v1/program-breaks:
+    post:
+      consumes:
+      - application/json
+      description: Возвращает Данные по блокам + занятые объемы блоков.
+      operationId: routes-get-program-breaks
+      parameters:
+      - description: Запрос
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.SwaggerGetProgramBreaksRequest'
+      produces:
+      - application/json
       responses:
         "200":
           description: OK
@@ -208,5 +528,189 @@ paths:
             $ref: '#/definitions/models.StreamResponse'
       summary: Возвращает Данные по блокам + занятые объемы блоков.
       tags:
-        - Блоки
+      - Блоки
+  /api/v1/ranks:
+    post:
+      consumes:
+      - application/json
+      description: Возвращает справочник рангов размещения.
+      operationId: routes-get-ranks
+      parameters:
+      - description: Запрос
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.SwaggerGetRanksRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.StreamResponse'
+      summary: Возвращает справочник рангов размещения.
+      tags:
+      - Справочники
+  /api/v1/spot:
+    delete:
+      consumes:
+      - application/json
+      description: Удаление спота в блоке.
+      operationId: routes-delete-spot
+      parameters:
+      - description: Запрос
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.SwaggerDeleteSpotRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.StreamResponse'
+      summary: Удаление спота в блоке.
+      tags:
+      - Споты
+    post:
+      consumes:
+      - application/json
+      description: Возвращает список спотов.
+      operationId: routes-get-spots
+      parameters:
+      - description: Запрос
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.SwaggerGetSpotsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.StreamResponse'
+      summary: Возвращает список спотов.
+      tags:
+      - Споты
+    put:
+      consumes:
+      - application/json
+      description: Постановка спота в блок.
+      operationId: routes-add-spot
+      parameters:
+      - description: Запрос
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.SwaggerAddSpotRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.StreamResponse'
+      summary: Постановка спота в блок.
+      tags:
+      - Споты
+  /api/v1/spot/change:
+    post:
+      consumes:
+      - application/json
+      description: Замена спота в блок.
+      operationId: routes-change-spot
+      parameters:
+      - description: Запрос
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.SwaggerChangeSpotRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.StreamResponse'
+      summary: Замена спота в блок.
+      tags:
+      - Споты
+  /api/v1/spot/change-films:
+    post:
+      consumes:
+      - application/json
+      description: Заменяет в спотах существующие ролики в медиапланах на указанные
+        в CommInMplIDs (не больше трех).
+      operationId: routes-change-films
+      parameters:
+      - description: Запрос
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.SwaggerChangeFilmsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.StreamResponse'
+      summary: Заменяет в спотах существующие ролики в медиапланах на указанные в
+        CommInMplIDs (не больше трех).
+      tags:
+      - Споты
+  /api/v1/spot/deleted-info:
+    post:
+      consumes:
+      - application/json
+      description: Возвращает информацию об удаленных за период спотах
+      operationId: routes-get-deleted-spots-info
+      parameters:
+      - description: Запрос
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.SwaggerGetDeletedSpotInfoRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.StreamResponse'
+      summary: Возвращает информацию об удаленных за период спотах
+      tags:
+      - Споты
+  /api/v1/spot/set-position:
+    post:
+      consumes:
+      - application/json
+      description: Выполняет позиционирование спота..
+      operationId: routes-set-spot-position
+      parameters:
+      - description: Запрос
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.SwaggerSetSpotPositionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.StreamResponse'
+      summary: Выполняет позиционирование спота..
+      tags:
+      - Споты
 swagger: "2.0"
