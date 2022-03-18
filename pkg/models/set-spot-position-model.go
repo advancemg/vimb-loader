@@ -2,6 +2,7 @@ package models
 
 import (
 	goConvert "github.com/advancemg/go-convert"
+	"github.com/advancemg/vimb-loader/pkg/utils"
 )
 
 type SwaggerSetSpotPositionRequest struct {
@@ -14,6 +15,21 @@ type SetSpotPosition struct {
 }
 
 func (request *SetSpotPosition) GetData() (*StreamResponse, error) {
+	req, err := request.getXml()
+	if err != nil {
+		return nil, err
+	}
+	resp, err := utils.Request(req)
+	if err != nil {
+		return nil, err
+	}
+	return &StreamResponse{
+		Body:    resp,
+		Request: string(req),
+	}, nil
+}
+
+func (request *SetSpotPosition) getXml() ([]byte, error) {
 	xmlRequestHeader := goConvert.New()
 	body := goConvert.New()
 	SpotID, exist := request.Get("SpotID")
@@ -25,12 +41,5 @@ func (request *SetSpotPosition) GetData() (*StreamResponse, error) {
 		body.Set("Distance", Distance)
 	}
 	xmlRequestHeader.Set("SetSpotPosition", body)
-	req, err := xmlRequestHeader.ToXml()
-	if err != nil {
-		return nil, err
-	}
-	return &StreamResponse{
-		Body:    nil,
-		Request: string(req),
-	}, nil
+	return xmlRequestHeader.ToXml()
 }

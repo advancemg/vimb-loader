@@ -3,13 +3,15 @@ module github.com/advancemg/vimb-loader
 go 1.17
 
 require (
-	github.com/advancemg/go-convert v1.0.6
+	github.com/advancemg/go-convert v1.0.7
+	github.com/ajankovic/xdiff v0.0.1
+	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
+	github.com/buger/jsonparser v1.1.1
 	github.com/gorilla/mux v1.8.0
 	github.com/swaggo/http-swagger v1.2.5
 	github.com/swaggo/swag v1.8.0
+	golang.org/x/crypto v0.0.0-20220315160706-3147a52a75dd
 )
-
-require github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 
 require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
@@ -18,11 +20,11 @@ require (
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
 	github.com/go-openapi/jsonreference v0.19.6 // indirect
 	github.com/go-openapi/spec v0.20.4 // indirect
-	github.com/go-openapi/swag v0.19.15 // indirect
+	github.com/go-openapi/swag v0.21.1 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/mailru/easyjson v0.7.6 // indirect
 	github.com/swaggo/files v0.0.0-20210815190702-a29dd2bc99b2 // indirect
-	golang.org/x/net v0.0.0-20210805182204-aaa1db679c0d // indirect
+	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2 // indirect
 	golang.org/x/sys v0.0.0-20210809222454-d867a43fc93e // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/tools v0.1.7 // indirect

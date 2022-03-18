@@ -1,8 +1,8 @@
 package models
 
-
 import (
 	goConvert "github.com/advancemg/go-convert"
+	"github.com/advancemg/vimb-loader/pkg/utils"
 )
 
 type SwaggerChangeSpotRequest struct {
@@ -15,6 +15,21 @@ type ChangeSpot struct {
 }
 
 func (request ChangeSpot) GetData() (*StreamResponse, error) {
+	req, err := request.getXml()
+	if err != nil {
+		return nil, err
+	}
+	resp, err := utils.Request(req)
+	if err != nil {
+		return nil, err
+	}
+	return &StreamResponse{
+		Body:    resp,
+		Request: string(req),
+	}, nil
+}
+
+func (request ChangeSpot) getXml() ([]byte, error) {
 	xmlRequestHeader := goConvert.New()
 	body := goConvert.New()
 	FirstSpotID, exist := request.Get("FirstSpotID")
@@ -25,13 +40,6 @@ func (request ChangeSpot) GetData() (*StreamResponse, error) {
 	if exist {
 		body.Set("SecondSpotID", SecondSpotID)
 	}
-	xmlRequestHeader.Set("ChangeSpot", body)
-	req, err := xmlRequestHeader.ToXml()
-	if err != nil {
-		return nil, err
-	}
-	return &StreamResponse{
-		Body:    nil,
-		Request: string(req),
-	}, nil
+	xmlRequestHeader.Set("ChangeSpots", body)
+	return xmlRequestHeader.ToXml()
 }

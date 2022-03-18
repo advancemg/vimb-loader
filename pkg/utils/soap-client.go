@@ -32,7 +32,7 @@ type Config struct {
 
 func loadConfig() *Config {
 	var config Config
-	configFile, err := os.Open("config.json")
+	configFile, err := os.Open("./config.json")
 	defer configFile.Close()
 	if err != nil {
 		fmt.Println(err.Error())
@@ -95,10 +95,21 @@ func Request(input []byte) ([]byte, error) {
 		if err != nil {
 			return nil, err
 		}
-		fmt.Println("code:", vimbErr.Code)
 		return nil, vimbErr
 	}
-	return res, nil
+	response, err := catchBody(res)
+	if err != nil {
+		return nil, err
+	}
+	decodeBytes, err := base64.StdEncoding.DecodeString(string(response))
+	if err != nil {
+		return nil, err
+	}
+	toJson, err := convert.ZipXmlToJson(decodeBytes)
+	if err != nil {
+		return nil, err
+	}
+	return toJson, nil
 }
 
 func vimbRequest(inputXml string) string {
@@ -126,6 +137,18 @@ func catchError(resp []byte) (*VimbError, error) {
 		Code:    code,
 		Message: msg,
 	}, nil
+}
+
+func catchBody(resp []byte) ([]byte, error) {
+	toJson, err := convert.XmlToJson(resp)
+	if err != nil {
+		return nil, err
+	}
+	msg, err := jsonparser.GetString(toJson, "Envelope", "Body", "GetVimbInfoStreamResponse", "GetVimbInfoStreamResult")
+	if err != nil {
+		return nil, err
+	}
+	return []byte(msg), nil
 }
 
 type VimbError struct {

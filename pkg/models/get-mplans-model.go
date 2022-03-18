@@ -2,6 +2,7 @@ package models
 
 import (
 	goConvert "github.com/advancemg/go-convert"
+	"github.com/advancemg/vimb-loader/pkg/utils"
 )
 
 type SwaggerGetMPLansRequest struct {
@@ -22,6 +23,21 @@ type GetMPLans struct {
 }
 
 func (request *GetMPLans) GetData() (*StreamResponse, error) {
+	req, err := request.getXml()
+	if err != nil {
+		return nil, err
+	}
+	resp, err := utils.Request(req)
+	if err != nil {
+		return nil, err
+	}
+	return &StreamResponse{
+		Body:    resp,
+		Request: string(req),
+	}, nil
+}
+
+func (request *GetMPLans) getXml() ([]byte, error) {
 	attributes := goConvert.New()
 	attributes.Set("xmlns:xsi", "\"http://www.w3.org/2001/XMLSchema-instance\"")
 	xmlRequestHeader := goConvert.New()
@@ -33,6 +49,10 @@ func (request *GetMPLans) GetData() (*StreamResponse, error) {
 	StartMonth, exist := request.Get("StartMonth")
 	if exist {
 		body.Set("StartMonth", StartMonth)
+	}
+	EndMonth, exist := request.Get("EndMonth")
+	if exist {
+		body.Set("EndMonth", EndMonth)
 	}
 	AdtList, exist := request.Get("AdtList")
 	if exist {
@@ -48,12 +68,5 @@ func (request *GetMPLans) GetData() (*StreamResponse, error) {
 	}
 	xmlRequestHeader.Set("GetMPLans", body)
 	xmlRequestHeader.Set("attributes", attributes)
-	req, err := xmlRequestHeader.ToXml()
-	if err != nil {
-		return nil, err
-	}
-	return &StreamResponse{
-		Body:    nil,
-		Request: string(req),
-	}, nil
+	return xmlRequestHeader.ToXml()
 }

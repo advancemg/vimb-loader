@@ -2,6 +2,7 @@ package models
 
 import (
 	goConvert "github.com/advancemg/go-convert"
+	"github.com/advancemg/vimb-loader/pkg/utils"
 )
 
 type SwaggerGetSpotsRequest struct {
@@ -23,6 +24,21 @@ type GetSpots struct {
 }
 
 func (request *GetSpots) GetData() (*StreamResponse, error) {
+	req, err := request.getXml()
+	if err != nil {
+		return nil, err
+	}
+	resp, err := utils.Request(req)
+	if err != nil {
+		return nil, err
+	}
+	return &StreamResponse{
+		Body:    resp,
+		Request: string(req),
+	}, nil
+}
+
+func (request *GetSpots) getXml() ([]byte, error) {
 	xmlRequestHeader := goConvert.New()
 	body := goConvert.New()
 	SellingDirectionID, exist := request.Get("SellingDirectionID")
@@ -43,19 +59,12 @@ func (request *GetSpots) GetData() (*StreamResponse, error) {
 	}
 	ChannelList, exist := request.Get("ChannelList")
 	if exist {
-		body.Set("EndDate", ChannelList)
+		body.Set("ChannelList", ChannelList)
 	}
 	AdtList, exist := request.Get("AdtList")
 	if exist {
 		body.Set("AdtList", AdtList)
 	}
 	xmlRequestHeader.Set("GetSpots", body)
-	req, err := xmlRequestHeader.ToXml()
-	if err != nil {
-		return nil, err
-	}
-	return &StreamResponse{
-		Body:    nil,
-		Request: string(req),
-	}, nil
+	return xmlRequestHeader.ToXml()
 }

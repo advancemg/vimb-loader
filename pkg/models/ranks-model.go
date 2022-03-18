@@ -2,6 +2,7 @@ package models
 
 import (
 	goConvert "github.com/advancemg/go-convert"
+	"github.com/advancemg/vimb-loader/pkg/utils"
 )
 
 type SwaggerGetRanksRequest struct {
@@ -12,14 +13,22 @@ type GetRanks struct {
 }
 
 func (request *GetRanks) GetData() (*StreamResponse, error) {
-	xmlRequestHeader := goConvert.New()
-	xmlRequestHeader.Set("GetRanks", "")
-	req, err := xmlRequestHeader.ToXml()
+	req, err := request.getXml()
+	if err != nil {
+		return nil, err
+	}
+	resp, err := utils.Request(req)
 	if err != nil {
 		return nil, err
 	}
 	return &StreamResponse{
-		Body:    nil,
+		Body:    resp,
 		Request: string(req),
 	}, nil
+}
+
+func (request *GetRanks) getXml() ([]byte, error) {
+	xmlRequestHeader := goConvert.New()
+	xmlRequestHeader.Set("GetRanks", "")
+	return xmlRequestHeader.ToXml()
 }

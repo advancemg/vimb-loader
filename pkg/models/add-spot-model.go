@@ -1,10 +1,9 @@
 package models
 
-
 import (
 	goConvert "github.com/advancemg/go-convert"
+	"github.com/advancemg/vimb-loader/pkg/utils"
 )
-
 
 type SwaggerAddSpotRequest struct {
 	BlockID         string `json:"BlockID"`
@@ -19,6 +18,21 @@ type AddSpot struct {
 }
 
 func (request AddSpot) GetData() (*StreamResponse, error) {
+	req, err := request.getXml()
+	if err != nil {
+		return nil, err
+	}
+	resp, err := utils.Request(req)
+	if err != nil {
+		return nil, err
+	}
+	return &StreamResponse{
+		Body:    resp,
+		Request: string(req),
+	}, nil
+}
+
+func (request AddSpot) getXml() ([]byte, error) {
 	attributes := goConvert.New()
 	attributes.Set("xmlns:xsi", "\"http://www.w3.org/2001/XMLSchema-instance\"")
 	xmlRequestHeader := goConvert.New()
@@ -45,12 +59,5 @@ func (request AddSpot) GetData() (*StreamResponse, error) {
 	}
 	xmlRequestHeader.Set("AddSpot", body)
 	xmlRequestHeader.Set("attributes", attributes)
-	req, err := xmlRequestHeader.ToXml()
-	if err != nil {
-		return nil, err
-	}
-	return &StreamResponse{
-		Body:    nil,
-		Request: string(req),
-	}, nil
+	return xmlRequestHeader.ToXml()
 }

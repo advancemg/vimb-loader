@@ -1,8 +1,8 @@
 package models
 
-
 import (
 	goConvert "github.com/advancemg/go-convert"
+	"github.com/advancemg/vimb-loader/pkg/utils"
 )
 
 type SwaggerAddMPlanRequest struct {
@@ -19,8 +19,22 @@ type AddMPlan struct {
 	goConvert.UnsortedMap
 }
 
-
 func (request AddMPlan) GetData() (*StreamResponse, error) {
+	req, err := request.getXml()
+	if err != nil {
+		return nil, err
+	}
+	resp, err := utils.Request(req)
+	if err != nil {
+		return nil, err
+	}
+	return &StreamResponse{
+		Body:    resp,
+		Request: string(req),
+	}, nil
+}
+
+func (request AddMPlan) getXml() ([]byte, error) {
 	attributes := goConvert.New()
 	attributes.Set("xmlns:xsi", "\"http://www.w3.org/2001/XMLSchema-instance\"")
 	xmlRequestHeader := goConvert.New()
@@ -37,6 +51,10 @@ func (request AddMPlan) GetData() (*StreamResponse, error) {
 	if exist {
 		body.Set("DateFrom", DateFrom)
 	}
+	DateTo, exist := request.Get("DateTo")
+	if exist {
+		body.Set("DateTo", DateTo)
+	}
 	MplName, exist := request.Get("MplName")
 	if exist {
 		body.Set("MplName", MplName)
@@ -51,12 +69,5 @@ func (request AddMPlan) GetData() (*StreamResponse, error) {
 	}
 	xmlRequestHeader.Set("AddMPlan", body)
 	xmlRequestHeader.Set("attributes", attributes)
-	req, err := xmlRequestHeader.ToXml()
-	if err != nil {
-		return nil, err
-	}
-	return &StreamResponse{
-		Body:    nil,
-		Request: string(req),
-	}, nil
+	return xmlRequestHeader.ToXml()
 }
