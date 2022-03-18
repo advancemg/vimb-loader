@@ -1,6 +1,8 @@
 package models
 
-import goConvert "github.com/advancemg/go-convert"
+import (
+	goConvert "github.com/advancemg/go-convert"
+)
 
 type SwaggerGetRanksRequest struct {
 }
@@ -10,12 +12,14 @@ type GetRanks struct {
 }
 
 func (request *GetRanks) GetData() (*StreamResponse, error) {
-	xml, err := request.ToXml()
+	xmlRequestHeader := goConvert.New()
+	xmlRequestHeader.Set("GetRanks", "")
+	req, err := xmlRequestHeader.ToXml()
 	if err != nil {
 		return nil, err
 	}
 	return &StreamResponse{
 		Body:    nil,
-		Request: string(xml),
+		Request: string(req),
 	}, nil
 }

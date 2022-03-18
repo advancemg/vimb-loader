@@ -1,6 +1,8 @@
 package models
 
-import goConvert "github.com/advancemg/go-convert"
+import (
+	goConvert "github.com/advancemg/go-convert"
+)
 
 type SwaggerDeleteSpotRequest struct {
 	SpotID string `json:"SpotID"`
@@ -11,12 +13,19 @@ type DeleteSpot struct {
 }
 
 func (request *DeleteSpot) GetData() (*StreamResponse, error) {
-	xml, err := request.ToXml()
+	xmlRequestHeader := goConvert.New()
+	body := goConvert.New()
+	SpotID, exist := request.Get("SpotID")
+	if exist {
+		body.Set("SpotID", SpotID)
+	}
+	xmlRequestHeader.Set("DeleteSpot", body)
+	req, err := xmlRequestHeader.ToXml()
 	if err != nil {
 		return nil, err
 	}
 	return &StreamResponse{
 		Body:    nil,
-		Request: string(xml),
+		Request: string(req),
 	}, nil
 }

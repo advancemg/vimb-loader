@@ -1,6 +1,8 @@
 package models
 
-import goConvert "github.com/advancemg/go-convert"
+import (
+	goConvert "github.com/advancemg/go-convert"
+)
 
 type SwaggerDeleteMPlanFilmRequest struct {
 	CommInMplID string `json:"CommInMplID"`
@@ -11,12 +13,19 @@ type DeleteMPlanFilm struct {
 }
 
 func (request *DeleteMPlanFilm) GetData() (*StreamResponse, error) {
-	xml, err := request.ToXml()
+	xmlRequestHeader := goConvert.New()
+	body := goConvert.New()
+	CommInMplID, exist := request.Get("CommInMplID")
+	if exist {
+		body.Set("CommInMplID", CommInMplID)
+	}
+	xmlRequestHeader.Set("DeleteMPlanFilm", body)
+	req, err := xmlRequestHeader.ToXml()
 	if err != nil {
 		return nil, err
 	}
 	return &StreamResponse{
 		Body:    nil,
-		Request: string(xml),
+		Request: string(req),
 	}, nil
 }

@@ -1,6 +1,8 @@
 package models
 
-import goConvert "github.com/advancemg/go-convert"
+import (
+	goConvert "github.com/advancemg/go-convert"
+)
 
 type SwaggerGetDeletedSpotInfoRequest struct {
 	DateStart  string `json:"DateStart"`
@@ -15,12 +17,27 @@ type GetDeletedSpotInfo struct {
 }
 
 func (request *GetDeletedSpotInfo) GetData() (*StreamResponse, error) {
-	xml, err := request.ToXml()
+	xmlRequestHeader := goConvert.New()
+	body := goConvert.New()
+	dateStart, exist := request.Get("DateStart")
+	if exist {
+		body.Set("DateStart", dateStart)
+	}
+	dateEnd, exist := request.Get("DateEnd")
+	if exist {
+		body.Set("DateEnd", dateEnd)
+	}
+	agreements, exist := request.Get("Agreements")
+	if exist {
+		body.Set("Agreements", agreements)
+	}
+	xmlRequestHeader.Set("GetDeletedSpotInfo", body)
+	req, err := xmlRequestHeader.ToXml()
 	if err != nil {
 		return nil, err
 	}
 	return &StreamResponse{
 		Body:    nil,
-		Request: string(xml),
+		Request: string(req),
 	}, nil
 }
