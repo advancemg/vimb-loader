@@ -3,8 +3,8 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	vimb "github.com/advancemg/vimb-loader"
-	"github.com/advancemg/vimb-loader/models"
+	"github.com/advancemg/vimb-loader/pkg/models"
+	vimb "github.com/advancemg/vimb-loader/pkg/utils"
 )
 
 func main() {
@@ -20,9 +20,9 @@ func main() {
     	"ProtocolVersion": "2"
 	}`)
 
-	var jsStruct models.GetProgramBreaksRequest
+	var jsStruct models.GetProgramBreaks
 	json.Unmarshal(js, &jsStruct)
-	sorted, _ := jsStruct.Sorted()
+	sorted, _ := jsStruct.GetData()
 	fmt.Println(string(sorted))
 	res, err := vimb.Request(sorted)
 	if err != nil {

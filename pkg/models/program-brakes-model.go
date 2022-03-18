@@ -1,31 +1,32 @@
 package models
 
 import (
-	convert "github.com/advancemg/go-convert"
-	"github.com/advancemg/vimb-loader/models/types"
+	goConvert "github.com/advancemg/go-convert"
 )
 
-type GetProgramBreaksRequest struct {
-	convert.UnsortedMap
+type SwaggerGetProgramBrakesRequest struct {
+	SellingDirectionID string `json:"sellingDirectionID"`
+	InclProgAttr       string `json:"inclProgAttr"`
+	InclForecast       string `json:"inclForecast"`
+	AudRatDec          string `json:"audRatDec"`
+	StartDate          string `json:"startDate"`
+	EndDate            string `json:"endDate"`
+	LightMode          string `json:"lightMode"`
+	CnlList            []struct {
+		Cnl string `json:"Cnl"`
+	} `json:"CnlList"`
+	ProtocolVersion string `json:"protocolVersion"`
 }
 
 type GetProgramBreaks struct {
-	SellingDirectionID string        `json:"sellingDirectionID"`
-	InclProgAttr       string        `json:"inclProgAttr"`
-	InclForecast       string        `json:"inclForecast"`
-	AudRatDec          string        `json:"audRatDec"`
-	StartDate          string        `json:"startDate"`
-	EndDate            string        `json:"endDate"`
-	LightMode          string        `json:"lightMode"`
-	CnlList            types.ItemCnl `json:"cnlList"`
-	ProtocolVersion    string        `json:"protocolVersion"`
+	goConvert.UnsortedMap
 }
 
-func (request GetProgramBreaksRequest) Sorted() ([]byte, error) {
-	attributes := convert.New()
+func (request GetProgramBreaks) GetData() ([]byte, error) {
+	attributes := goConvert.New()
 	attributes.Set("xmlns:xsi", "\"http://www.w3.org/2001/XMLSchema-instance\"")
-	xmlRequestHeader := convert.New()
-	body := convert.New()
+	xmlRequestHeader := goConvert.New()
+	body := goConvert.New()
 	sellingDirectionID, exist := request.Get("SellingDirectionID")
 	if exist {
 		body.Set("SellingDirectionID", sellingDirectionID)

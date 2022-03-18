@@ -1,13 +1,12 @@
-package soap
+package utils
 
-import "C"
 import (
 	"crypto/tls"
+	"encoding/base64"
 	"encoding/json"
 	"encoding/pem"
 	"fmt"
 	convert "github.com/advancemg/go-convert"
-	"github.com/advancemg/vimb-loader/utils"
 	"github.com/buger/jsonparser"
 	"golang.org/x/crypto/pkcs12"
 	"io"
@@ -45,7 +44,7 @@ func loadConfig() *Config {
 
 func (cfg *Config) newClient() *http.Client {
 	timeout := 30 * time.Second
-	dataCert, err := utils.Base64DecodeString(cfg.Cert)
+	dataCert, err := base64.StdEncoding.DecodeString(cfg.Cert)
 	if err != nil {
 		log.Fatal("error:", err)
 	}

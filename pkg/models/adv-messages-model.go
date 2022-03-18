@@ -1,28 +1,33 @@
 package models
 
 import (
-	convert "github.com/advancemg/go-convert"
-	"github.com/advancemg/vimb-loader/models/types"
+	goConvert "github.com/advancemg/go-convert"
 )
 
-type GetAdvMessagesRequest struct {
-	convert.UnsortedMap
+type SwaggerGetAdvMessagesRequest struct {
+	CreationDateStart string `json:"CreationDateStart"`
+	CreationDateEnd   string `json:"CreationDateEnd"`
+	Advertisers       []struct {
+		Id string `json:"ID"`
+	} `json:"Advertisers"`
+	Aspects []struct {
+		Id string `json:"ID"`
+	} `json:"Aspects"`
+	AdvertisingMessageIDs []struct {
+		Id string `json:"ID"`
+	} `json:"AdvertisingMessageIDs"`
+	FillMaterialTags string `json:"FillMaterialTags"`
 }
 
 type GetAdvMessages struct {
-	CreationDateStart     string         `json:"creationDateStart"`
-	CreationDateEnd       string         `json:"creationDateEnd"`
-	Advertisers           []types.ItemId `json:"advertisers"`
-	Aspects               []types.ItemId `json:"aspects"`
-	AdvertisingMessageIDs []types.ItemId `json:"advertisingMessageIDs"`
-	FillMaterialTags      string         `json:"fillMaterialTags"`
+	goConvert.UnsortedMap
 }
 
-func (request GetAdvMessagesRequest) Sorted() ([]byte, error) {
-	attributes := convert.New()
+func (request GetAdvMessages) GetData() ([]byte, error) {
+	attributes := goConvert.New()
 	attributes.Set("xmlns:xsi", "\"http://www.w3.org/2001/XMLSchema-instance\"")
-	xmlRequestHeader := convert.New()
-	body := convert.New()
+	xmlRequestHeader := goConvert.New()
+	body := goConvert.New()
 	creationDateStart, exist := request.Get("CreationDateStart")
 	if exist {
 		body.Set("CreationDateStart", creationDateStart)
