@@ -1,7 +1,9 @@
 package models
 
 import (
+	"fmt"
 	goConvert "github.com/advancemg/go-convert"
+	"github.com/advancemg/vimb-loader/pkg/s3"
 	"github.com/advancemg/vimb-loader/pkg/utils"
 )
 
@@ -24,7 +26,7 @@ type GetAdvMessages struct {
 	goConvert.UnsortedMap
 }
 
-func (request GetAdvMessages) GetData() (*StreamResponse, error) {
+func (request *GetAdvMessages) GetData() (*StreamResponse, error) {
 	req, err := request.getXml()
 	if err != nil {
 		return nil, err
@@ -39,7 +41,35 @@ func (request GetAdvMessages) GetData() (*StreamResponse, error) {
 	}, nil
 }
 
-func (request GetAdvMessages) getXml() ([]byte, error) {
+func (request *GetAdvMessages) GetRawData() (*StreamResponse, error) {
+	req, err := request.getXml()
+	if err != nil {
+		return nil, err
+	}
+	resp, err := utils.Request(req)
+	if err != nil {
+		return nil, err
+	}
+	return &StreamResponse{
+		Body:    resp,
+		Request: string(req),
+	}, nil
+}
+
+func (request *GetAdvMessages) GetDataToS3() error {
+	data, err := request.GetRawData()
+	if err != nil {
+		return err
+	}
+	var newS3Key = fmt.Sprintf("%s.zip", "GetProgramBreaks")
+	_, err = s3.UploadBytesWithBucket(newS3Key, data.Body)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (request *GetAdvMessages) getXml() ([]byte, error) {
 	attributes := goConvert.New()
 	attributes.Set("xmlns:xsi", "\"http://www.w3.org/2001/XMLSchema-instance\"")
 	xmlRequestHeader := goConvert.New()

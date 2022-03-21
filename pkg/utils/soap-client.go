@@ -33,10 +33,10 @@ type Config struct {
 func loadConfig() *Config {
 	var config Config
 	configFile, err := os.Open("./config.json")
-	defer configFile.Close()
 	if err != nil {
-		fmt.Println(err.Error())
+		panic(err)
 	}
+	defer configFile.Close()
 	jsonParser := json.NewDecoder(configFile)
 	jsonParser.Decode(&config)
 	return &config
@@ -97,7 +97,11 @@ func Request(input []byte) ([]byte, error) {
 		}
 		return nil, vimbErr
 	}
-	return res, nil
+	response, err := catchBody(res)
+	if err != nil {
+		return nil, err
+	}
+	return response, nil
 }
 
 func RequestJson(input []byte) ([]byte, error) {
@@ -105,11 +109,7 @@ func RequestJson(input []byte) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	response, err := catchBody(res)
-	if err != nil {
-		return nil, err
-	}
-	decodeBytes, err := base64.StdEncoding.DecodeString(string(response))
+	decodeBytes, err := base64.StdEncoding.DecodeString(string(res))
 	if err != nil {
 		return nil, err
 	}

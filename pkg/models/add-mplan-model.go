@@ -1,7 +1,9 @@
 package models
 
 import (
+	"fmt"
 	goConvert "github.com/advancemg/go-convert"
+	"github.com/advancemg/vimb-loader/pkg/s3"
 	"github.com/advancemg/vimb-loader/pkg/utils"
 )
 
@@ -19,7 +21,7 @@ type AddMPlan struct {
 	goConvert.UnsortedMap
 }
 
-func (request AddMPlan) GetData() (*StreamResponse, error) {
+func (request *AddMPlan) GetData() (*StreamResponse, error) {
 	req, err := request.getXml()
 	if err != nil {
 		return nil, err
@@ -34,7 +36,35 @@ func (request AddMPlan) GetData() (*StreamResponse, error) {
 	}, nil
 }
 
-func (request AddMPlan) getXml() ([]byte, error) {
+func (request *AddMPlan) GetRawData() (*StreamResponse, error) {
+	req, err := request.getXml()
+	if err != nil {
+		return nil, err
+	}
+	resp, err := utils.Request(req)
+	if err != nil {
+		return nil, err
+	}
+	return &StreamResponse{
+		Body:    resp,
+		Request: string(req),
+	}, nil
+}
+
+func (request *AddMPlan) GetDataToS3() error {
+	data, err := request.GetRawData()
+	if err != nil {
+		return err
+	}
+	var newS3Key = fmt.Sprintf("%s.zip", "GetProgramBreaks")
+	_, err = s3.UploadBytesWithBucket(newS3Key, data.Body)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (request *AddMPlan) getXml() ([]byte, error) {
 	attributes := goConvert.New()
 	attributes.Set("xmlns:xsi", "\"http://www.w3.org/2001/XMLSchema-instance\"")
 	xmlRequestHeader := goConvert.New()
