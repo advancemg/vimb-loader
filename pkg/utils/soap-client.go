@@ -97,6 +97,14 @@ func Request(input []byte) ([]byte, error) {
 		}
 		return nil, vimbErr
 	}
+	return res, nil
+}
+
+func RequestJson(input []byte) ([]byte, error) {
+	res, err := Request(input)
+	if err != nil {
+		return nil, err
+	}
 	response, err := catchBody(res)
 	if err != nil {
 		return nil, err

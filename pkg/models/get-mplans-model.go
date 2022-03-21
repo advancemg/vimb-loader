@@ -27,7 +27,7 @@ func (request *GetMPLans) GetData() (*StreamResponse, error) {
 	if err != nil {
 		return nil, err
 	}
-	resp, err := utils.Request(req)
+	resp, err := utils.RequestJson(req)
 	if err != nil {
 		return nil, err
 	}
