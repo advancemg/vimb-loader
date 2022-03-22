@@ -26,6 +26,15 @@ type GetSpots struct {
 	goConvert.UnsortedMap
 }
 
+type SpotsConfiguration struct {
+	Cron string `json:"cron"`
+}
+
+func (cfg *SpotsConfiguration) GetJob() func() {
+	return func() {
+	}
+}
+
 func (request *GetSpots) GetDataJson() (*JsonResponse, error) {
 	req, err := request.getXml()
 	if err != nil {

@@ -1,8 +1,12 @@
-POST {{base-url}}/api/v1/channels
+POST {{base-url}}/api/v1/adv-messages
 Content-Type: application/json
 
 {
-  "SellingDirectionID": "19"
+  "CreationDateStart": "2020-02-06",
+  "CreationDateEnd": "2020-02-06",
+  "Advertisers": [],
+  "Aspects": [],
+  "AdvertisingMessageIDs": []
 }
 
 ###

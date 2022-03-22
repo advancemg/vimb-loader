@@ -20,6 +20,17 @@ type GetDeletedSpotInfo struct {
 	goConvert.UnsortedMap
 }
 
+type DeletedSpotInfoConfiguration struct {
+	Cron      string `json:"cron"`
+	DateStart string `json:"dateStart"`
+	DateEnd   string `json:"dateEnd"`
+}
+
+func (cfg *DeletedSpotInfoConfiguration) GetJob() func() {
+	return func() {
+	}
+}
+
 func (request *GetDeletedSpotInfo) GetDataJson() (*JsonResponse, error) {
 	req, err := request.getXml()
 	if err != nil {

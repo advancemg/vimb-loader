@@ -27,6 +27,17 @@ type GetAdvMessages struct {
 	goConvert.UnsortedMap
 }
 
+type AdvMessagesConfiguration struct {
+	Cron              string `json:"cron"`
+	CreationDateStart string `json:"creationDateStart"`
+	CreationDateEnd   string `json:"creationDateEnd"`
+}
+
+func (cfg *AdvMessagesConfiguration) GetJob() func() {
+	return func() {
+	}
+}
+
 func (request *GetAdvMessages) GetDataJson() (*JsonResponse, error) {
 	req, err := request.getXml()
 	if err != nil {

@@ -16,6 +16,16 @@ type GetChannels struct {
 	goConvert.UnsortedMap
 }
 
+type ChannelConfiguration struct {
+	Cron             string
+	SellingDirection string
+}
+
+func (cfg *ChannelConfiguration) GetJob() func() {
+	return func() {
+	}
+}
+
 func (request *GetChannels) GetDataJson() (*JsonResponse, error) {
 	req, err := request.getXml()
 	if err != nil {

@@ -15,6 +15,15 @@ type GetRanks struct {
 	goConvert.UnsortedMap
 }
 
+type RanksConfiguration struct {
+	Cron string `json:"cron"`
+}
+
+func (cfg *RanksConfiguration) GetJob() func() {
+	return func() {
+	}
+}
+
 func (request *GetRanks) GetDataJson() (*JsonResponse, error) {
 	req, err := request.getXml()
 	if err != nil {

@@ -10,6 +10,7 @@ require (
 	github.com/buger/jsonparser v1.1.1
 	github.com/gorilla/mux v1.8.0
 	github.com/ory/dockertest/v3 v3.8.1
+	github.com/robfig/cron v1.2.0
 	github.com/streadway/amqp v0.0.0-20190404075320-75d898a42a94
 	github.com/swaggo/http-swagger v1.2.5
 	github.com/swaggo/swag v1.8.0

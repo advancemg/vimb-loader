@@ -27,6 +27,24 @@ type GetProgramBreaks struct {
 	goConvert.UnsortedMap
 }
 
+type ProgramBreaksConfiguration struct {
+	Cron string `json:"cron"`
+}
+
+func (cfg *ProgramBreaksConfiguration) GetJob() func() {
+	return func() {
+	}
+}
+
+type ProgramBreaksLightConfiguration struct {
+	Cron string `json:"cron"`
+}
+
+func (cfg *ProgramBreaksLightConfiguration) GetJob() func() {
+	return func() {
+	}
+}
+
 func (request *GetProgramBreaks) GetDataJson() (*JsonResponse, error) {
 	req, err := request.getXml()
 	if err != nil {

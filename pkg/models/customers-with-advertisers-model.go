@@ -16,6 +16,16 @@ type GetCustomersWithAdvertisers struct {
 	goConvert.UnsortedMap
 }
 
+type CustomersWithAdvertisersConfiguration struct {
+	Cron               string `json:"cron"`
+	SellingDirectionID string `json:"sellingDirectionID"`
+}
+
+func (cfg *CustomersWithAdvertisersConfiguration) GetJob() func() {
+	return func() {
+	}
+}
+
 func (request *GetCustomersWithAdvertisers) GetDataJson() (*JsonResponse, error) {
 	req, err := request.getXml()
 	if err != nil {

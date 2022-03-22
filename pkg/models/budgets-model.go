@@ -24,6 +24,18 @@ type GetBudgets struct {
 	goConvert.UnsortedMap
 }
 
+type BudgetConfiguration struct {
+	Cron             string
+	SellingDirection string
+	StartMonth       string
+	EndMonth         string
+}
+
+func (cfg *BudgetConfiguration) GetJob() func() {
+	return func() {
+	}
+}
+
 func (request *GetBudgets) GetDataJson() (*JsonResponse, error) {
 	req, err := request.getXml()
 	if err != nil {

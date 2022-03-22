@@ -25,6 +25,18 @@ type GetMPLans struct {
 	goConvert.UnsortedMap
 }
 
+type MediaplanConfiguration struct {
+	Cron             string
+	SellingDirection string
+	StartMonth       string
+	EndMonth         string
+}
+
+func (cfg *MediaplanConfiguration) GetJob() func() {
+	return func() {
+	}
+}
+
 func (request *GetMPLans) GetDataJson() (*JsonResponse, error) {
 	req, err := request.getXml()
 	if err != nil {
