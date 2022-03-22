@@ -1,6 +1,11 @@
 package models
 
-import goConvert "github.com/advancemg/go-convert"
+import (
+	"fmt"
+	goConvert "github.com/advancemg/go-convert"
+	"github.com/advancemg/vimb-loader/pkg/s3"
+	"github.com/advancemg/vimb-loader/pkg/utils"
+)
 
 type SwaggerGetProgramBreaksRequest struct {
 	SellingDirectionID string `json:"SellingDirectionID" example:"21"` //ID направления продаж
@@ -17,10 +22,57 @@ type SwaggerGetProgramBreaksRequest struct {
 }
 
 type GetProgramBreaks struct {
+	Path int
 	goConvert.UnsortedMap
 }
 
-func (request *GetProgramBreaks) GetData() (*StreamResponse, error) {
+func (request *GetProgramBreaks) GetDataJson() (*StreamResponse, error) {
+	req, err := request.getXml()
+	if err != nil {
+		return nil, err
+	}
+	resp, err := utils.Actions.RequestJson(req)
+	if err != nil {
+		return nil, err
+	}
+	return &StreamResponse{
+		Body:    resp,
+		Request: string(req),
+	}, nil
+}
+
+func (request *GetProgramBreaks) GetDataXmlZip() (*StreamResponse, error) {
+	req, err := request.getXml()
+	if err != nil {
+		return nil, err
+	}
+	resp, err := utils.Actions.Request(req)
+	if err != nil {
+		return nil, err
+	}
+	return &StreamResponse{
+		Body:    resp,
+		Request: string(req),
+	}, nil
+}
+
+func (request *GetProgramBreaks) UploadToS3() error {
+	typeName := GetProgramBreaksType
+	data, err := request.GetDataXmlZip()
+	if err != nil {
+		return err
+	}
+	sellingDirectionID, _ := request.Get("SellingDirectionID")
+	startDate, _ := request.Get("StartDate")
+	var newS3Key = fmt.Sprintf("vimb/%s/%s/%s/%s/%d/%s-%s.gz", sellingDirectionID, utils.Actions.Client, typeName, startDate, request.Path, utils.DateTimeNowInt(), typeName)
+	_, err = s3.UploadBytesWithBucket(newS3Key, data.Body)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (request *GetProgramBreaks) getXml() ([]byte, error) {
 	attributes := goConvert.New()
 	attributes.Set("xmlns:xsi", "\"http://www.w3.org/2001/XMLSchema-instance\"")
 	xmlRequestHeader := goConvert.New()
@@ -63,12 +115,5 @@ func (request *GetProgramBreaks) GetData() (*StreamResponse, error) {
 	}
 	xmlRequestHeader.Set("GetProgramBreaks", body)
 	xmlRequestHeader.Set("attributes", attributes)
-	req, err := xmlRequestHeader.ToXml()
-	if err != nil {
-		return nil, err
-	}
-	return &StreamResponse{
-		Body:    nil,
-		Request: string(req),
-	}, nil
+	return xmlRequestHeader.ToXml()
 }

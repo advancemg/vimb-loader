@@ -1,7 +1,10 @@
 package models
 
 import (
+	"fmt"
 	goConvert "github.com/advancemg/go-convert"
+	"github.com/advancemg/vimb-loader/pkg/s3"
+	"github.com/advancemg/vimb-loader/pkg/utils"
 )
 
 type SwaggerGetBudgetsRequest struct {
@@ -20,36 +23,73 @@ type GetBudgets struct {
 	goConvert.UnsortedMap
 }
 
-func (request GetBudgets) GetData() (*StreamResponse, error) {
-	xmlRequestHeader := goConvert.New()
-	body := goConvert.New()
-	sellingDirectionID, exist := request.Get("SellingDirectionID")
-	if exist {
-		body.Set("SellingDirectionID", sellingDirectionID)
+func (request *GetBudgets) GetDataJson() (*StreamResponse, error) {
+	req, err := request.getXml()
+	if err != nil {
+		return nil, err
 	}
-	startMonth, exist := request.Get("StartMonth")
-	if exist {
-		body.Set("StartMonth", startMonth)
-	}
-	endMonth, exist := request.Get("EndMonth")
-	if exist {
-		body.Set("EndMonth", endMonth)
-	}
-	advertiserList, exist := request.Get("AdvertiserList")
-	if exist {
-		body.Set("AdvertiserList", advertiserList)
-	}
-	channelList, exist := request.Get("ChannelList")
-	if exist {
-		body.Set("ChannelList", channelList)
-	}
-	xmlRequestHeader.Set("GetBudgets", body)
-	req, err := xmlRequestHeader.ToXml()
+	resp, err := utils.Actions.RequestJson(req)
 	if err != nil {
 		return nil, err
 	}
 	return &StreamResponse{
-		Body:    nil,
+		Body:    resp,
 		Request: string(req),
 	}, nil
+}
+
+func (request *GetBudgets) GetDataXmlZip() (*StreamResponse, error) {
+	req, err := request.getXml()
+	if err != nil {
+		return nil, err
+	}
+	resp, err := utils.Actions.Request(req)
+	if err != nil {
+		return nil, err
+	}
+	return &StreamResponse{
+		Body:    resp,
+		Request: string(req),
+	}, nil
+}
+
+func (request *GetBudgets) UploadToS3() error {
+	typeName := GetBudgetsType
+	data, err := request.GetDataXmlZip()
+	if err != nil {
+		return err
+	}
+	var newS3Key = fmt.Sprintf("vimb/%s/%s/%s-%s.gz", utils.Actions.Client, typeName, utils.DateTimeNowInt(), typeName)
+	_, err = s3.UploadBytesWithBucket(newS3Key, data.Body)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (request *GetBudgets) getXml() ([]byte, error) {
+	xmlRequestHeader := goConvert.New()
+	body := goConvert.New()
+	SellingDirectionID, exist := request.Get("SellingDirectionID")
+	if exist {
+		body.Set("SellingDirectionID", SellingDirectionID)
+	}
+	StartMonth, exist := request.Get("StartMonth")
+	if exist {
+		body.Set("StartMonth", StartMonth)
+	}
+	EndMonth, exist := request.Get("EndMonth")
+	if exist {
+		body.Set("EndMonth", EndMonth)
+	}
+	AdvertiserList, exist := request.Get("AdvertiserList")
+	if exist {
+		body.Set("AdvertiserList", AdvertiserList)
+	}
+	ChannelList, exist := request.Get("ChannelList")
+	if exist {
+		body.Set("ChannelList", ChannelList)
+	}
+	xmlRequestHeader.Set("GetBudgets", body)
+	return xmlRequestHeader.ToXml()
 }

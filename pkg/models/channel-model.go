@@ -1,8 +1,10 @@
 package models
 
-
 import (
+	"fmt"
 	goConvert "github.com/advancemg/go-convert"
+	"github.com/advancemg/vimb-loader/pkg/s3"
+	"github.com/advancemg/vimb-loader/pkg/utils"
 )
 
 type SwaggerGetChannelsRequest struct {
@@ -13,8 +15,51 @@ type GetChannels struct {
 	goConvert.UnsortedMap
 }
 
+func (request *GetChannels) GetDataJson() (*StreamResponse, error) {
+	req, err := request.getXml()
+	if err != nil {
+		return nil, err
+	}
+	resp, err := utils.Actions.RequestJson(req)
+	if err != nil {
+		return nil, err
+	}
+	return &StreamResponse{
+		Body:    resp,
+		Request: string(req),
+	}, nil
+}
 
-func (request GetChannels) GetData() (*StreamResponse, error) {
+func (request *GetChannels) GetDataXmlZip() (*StreamResponse, error) {
+	req, err := request.getXml()
+	if err != nil {
+		return nil, err
+	}
+	resp, err := utils.Actions.Request(req)
+	if err != nil {
+		return nil, err
+	}
+	return &StreamResponse{
+		Body:    resp,
+		Request: string(req),
+	}, nil
+}
+
+func (request *GetChannels) UploadToS3() error {
+	typeName := GetChannelsType
+	data, err := request.GetDataXmlZip()
+	if err != nil {
+		return err
+	}
+	var newS3Key = fmt.Sprintf("vimb/%s/%s/%s-%s.gz", utils.Actions.Client, typeName, utils.DateTimeNowInt(), typeName)
+	_, err = s3.UploadBytesWithBucket(newS3Key, data.Body)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (request *GetChannels) getXml() ([]byte, error) {
 	xmlRequestHeader := goConvert.New()
 	body := goConvert.New()
 	sellingDirectionID, exist := request.Get("SellingDirectionID")
@@ -22,12 +67,5 @@ func (request GetChannels) GetData() (*StreamResponse, error) {
 		body.Set("SellingDirectionID", sellingDirectionID)
 	}
 	xmlRequestHeader.Set("GetChannels", body)
-	req, err := xmlRequestHeader.ToXml()
-	if err != nil {
-		return nil, err
-	}
-	return &StreamResponse{
-		Body:    nil,
-		Request: string(req),
-	}, nil
+	return xmlRequestHeader.ToXml()
 }

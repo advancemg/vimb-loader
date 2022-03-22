@@ -1,7 +1,10 @@
 package models
 
 import (
+	"fmt"
 	goConvert "github.com/advancemg/go-convert"
+	"github.com/advancemg/vimb-loader/pkg/s3"
+	"github.com/advancemg/vimb-loader/pkg/utils"
 )
 
 type SwaggerGetSpotsRequest struct {
@@ -22,7 +25,51 @@ type GetSpots struct {
 	goConvert.UnsortedMap
 }
 
-func (request *GetSpots) GetData() (*StreamResponse, error) {
+func (request *GetSpots) GetDataJson() (*StreamResponse, error) {
+	req, err := request.getXml()
+	if err != nil {
+		return nil, err
+	}
+	resp, err := utils.Actions.RequestJson(req)
+	if err != nil {
+		return nil, err
+	}
+	return &StreamResponse{
+		Body:    resp,
+		Request: string(req),
+	}, nil
+}
+
+func (request *GetSpots) GetDataXmlZip() (*StreamResponse, error) {
+	req, err := request.getXml()
+	if err != nil {
+		return nil, err
+	}
+	resp, err := utils.Actions.Request(req)
+	if err != nil {
+		return nil, err
+	}
+	return &StreamResponse{
+		Body:    resp,
+		Request: string(req),
+	}, nil
+}
+
+func (request *GetSpots) UploadToS3() error {
+	typeName := GetSpotsType
+	data, err := request.GetDataXmlZip()
+	if err != nil {
+		return err
+	}
+	var newS3Key = fmt.Sprintf("vimb/%s/%s/%s-%s.gz", utils.Actions.Client, typeName, utils.DateTimeNowInt(), typeName)
+	_, err = s3.UploadBytesWithBucket(newS3Key, data.Body)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (request *GetSpots) getXml() ([]byte, error) {
 	xmlRequestHeader := goConvert.New()
 	body := goConvert.New()
 	SellingDirectionID, exist := request.Get("SellingDirectionID")
@@ -43,19 +90,12 @@ func (request *GetSpots) GetData() (*StreamResponse, error) {
 	}
 	ChannelList, exist := request.Get("ChannelList")
 	if exist {
-		body.Set("EndDate", ChannelList)
+		body.Set("ChannelList", ChannelList)
 	}
 	AdtList, exist := request.Get("AdtList")
 	if exist {
 		body.Set("AdtList", AdtList)
 	}
 	xmlRequestHeader.Set("GetSpots", body)
-	req, err := xmlRequestHeader.ToXml()
-	if err != nil {
-		return nil, err
-	}
-	return &StreamResponse{
-		Body:    nil,
-		Request: string(req),
-	}, nil
+	return xmlRequestHeader.ToXml()
 }

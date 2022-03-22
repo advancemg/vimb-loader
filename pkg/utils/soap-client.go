@@ -18,25 +18,36 @@ import (
 	"time"
 )
 
-var cfg *Config
-
-func init() {
-	cfg = loadConfig()
-}
-
 type Config struct {
 	Url      string `json:"url"`
 	Cert     string `json:"cert"`
 	Password string `json:"password"`
+	Client   string `json:"client"`
+}
+
+type Action struct {
+	SOAPAction string
+	Client     string
+}
+
+var cfg *Config
+var Actions *Action
+
+func init() {
+	cfg = loadConfig()
+	Actions = &Action{
+		SOAPAction: "VIMBWebApplication2/GetVimbInfoStream",
+		Client:     cfg.Client,
+	}
 }
 
 func loadConfig() *Config {
 	var config Config
 	configFile, err := os.Open("config.json")
-	defer configFile.Close()
 	if err != nil {
-		fmt.Println(err.Error())
+		panic(err)
 	}
+	defer configFile.Close()
 	jsonParser := json.NewDecoder(configFile)
 	jsonParser.Decode(&config)
 	return &config
@@ -73,14 +84,14 @@ func (cfg *Config) newClient() *http.Client {
 	}
 }
 
-func Request(input []byte) ([]byte, error) {
+func (act *Action) Request(input []byte) ([]byte, error) {
 	reqBody := vimbRequest(string(input))
 	req, err := http.NewRequest("POST", cfg.Url, strings.NewReader(reqBody))
 	if err != nil {
 		return nil, err
 	}
 	req.Header.Set("Content-Type", "text/xml; charset=utf-8")
-	req.Header.Set("SOAPAction", "VIMBWebApplication2/GetVimbInfoStream")
+	req.Header.Set("SOAPAction", act.SOAPAction)
 	resp, err := cfg.newClient().Do(req)
 	if err != nil {
 		return nil, err
@@ -95,10 +106,33 @@ func Request(input []byte) ([]byte, error) {
 		if err != nil {
 			return nil, err
 		}
-		fmt.Println("code:", vimbErr.Code)
 		return nil, vimbErr
 	}
-	return res, nil
+	response, err := catchBody(res)
+	if err != nil {
+		return nil, err
+	}
+	decodeBytes, err := base64.StdEncoding.DecodeString(string(response))
+	if err != nil {
+		return nil, err
+	}
+	return decodeBytes, nil
+}
+
+func (act *Action) RequestJson(input []byte) ([]byte, error) {
+	res, err := act.Request(input)
+	if err != nil {
+		return nil, err
+	}
+	decodeBytes, err := base64.StdEncoding.DecodeString(string(res))
+	if err != nil {
+		return nil, err
+	}
+	toJson, err := convert.ZipXmlToJson(decodeBytes)
+	if err != nil {
+		return nil, err
+	}
+	return toJson, nil
 }
 
 func vimbRequest(inputXml string) string {
@@ -126,6 +160,18 @@ func catchError(resp []byte) (*VimbError, error) {
 		Code:    code,
 		Message: msg,
 	}, nil
+}
+
+func catchBody(resp []byte) ([]byte, error) {
+	toJson, err := convert.XmlToJson(resp)
+	if err != nil {
+		return nil, err
+	}
+	msg, err := jsonparser.GetString(toJson, "Envelope", "Body", "GetVimbInfoStreamResponse", "GetVimbInfoStreamResult")
+	if err != nil {
+		return nil, err
+	}
+	return []byte(msg), nil
 }
 
 type VimbError struct {

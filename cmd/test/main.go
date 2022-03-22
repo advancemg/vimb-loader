@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/advancemg/vimb-loader/pkg/models"
-	vimb "github.com/advancemg/vimb-loader/pkg/utils"
 )
 
 func main() {
@@ -19,14 +18,10 @@ func main() {
     	"CnlList": {"Cnl": "1018566"},
     	"ProtocolVersion": "2"
 	}`)
-
 	var jsStruct models.GetProgramBreaks
 	json.Unmarshal(js, &jsStruct)
 	sorted, _ := jsStruct.GetData()
 	fmt.Println(sorted.Request)
-	res, err := vimb.Request([]byte(sorted.Request))
-	if err != nil {
-		println(err.Error())
-	}
-	fmt.Println("post:\n", string(res))
+	fmt.Println()
+	fmt.Println(string(sorted.Body))
 }
