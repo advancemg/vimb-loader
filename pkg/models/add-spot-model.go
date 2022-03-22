@@ -19,12 +19,12 @@ type AddSpot struct {
 	goConvert.UnsortedMap
 }
 
-func (request *AddSpot) GetData() (*StreamResponse, error) {
+func (request *AddSpot) GetDataJson() (*StreamResponse, error) {
 	req, err := request.getXml()
 	if err != nil {
 		return nil, err
 	}
-	resp, err := utils.RequestJson(req)
+	resp, err := utils.Actions.RequestJson(req)
 	if err != nil {
 		return nil, err
 	}
@@ -34,12 +34,12 @@ func (request *AddSpot) GetData() (*StreamResponse, error) {
 	}, nil
 }
 
-func (request *AddSpot) GetRawData() (*StreamResponse, error) {
+func (request *AddSpot) GetDataXmlZip() (*StreamResponse, error) {
 	req, err := request.getXml()
 	if err != nil {
 		return nil, err
 	}
-	resp, err := utils.Request(req)
+	resp, err := utils.Actions.Request(req)
 	if err != nil {
 		return nil, err
 	}
@@ -49,12 +49,13 @@ func (request *AddSpot) GetRawData() (*StreamResponse, error) {
 	}, nil
 }
 
-func (request *AddSpot) GetDataToS3() error {
-	data, err := request.GetRawData()
+func (request *AddSpot) UploadToS3() error {
+	typeName := AddSpotType
+	data, err := request.GetDataXmlZip()
 	if err != nil {
 		return err
 	}
-	var newS3Key = fmt.Sprintf("%s.zip", "GetProgramBreaks")
+	var newS3Key = fmt.Sprintf("vimb/%s/%s/%s-%s.gz", utils.Actions.Client, typeName, utils.DateTimeNowInt(), typeName)
 	_, err = s3.UploadBytesWithBucket(newS3Key, data.Body)
 	if err != nil {
 		return err

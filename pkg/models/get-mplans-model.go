@@ -24,12 +24,12 @@ type GetMPLans struct {
 	goConvert.UnsortedMap
 }
 
-func (request *GetMPLans) GetData() (*StreamResponse, error) {
+func (request *GetMPLans) GetDataJson() (*StreamResponse, error) {
 	req, err := request.getXml()
 	if err != nil {
 		return nil, err
 	}
-	resp, err := utils.RequestJson(req)
+	resp, err := utils.Actions.RequestJson(req)
 	if err != nil {
 		return nil, err
 	}
@@ -39,12 +39,12 @@ func (request *GetMPLans) GetData() (*StreamResponse, error) {
 	}, nil
 }
 
-func (request *GetMPLans) GetRawData() (*StreamResponse, error) {
+func (request *GetMPLans) GetDataXmlZip() (*StreamResponse, error) {
 	req, err := request.getXml()
 	if err != nil {
 		return nil, err
 	}
-	resp, err := utils.Request(req)
+	resp, err := utils.Actions.Request(req)
 	if err != nil {
 		return nil, err
 	}
@@ -54,12 +54,13 @@ func (request *GetMPLans) GetRawData() (*StreamResponse, error) {
 	}, nil
 }
 
-func (request *GetMPLans) GetDataToS3() error {
-	data, err := request.GetRawData()
+func (request *GetMPLans) UploadToS3() error {
+	typeName := GetMPLansType
+	data, err := request.GetDataXmlZip()
 	if err != nil {
 		return err
 	}
-	var newS3Key = fmt.Sprintf("%s.zip", "GetProgramBreaks")
+	var newS3Key = fmt.Sprintf("vimb/%s/%s/%s-%s.gz", utils.Actions.Client, typeName, utils.DateTimeNowInt(), typeName)
 	_, err = s3.UploadBytesWithBucket(newS3Key, data.Body)
 	if err != nil {
 		return err

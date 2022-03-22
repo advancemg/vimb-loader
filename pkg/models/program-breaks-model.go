@@ -22,15 +22,16 @@ type SwaggerGetProgramBreaksRequest struct {
 }
 
 type GetProgramBreaks struct {
+	Path int
 	goConvert.UnsortedMap
 }
 
-func (request *GetProgramBreaks) GetData() (*StreamResponse, error) {
+func (request *GetProgramBreaks) GetDataJson() (*StreamResponse, error) {
 	req, err := request.getXml()
 	if err != nil {
 		return nil, err
 	}
-	resp, err := utils.RequestJson(req)
+	resp, err := utils.Actions.RequestJson(req)
 	if err != nil {
 		return nil, err
 	}
@@ -40,12 +41,12 @@ func (request *GetProgramBreaks) GetData() (*StreamResponse, error) {
 	}, nil
 }
 
-func (request *GetProgramBreaks) GetRawData() (*StreamResponse, error) {
+func (request *GetProgramBreaks) GetDataXmlZip() (*StreamResponse, error) {
 	req, err := request.getXml()
 	if err != nil {
 		return nil, err
 	}
-	resp, err := utils.Request(req)
+	resp, err := utils.Actions.Request(req)
 	if err != nil {
 		return nil, err
 	}
@@ -55,12 +56,15 @@ func (request *GetProgramBreaks) GetRawData() (*StreamResponse, error) {
 	}, nil
 }
 
-func (request *GetProgramBreaks) GetDataToS3() error {
-	data, err := request.GetRawData()
+func (request *GetProgramBreaks) UploadToS3() error {
+	typeName := GetProgramBreaksType
+	data, err := request.GetDataXmlZip()
 	if err != nil {
 		return err
 	}
-	var newS3Key = fmt.Sprintf("%s.zip", "GetProgramBreaks")
+	sellingDirectionID, _ := request.Get("SellingDirectionID")
+	startDate, _ := request.Get("StartDate")
+	var newS3Key = fmt.Sprintf("vimb/%s/%s/%s/%s/%d/%s-%s.gz", sellingDirectionID, utils.Actions.Client, typeName, startDate, request.Path, utils.DateTimeNowInt(), typeName)
 	_, err = s3.UploadBytesWithBucket(newS3Key, data.Body)
 	if err != nil {
 		return err

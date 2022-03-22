@@ -4,17 +4,15 @@ import (
 	"encoding/json"
 	"fmt"
 	. "github.com/advancemg/vimb-loader/pkg/models"
-	"github.com/advancemg/vimb-loader/pkg/s3"
 	"github.com/ory/dockertest/v3"
 	"github.com/ory/dockertest/v3/docker"
 	"log"
 	"net/http"
-	"os"
 )
 
 func main() {
-	os.RemoveAll("/Users/eminshakh/data/vimb")
-	var bucket = "vimb"
+	//os.RemoveAll("/Users/eminshakh/data/vimb")
+	//var bucket = "vimb"
 	pool, err := New()
 	if err != nil {
 		panic(err)
@@ -24,18 +22,17 @@ func main() {
 		println(err.Error())
 	}
 	defer dc.Close()
-	err = s3.CreateBucket(bucket)
-	if err != nil {
-		fmt.Println("CreateBucket: ", err.Error())
-	}
+	//err = s3.CreateBucket(bucket)
+	//if err != nil {
+	//	fmt.Println("CreateBucket: ", err.Error())
+	//}
 	var input = []byte(`{"SellingDirectionID": "21","InclProgAttr": "1","InclForecast": "1","AudRatDec": "9","StartDate": "20210309","EndDate": "20210309","LightMode": "0","CnlList": {"Cnl": "1018566"},"ProtocolVersion": "2"}`)
 	var js GetProgramBreaks
 	json.Unmarshal(input, &js)
-	err = js.GetDataToS3()
+	err = js.UploadToS3()
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	fmt.Println(s3.Exist(bucket, "GetProgramBreaks.zip"))
 }
 
 func (req *InternalRequest) Minio(mountPath string) (*dockertest.Resource, error) {

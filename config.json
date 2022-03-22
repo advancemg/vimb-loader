@@ -2,6 +2,7 @@
   "url": "https://vimb-svc.vitpc.com:436/VIMBService.asmx",
   "cert": "",
   "password": "",
+  "client": "test_client",
   "s3AccessKeyId": "admin",
   "s3SecretAccessKey": "adminadmin",
   "s3Region": "us-west-0",

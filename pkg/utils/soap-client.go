@@ -18,21 +18,32 @@ import (
 	"time"
 )
 
-var cfg *Config
-
-func init() {
-	cfg = loadConfig()
-}
-
 type Config struct {
 	Url      string `json:"url"`
 	Cert     string `json:"cert"`
 	Password string `json:"password"`
+	Client   string `json:"client"`
+}
+
+type Action struct {
+	SOAPAction string
+	Client     string
+}
+
+var cfg *Config
+var Actions *Action
+
+func init() {
+	cfg = loadConfig()
+	Actions = &Action{
+		SOAPAction: "VIMBWebApplication2/GetVimbInfoStream",
+		Client:     cfg.Client,
+	}
 }
 
 func loadConfig() *Config {
 	var config Config
-	configFile, err := os.Open("./config.json")
+	configFile, err := os.Open("config.json")
 	if err != nil {
 		panic(err)
 	}
@@ -73,14 +84,14 @@ func (cfg *Config) newClient() *http.Client {
 	}
 }
 
-func Request(input []byte) ([]byte, error) {
+func (act *Action) Request(input []byte) ([]byte, error) {
 	reqBody := vimbRequest(string(input))
 	req, err := http.NewRequest("POST", cfg.Url, strings.NewReader(reqBody))
 	if err != nil {
 		return nil, err
 	}
 	req.Header.Set("Content-Type", "text/xml; charset=utf-8")
-	req.Header.Set("SOAPAction", "VIMBWebApplication2/GetVimbInfoStream")
+	req.Header.Set("SOAPAction", act.SOAPAction)
 	resp, err := cfg.newClient().Do(req)
 	if err != nil {
 		return nil, err
@@ -101,11 +112,15 @@ func Request(input []byte) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	return response, nil
+	decodeBytes, err := base64.StdEncoding.DecodeString(string(response))
+	if err != nil {
+		return nil, err
+	}
+	return decodeBytes, nil
 }
 
-func RequestJson(input []byte) ([]byte, error) {
-	res, err := Request(input)
+func (act *Action) RequestJson(input []byte) ([]byte, error) {
+	res, err := act.Request(input)
 	if err != nil {
 		return nil, err
 	}

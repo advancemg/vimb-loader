@@ -26,12 +26,12 @@ type GetAdvMessages struct {
 	goConvert.UnsortedMap
 }
 
-func (request *GetAdvMessages) GetData() (*StreamResponse, error) {
+func (request *GetAdvMessages) GetDataJson() (*StreamResponse, error) {
 	req, err := request.getXml()
 	if err != nil {
 		return nil, err
 	}
-	resp, err := utils.RequestJson(req)
+	resp, err := utils.Actions.RequestJson(req)
 	if err != nil {
 		return nil, err
 	}
@@ -41,12 +41,12 @@ func (request *GetAdvMessages) GetData() (*StreamResponse, error) {
 	}, nil
 }
 
-func (request *GetAdvMessages) GetRawData() (*StreamResponse, error) {
+func (request *GetAdvMessages) GetDataXmlZip() (*StreamResponse, error) {
 	req, err := request.getXml()
 	if err != nil {
 		return nil, err
 	}
-	resp, err := utils.Request(req)
+	resp, err := utils.Actions.Request(req)
 	if err != nil {
 		return nil, err
 	}
@@ -56,12 +56,13 @@ func (request *GetAdvMessages) GetRawData() (*StreamResponse, error) {
 	}, nil
 }
 
-func (request *GetAdvMessages) GetDataToS3() error {
-	data, err := request.GetRawData()
+func (request *GetAdvMessages) UploadToS3() error {
+	typeName := GetAdvMessagesType
+	data, err := request.GetDataXmlZip()
 	if err != nil {
 		return err
 	}
-	var newS3Key = fmt.Sprintf("%s.zip", "GetProgramBreaks")
+	var newS3Key = fmt.Sprintf("vimb/%s/%s/%s-%s.gz", utils.Actions.Client, typeName, utils.DateTimeNowInt(), typeName)
 	_, err = s3.UploadBytesWithBucket(newS3Key, data.Body)
 	if err != nil {
 		return err

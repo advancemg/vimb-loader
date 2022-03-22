@@ -11,7 +11,7 @@ func changeModel(input []byte, model string) ([]byte, error) {
 	case "AddMPlan":
 		var js AddMPlan
 		json.Unmarshal(input, &js)
-		data, err := js.GetData()
+		data, err := js.GetDataJson()
 		if err != nil {
 			return nil, err
 		}
@@ -19,7 +19,7 @@ func changeModel(input []byte, model string) ([]byte, error) {
 	case "AddSpot":
 		var js AddSpot
 		json.Unmarshal(input, &js)
-		data, err := js.GetData()
+		data, err := js.GetDataJson()
 		if err != nil {
 			return nil, err
 		}
@@ -27,7 +27,7 @@ func changeModel(input []byte, model string) ([]byte, error) {
 	case "GetAdvMessages":
 		var js GetAdvMessages
 		json.Unmarshal(input, &js)
-		data, err := js.GetData()
+		data, err := js.GetDataJson()
 		if err != nil {
 			return nil, err
 		}
@@ -35,7 +35,7 @@ func changeModel(input []byte, model string) ([]byte, error) {
 	case "GetBudgets":
 		var js GetBudgets
 		json.Unmarshal(input, &js)
-		data, err := js.GetData()
+		data, err := js.GetDataJson()
 		if err != nil {
 			return nil, err
 		}
@@ -43,7 +43,7 @@ func changeModel(input []byte, model string) ([]byte, error) {
 	case "ChangeMPlanFilmPlannedInventory":
 		var js ChangeMPlanFilmPlannedInventory
 		json.Unmarshal(input, &js)
-		data, err := js.GetData()
+		data, err := js.GetDataJson()
 		if err != nil {
 			return nil, err
 		}
@@ -51,7 +51,7 @@ func changeModel(input []byte, model string) ([]byte, error) {
 	case "ChangeSpot":
 		var js ChangeSpot
 		json.Unmarshal(input, &js)
-		data, err := js.GetData()
+		data, err := js.GetDataJson()
 		if err != nil {
 			return nil, err
 		}
@@ -59,7 +59,7 @@ func changeModel(input []byte, model string) ([]byte, error) {
 	case "GetChannels":
 		var js GetChannels
 		json.Unmarshal(input, &js)
-		data, err := js.GetData()
+		data, err := js.GetDataJson()
 		if err != nil {
 			return nil, err
 		}
@@ -67,7 +67,7 @@ func changeModel(input []byte, model string) ([]byte, error) {
 	case "GetCustomersWithAdvertisers":
 		var js GetCustomersWithAdvertisers
 		json.Unmarshal(input, &js)
-		data, err := js.GetData()
+		data, err := js.GetDataJson()
 		if err != nil {
 			return nil, err
 		}
@@ -75,7 +75,7 @@ func changeModel(input []byte, model string) ([]byte, error) {
 	case "DeleteMPlanFilm":
 		var js DeleteMPlanFilm
 		json.Unmarshal(input, &js)
-		data, err := js.GetData()
+		data, err := js.GetDataJson()
 		if err != nil {
 			return nil, err
 		}
@@ -83,7 +83,7 @@ func changeModel(input []byte, model string) ([]byte, error) {
 	case "DeleteSpot":
 		var js DeleteSpot
 		json.Unmarshal(input, &js)
-		data, err := js.GetData()
+		data, err := js.GetDataJson()
 		if err != nil {
 			return nil, err
 		}
@@ -91,7 +91,7 @@ func changeModel(input []byte, model string) ([]byte, error) {
 	case "GetDeletedSpotInfo":
 		var js GetDeletedSpotInfo
 		json.Unmarshal(input, &js)
-		data, err := js.GetData()
+		data, err := js.GetDataJson()
 		if err != nil {
 			return nil, err
 		}
@@ -99,7 +99,7 @@ func changeModel(input []byte, model string) ([]byte, error) {
 	case "GetMPLans":
 		var js GetMPLans
 		json.Unmarshal(input, &js)
-		data, err := js.GetData()
+		data, err := js.GetDataJson()
 		if err != nil {
 			return nil, err
 		}
@@ -107,7 +107,7 @@ func changeModel(input []byte, model string) ([]byte, error) {
 	case "GetSpots":
 		var js GetSpots
 		json.Unmarshal(input, &js)
-		data, err := js.GetData()
+		data, err := js.GetDataJson()
 		if err != nil {
 			return nil, err
 		}
@@ -115,7 +115,7 @@ func changeModel(input []byte, model string) ([]byte, error) {
 	case "GetProgramBreaks":
 		var js GetProgramBreaks
 		json.Unmarshal(input, &js)
-		data, err := js.GetData()
+		data, err := js.GetDataJson()
 		if err != nil {
 			return nil, err
 		}
@@ -123,7 +123,7 @@ func changeModel(input []byte, model string) ([]byte, error) {
 	case "GetRanks":
 		var js GetRanks
 		json.Unmarshal(input, &js)
-		data, err := js.GetData()
+		data, err := js.GetDataJson()
 		if err != nil {
 			return nil, err
 		}
@@ -131,7 +131,7 @@ func changeModel(input []byte, model string) ([]byte, error) {
 	case "SetSpotPosition":
 		var js SetSpotPosition
 		json.Unmarshal(input, &js)
-		data, err := js.GetData()
+		data, err := js.GetDataJson()
 		if err != nil {
 			return nil, err
 		}
@@ -139,7 +139,7 @@ func changeModel(input []byte, model string) ([]byte, error) {
 	case "AddMPlanFilm":
 		var js AddMPlanFilm
 		json.Unmarshal(input, &js)
-		data, err := js.GetData()
+		data, err := js.GetDataJson()
 		if err != nil {
 			return nil, err
 		}

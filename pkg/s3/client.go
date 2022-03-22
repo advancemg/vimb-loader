@@ -38,7 +38,7 @@ type Config struct {
 
 func loadConfig() *Config {
 	var config Config
-	configFile, err := os.Open("./config.json")
+	configFile, err := os.Open("config.json")
 	if err != nil {
 		panic(err)
 	}
