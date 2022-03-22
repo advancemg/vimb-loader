@@ -1,0 +1,8 @@
+POST {{base-url}}/api/v1/channels
+Content-Type: application/json
+
+{
+  "SellingDirectionID": "19"
+}
+
+###

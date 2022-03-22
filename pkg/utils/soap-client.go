@@ -124,11 +124,7 @@ func (act *Action) RequestJson(input []byte) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	decodeBytes, err := base64.StdEncoding.DecodeString(string(res))
-	if err != nil {
-		return nil, err
-	}
-	toJson, err := convert.ZipXmlToJson(decodeBytes)
+	toJson, err := convert.ZipXmlToJson(res)
 	if err != nil {
 		return nil, err
 	}
@@ -175,8 +171,8 @@ func catchBody(resp []byte) ([]byte, error) {
 }
 
 type VimbError struct {
-	Code    int
-	Message string
+	Code    int    `json:"code"`
+	Message string `json:"message"`
 }
 
 func (err *VimbError) Error() string {

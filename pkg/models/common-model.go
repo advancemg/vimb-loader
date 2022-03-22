@@ -24,3 +24,8 @@ type StreamResponse struct {
 	Body    []byte `json:"body"`
 	Request string `json:"request"`
 }
+
+type JsonResponse struct {
+	Body    interface{} `json:"body"`
+	Request string      `json:"request"`
+}

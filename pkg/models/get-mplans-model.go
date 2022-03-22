@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/json"
 	"fmt"
 	goConvert "github.com/advancemg/go-convert"
 	"github.com/advancemg/vimb-loader/pkg/s3"
@@ -24,7 +25,7 @@ type GetMPLans struct {
 	goConvert.UnsortedMap
 }
 
-func (request *GetMPLans) GetDataJson() (*StreamResponse, error) {
+func (request *GetMPLans) GetDataJson() (*JsonResponse, error) {
 	req, err := request.getXml()
 	if err != nil {
 		return nil, err
@@ -33,8 +34,13 @@ func (request *GetMPLans) GetDataJson() (*StreamResponse, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &StreamResponse{
-		Body:    resp,
+	var body = map[string]interface{}{}
+	err = json.Unmarshal(resp, &body)
+	if err != nil {
+		return nil, err
+	}
+	return &JsonResponse{
+		Body:    body,
 		Request: string(req),
 	}, nil
 }

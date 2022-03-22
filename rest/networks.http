@@ -1,0 +1,20 @@
+POST {{base-url}}/api/v1/program-breaks
+Content-Type: application/json
+
+{
+  "SellingDirectionID": "21",
+  "InclProgAttr": "0",
+  "InclForecast": "0",
+  "AudRatDec": "2",
+  "StartDate": "20210309",
+  "EndDate": "20210309",
+  "LightMode": "0",
+  "CnlList": [
+    {
+      "Cnl": "1017603"
+    }
+  ],
+  "ProtocolVersion": "2"
+}
+
+###
