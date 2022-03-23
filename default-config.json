@@ -1,6 +1,6 @@
 {
   "budget": {
-    "cron": "10/10 * * * *",
+    "cron": "0 0/46 * * *",
     "sellingDirection": "21"
   },
   "mediaplan": {
@@ -34,10 +34,10 @@
     "sellingDirection": "21"
   },
   "amqp": {
-    "Host": "localhost",
-    "Port": "5555",
-    "Username": "guest",
-    "Password": "guest"
+    "mqHost": "localhost",
+    "mqPort": "5555",
+    "mqUser": "guest",
+    "mqPwd": "guest"
   },
   "s3": {
     "s3AccessKeyId": "minioadmin",

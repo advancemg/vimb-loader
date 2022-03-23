@@ -34,23 +34,26 @@ var cfg *Config
 var Actions *Action
 
 func init() {
-	cfg = loadConfig()
+	//cfg = loadConfig()
 	Actions = &Action{
 		SOAPAction: "VIMBWebApplication2/GetVimbInfoStream",
-		Client:     cfg.Client,
+		Client:     "vimb",
 	}
 }
 
 func loadConfig() *Config {
 	var config Config
-	configFile, err := os.Open("config.json")
-	if err != nil {
-		panic(err)
+	if cfg == nil {
+		configFile, err := os.Open("config.json")
+		if err != nil {
+			panic(err)
+		}
+		defer configFile.Close()
+		jsonParser := json.NewDecoder(configFile)
+		jsonParser.Decode(&config)
+		cfg = &config
 	}
-	defer configFile.Close()
-	jsonParser := json.NewDecoder(configFile)
-	jsonParser.Decode(&config)
-	return &config
+	return cfg
 }
 
 func (cfg *Config) newClient() *http.Client {
@@ -85,6 +88,7 @@ func (cfg *Config) newClient() *http.Client {
 }
 
 func (act *Action) Request(input []byte) ([]byte, error) {
+	loadConfig()
 	reqBody := vimbRequest(string(input))
 	req, err := http.NewRequest("POST", cfg.Url, strings.NewReader(reqBody))
 	if err != nil {

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	goConvert "github.com/advancemg/go-convert"
+	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
 	"github.com/advancemg/vimb-loader/pkg/utils"
 )
@@ -29,9 +30,74 @@ type BudgetConfiguration struct {
 	SellingDirection string `json:"sellingDirection"`
 }
 
-func (cfg *BudgetConfiguration) GetJob() func() {
-	return func() {
+func (cfg *BudgetConfiguration) StartJob() error {
+	qName := GetBudgetsType
+	amqpConfig := mq_broker.InitConfig()
+	err := amqpConfig.DeclareSimpleQueue(qName)
+	if err != nil {
+		return err
+	}
+	ch, err := amqpConfig.Channel()
+	if err != nil {
+		return err
+	}
+	err = ch.Qos(1, 0, false)
+	messages, err := ch.Consume(qName, "",
+		false,
+		false,
+		false,
+		false,
+		nil)
+	for msg := range messages {
+		var bodyJson GetBudgets
+		err := json.Unmarshal(msg.Body, &bodyJson)
+		if err != nil {
+			return err
+		}
+		err = bodyJson.UploadToS3()
+		if err != nil {
+			return err
+		}
+		msg.Ack(false)
+	}
+	return nil
+}
 
+func (cfg *BudgetConfiguration) InitJob() func() {
+	return func() {
+		qName := GetBudgetsType
+		amqpConfig := mq_broker.InitConfig()
+		err := amqpConfig.DeclareSimpleQueue(qName)
+		if err != nil {
+			fmt.Printf("Q:%s - err:%s", qName, err.Error())
+			return
+		}
+		qInfo, err := amqpConfig.GetQueueInfo(qName)
+		if err != nil {
+			fmt.Printf("Q:%s - err:%s", qName, err.Error())
+			return
+		}
+		if qInfo.Messages > 0 {
+			return
+		}
+		months, err := utils.GetActualMonths()
+		if err != nil {
+			fmt.Printf("Q:%s - err:%s", qName, err.Error())
+			return
+		}
+		for _, month := range months {
+			request := goConvert.New()
+			body := goConvert.New()
+			body.Set("SellingDirectionID", cfg.SellingDirection)
+			body.Set("StartMonth", month.ValueString)
+			body.Set("EndMonth", month.ValueString)
+			request.Set("GetBudgets", body)
+			err := amqpConfig.PublishJson(qName, request)
+			if err != nil {
+				fmt.Printf("Q:%s - err:%s", qName, err.Error())
+				return
+			}
+		}
 	}
 }
 

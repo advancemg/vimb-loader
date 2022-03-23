@@ -1,5 +1,10 @@
 package models
 
+import (
+	"encoding/json"
+	"os"
+)
+
 const (
 	GetProgramBreaksType                = "GetProgramBreaks"
 	GetProgramBreaksLightModeType       = "GetProgramBreaksLightMode"
@@ -47,3 +52,15 @@ type JsonResponse struct {
 var (
 	Config = Configuration{}
 )
+
+func LoadConfiguration() (*Configuration, error) {
+	var config Configuration
+	configFile, err := os.Open("config.json")
+	if err != nil {
+		return nil, err
+	}
+	defer configFile.Close()
+	jsonParser := json.NewDecoder(configFile)
+	jsonParser.Decode(&config)
+	return &config, nil
+}

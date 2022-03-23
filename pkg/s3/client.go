@@ -26,23 +26,26 @@ import (
 
 var cfg *Config
 
-func init() {
+/*func init() {
 	cfg = loadConfig()
-}
+}*/
 
 type Config struct {
-	S3AccessKeyId     string `json:"s3AccessKeyId"`
-	S3SecretAccessKey string `json:"s3SecretAccessKey"`
-	S3Region          string `json:"s3Region"`
-	S3Endpoint        string `json:"s3Endpoint"`
-	S3Debug           string `json:"s3Debug"`
-	S3Bucket          string `json:"s3Bucket"`
-	S3LocalDir        string `json:"s3LocalDir"`
-	S3Session         *session.Session
+	S3AccessKeyId     string           `json:"s3AccessKeyId"`
+	S3SecretAccessKey string           `json:"s3SecretAccessKey"`
+	S3Region          string           `json:"s3Region"`
+	S3Endpoint        string           `json:"s3Endpoint"`
+	S3Debug           string           `json:"s3Debug"`
+	S3Bucket          string           `json:"s3Bucket"`
+	S3LocalDir        string           `json:"s3LocalDir"`
+	S3Session         *session.Session `json:"-"`
 }
 
-func loadConfig() *Config {
-	var config Config
+func InitConfig() *Config {
+	type configTemplate struct {
+		S3Cfg *Config `json:"s3"`
+	}
+	var config configTemplate
 	configFile, err := os.Open("config.json")
 	if err != nil {
 		panic(err)
@@ -50,11 +53,8 @@ func loadConfig() *Config {
 	defer configFile.Close()
 	jsonParser := json.NewDecoder(configFile)
 	jsonParser.Decode(&config)
-	return &config
-}
-
-func InitConfig() *Config {
-	return loadConfig()
+	cfg = config.S3Cfg
+	return cfg
 }
 
 func (c *Config) Ping() bool {
@@ -74,7 +74,7 @@ func (c *Config) Ping() bool {
 }
 
 func (c *Config) ServerStart() error {
-	minio.Main([]string{"minio", "server", "--quiet", "--address", cfg.S3Endpoint, cfg.S3LocalDir})
+	minio.Main([]string{"minio", "server", "--quiet", "--address", c.S3Endpoint, c.S3LocalDir})
 	return errors.New("Minio server - stop")
 }
 
@@ -121,6 +121,10 @@ func connection() error {
 	return nil
 }
 
+func CreateDefaultBucket() error {
+	return CreateBucket(cfg.S3Bucket)
+}
+
 func CreateBucket(name string) error {
 	err := connection()
 	if err != nil {
@@ -141,10 +145,6 @@ func CreateBucket(name string) error {
 		return err
 	}
 	return nil
-}
-
-func CreateDefaultBucket() error {
-	return CreateBucket(cfg.S3Bucket)
 }
 
 func CheckFile(bucket, key string) (map[string]string, error) {

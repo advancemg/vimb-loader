@@ -1,4 +1,6 @@
 /.idea/
 config.json
+default-config.json
 /db/
 /s3-data/
+/s3-buckets/

@@ -1,6 +1,8 @@
 package models
 
-import goConvert "github.com/advancemg/go-convert"
+import (
+	goConvert "github.com/advancemg/go-convert"
+)
 
 type SwaggerChangeFilmsRequest struct {
 	ChangeFilms []struct {

@@ -4,9 +4,11 @@ import (
 	"context"
 	"fmt"
 	_ "github.com/advancemg/vimb-loader/docs"
+	"github.com/advancemg/vimb-loader/pkg/models"
 	mq "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/routes"
 	"github.com/advancemg/vimb-loader/pkg/s3"
+	"github.com/advancemg/vimb-loader/pkg/services"
 	"github.com/advancemg/vimb-loader/pkg/utils"
 	"github.com/gorilla/mux"
 	"github.com/swaggo/http-swagger"
@@ -22,6 +24,11 @@ import (
 // @description Документация
 // @BasePath /
 func main() {
+	config, err := models.LoadConfiguration()
+	if err != nil {
+		panic(err.Error())
+	}
+	models.Config = *config
 	port := utils.GetEnv("PORT", ":8000")
 	route := mux.NewRouter()
 	route.PathPrefix("/api/v1/docs").Handler(httpSwagger.WrapHandler)
@@ -64,24 +71,30 @@ func main() {
 		utils.CheckErr(s.ListenAndServe())
 	}()
 	/* s3 */
-	config := s3.InitConfig()
-	err := os.Mkdir(config.S3LocalDir, os.ModePerm)
+	s3Config := s3.InitConfig()
+	err = os.Mkdir(s3Config.S3LocalDir, os.ModePerm)
 	if err != nil && !os.IsExist(err) {
 		panic(err.Error())
 	}
 	go func() {
-		utils.CheckErr(config.ServerStart())
+		utils.CheckErr(s3Config.ServerStart())
 	}()
 	/* s3 CreateDefaultBucket */
-	for !config.Ping() {
+	for !s3Config.Ping() {
 	}
 	utils.CheckErr(s3.CreateDefaultBucket())
 	/* amqp server */
+	mqConfig := mq.InitConfig()
 	go func() {
-		config := mq.InitConfig()
-		utils.CheckErr(config.ServerStart())
+		utils.CheckErr(mqConfig.ServerStart())
 	}()
 	/* amqp load services */
+	for !mqConfig.Ping() {
+	}
+	go func() {
+		service := services.LoadService{}
+		utils.CheckErr(service.Start())
+	}()
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt)
 	<-quit
