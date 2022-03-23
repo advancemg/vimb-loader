@@ -4,7 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/advancemg/vimb-loader/pkg/utils"
+	"github.com/pkg/errors"
 	"github.com/streadway/amqp"
+	"github.com/valinurovam/garagemq/config"
+	"github.com/valinurovam/garagemq/metrics"
+	"github.com/valinurovam/garagemq/server"
 	"math"
 	"time"
 )
@@ -28,6 +32,14 @@ func InitConfig() *Config {
 		Username: utils.GetEnv("RABBITMQ_USER", "guest"),
 		Password: utils.GetEnv("RABBITMQ_PWD", "guest"),
 	}
+}
+
+func (c *Config) ServerStart() error {
+	cfg, _ := config.CreateDefault()
+	metrics.NewTrackRegistry(15, time.Second, false)
+	srv := server.NewServer(c.Host, c.Port, cfg.Proto, cfg)
+	srv.Start()
+	return errors.New("Amqp server - stop")
 }
 
 func (c *Config) connection() (*Config, error) {

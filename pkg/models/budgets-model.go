@@ -25,14 +25,13 @@ type GetBudgets struct {
 }
 
 type BudgetConfiguration struct {
-	Cron             string
-	SellingDirection string
-	StartMonth       string
-	EndMonth         string
+	Cron             string `json:"cron"`
+	SellingDirection string `json:"sellingDirection"`
 }
 
 func (cfg *BudgetConfiguration) GetJob() func() {
 	return func() {
+
 	}
 }
 

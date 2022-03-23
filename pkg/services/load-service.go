@@ -11,15 +11,15 @@ type LoadService struct {
 func (svc *LoadService) Start() error {
 	config := models.Config
 	scheduler := cron.New()
-	err := scheduler.AddFunc(config.Channel.Cron, config.Channel.GetJob())
+	err := scheduler.AddFunc(config.Budget.Cron, config.Budget.GetJob())
+	if err != nil {
+		return err
+	}
+	err = scheduler.AddFunc(config.Channel.Cron, config.Channel.GetJob())
 	if err != nil {
 		return err
 	}
 	err = scheduler.AddFunc(config.CustomersWithAdvertisers.Cron, config.CustomersWithAdvertisers.GetJob())
-	if err != nil {
-		return err
-	}
-	err = scheduler.AddFunc(config.Budget.Cron, config.Budget.GetJob())
 	if err != nil {
 		return err
 	}

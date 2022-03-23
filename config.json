@@ -1,4 +1,38 @@
 {
+  "budget": {
+    "cron": "0 0/46 * * *",
+    "sellingDirection": "21"
+  },
+  "mediaplan": {
+    "cron": "0 0/20 * * *",
+    "sellingDirection": "21"
+  },
+  "advMessages": {
+    "cron": "0 0/2 * * *"
+  },
+  "spots": {
+    "cron": "0 0/59 * * *",
+    "sellingDirection": "21"
+  },
+  "channel": {
+    "cron": "0 0/16 * * *",
+    "sellingDirection": "21"
+  },
+  "customersWithAdvertisers": {
+    "cron": "0 0/59 * * *",
+    "sellingDirection": "21"
+  },
+  "rank": {
+    "cron": "0 0 0/23 * *"
+  },
+  "programBreaksLight": {
+    "cron": "0/2 * * * *",
+    "sellingDirection": "21"
+  },
+  "programBreaks": {
+    "cron": "0 0 0/8 * *",
+    "sellingDirection": "21"
+  },
   "url": "https://vimb-svc.vitpc.com:436/VIMBService.asmx",
   "cert": "",
   "password": "",

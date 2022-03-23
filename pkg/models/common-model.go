@@ -2,6 +2,7 @@ package models
 
 const (
 	GetProgramBreaksType                = "GetProgramBreaks"
+	GetProgramBreaksLightModeType       = "GetProgramBreaksLightMode"
 	AddMPlanFilmType                    = "AddMPlanFilm"
 	AddMPlanType                        = "AddMPlan"
 	AddSpotType                         = "AddSpot"
