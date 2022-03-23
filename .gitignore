@@ -1,3 +1,4 @@
 /.idea/
 config.json
 /db/
+/s3-data/

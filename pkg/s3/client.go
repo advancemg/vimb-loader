@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
@@ -15,6 +16,7 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"net"
 	"os"
 	"path"
 	"strconv"
@@ -53,6 +55,22 @@ func loadConfig() *Config {
 
 func InitConfig() *Config {
 	return loadConfig()
+}
+
+func (c *Config) Ping() bool {
+	for {
+		conn, err := net.DialTimeout("tcp", c.S3Endpoint, time.Second*1)
+		if err != nil {
+			time.Sleep(time.Second * 2)
+			fmt.Printf("ping s3 endpoint %s ...\n", c.S3Endpoint)
+			continue
+		}
+		if conn != nil {
+			conn.Close()
+			break
+		}
+	}
+	return true
 }
 
 func (c *Config) ServerStart() error {
@@ -115,6 +133,10 @@ func CreateBucket(name string) error {
 	}
 	_, err = client.CreateBucket(&request)
 	if err != nil {
+		failure := err.(awserr.RequestFailure)
+		if failure.Code() == "BucketAlreadyOwnedByYou" {
+			return nil
+		}
 		log.Print(map[string]string{"CreateBucket(s3Client)": "error", "error": err.Error()})
 		return err
 	}

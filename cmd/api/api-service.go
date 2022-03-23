@@ -64,12 +64,17 @@ func main() {
 		utils.CheckErr(s.ListenAndServe())
 	}()
 	/* s3 */
+	config := s3.InitConfig()
+	err := os.Mkdir(config.S3LocalDir, os.ModePerm)
+	if err != nil && !os.IsExist(err) {
+		panic(err.Error())
+	}
 	go func() {
-		config := s3.InitConfig()
 		utils.CheckErr(config.ServerStart())
 	}()
 	/* s3 CreateDefaultBucket */
-	time.Sleep(time.Second)
+	for !config.Ping() {
+	}
 	utils.CheckErr(s3.CreateDefaultBucket())
 	/* amqp server */
 	go func() {
@@ -77,7 +82,6 @@ func main() {
 		utils.CheckErr(config.ServerStart())
 	}()
 	/* amqp load services */
-
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt)
 	<-quit
