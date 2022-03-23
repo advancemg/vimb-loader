@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/json"
 	"fmt"
 	goConvert "github.com/advancemg/go-convert"
 	"github.com/advancemg/vimb-loader/pkg/s3"
@@ -26,7 +27,25 @@ type GetProgramBreaks struct {
 	goConvert.UnsortedMap
 }
 
-func (request *GetProgramBreaks) GetDataJson() (*StreamResponse, error) {
+type ProgramBreaksConfiguration struct {
+	Cron string `json:"cron"`
+}
+
+func (cfg *ProgramBreaksConfiguration) GetJob() func() {
+	return func() {
+	}
+}
+
+type ProgramBreaksLightConfiguration struct {
+	Cron string `json:"cron"`
+}
+
+func (cfg *ProgramBreaksLightConfiguration) GetJob() func() {
+	return func() {
+	}
+}
+
+func (request *GetProgramBreaks) GetDataJson() (*JsonResponse, error) {
 	req, err := request.getXml()
 	if err != nil {
 		return nil, err
@@ -35,8 +54,13 @@ func (request *GetProgramBreaks) GetDataJson() (*StreamResponse, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &StreamResponse{
-		Body:    resp,
+	var body = map[string]interface{}{}
+	err = json.Unmarshal(resp, &body)
+	if err != nil {
+		return nil, err
+	}
+	return &JsonResponse{
+		Body:    body,
 		Request: string(req),
 	}, nil
 }

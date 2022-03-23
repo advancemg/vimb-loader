@@ -1,0 +1,12 @@
+POST {{base-url}}/api/v1/adv-messages
+Content-Type: application/json
+
+{
+  "CreationDateStart": "2020-02-06",
+  "CreationDateEnd": "2020-02-06",
+  "Advertisers": [],
+  "Aspects": [],
+  "AdvertisingMessageIDs": []
+}
+
+###

@@ -20,8 +20,8 @@ func main() {
 	}`)
 	var jsStruct models.GetProgramBreaks
 	json.Unmarshal(js, &jsStruct)
-	sorted, _ := jsStruct.GetData()
+	sorted, _ := jsStruct.GetDataJson()
 	fmt.Println(sorted.Request)
 	fmt.Println()
-	fmt.Println(string(sorted.Body))
+	fmt.Println(sorted.Body)
 }

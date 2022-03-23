@@ -1,0 +1,8 @@
+POST {{base-url}}/api/v1/customers-with-advertisers
+Content-Type: application/json
+
+{
+  "SellingDirectionID": "21"
+}
+
+###

@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/json"
 	"fmt"
 	goConvert "github.com/advancemg/go-convert"
 	"github.com/advancemg/vimb-loader/pkg/s3"
@@ -15,7 +16,17 @@ type GetCustomersWithAdvertisers struct {
 	goConvert.UnsortedMap
 }
 
-func (request *GetCustomersWithAdvertisers) GetDataJson() (*StreamResponse, error) {
+type CustomersWithAdvertisersConfiguration struct {
+	Cron               string `json:"cron"`
+	SellingDirectionID string `json:"sellingDirectionID"`
+}
+
+func (cfg *CustomersWithAdvertisersConfiguration) GetJob() func() {
+	return func() {
+	}
+}
+
+func (request *GetCustomersWithAdvertisers) GetDataJson() (*JsonResponse, error) {
 	req, err := request.getXml()
 	if err != nil {
 		return nil, err
@@ -24,8 +35,13 @@ func (request *GetCustomersWithAdvertisers) GetDataJson() (*StreamResponse, erro
 	if err != nil {
 		return nil, err
 	}
-	return &StreamResponse{
-		Body:    resp,
+	var body = map[string]interface{}{}
+	err = json.Unmarshal(resp, &body)
+	if err != nil {
+		return nil, err
+	}
+	return &JsonResponse{
+		Body:    body,
 		Request: string(req),
 	}, nil
 }

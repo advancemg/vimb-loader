@@ -35,7 +35,7 @@ func DeleteMPlanFilm(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(response)
 		return
 	}
-	response, err := request.GetData()
+	response, err := request.GetDataJson()
 	if err != nil {
 		(w).WriteHeader(http.StatusBadRequest)
 		var response = utils.FieldValidateErrorType{

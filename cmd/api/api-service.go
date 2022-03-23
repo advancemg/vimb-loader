@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	_ "github.com/advancemg/vimb-loader/docs"
+	mq "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/routes"
 	"github.com/advancemg/vimb-loader/pkg/utils"
 	"github.com/gorilla/mux"
@@ -55,11 +56,20 @@ func main() {
 		IdleTimeout:  time.Second * 1,
 		Handler:      route,
 	}
+	/* api */
 	go func() {
 		fmt.Print("Base... [http://localhost", port, "/api/v1", "]\n")
 		fmt.Print("Base... [http://localhost", port, "/api/v1/docs/index.html", "]\n")
 		utils.CheckErr(s.ListenAndServe())
 	}()
+	/* s3 */
+	/* amqp server */
+	go func() {
+		config := mq.InitConfig()
+		utils.CheckErr(config.ServerStart())
+	}()
+	/* amqp load services */
+
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt)
 	<-quit

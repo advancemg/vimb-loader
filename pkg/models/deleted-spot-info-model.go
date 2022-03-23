@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/json"
 	"fmt"
 	goConvert "github.com/advancemg/go-convert"
 	"github.com/advancemg/vimb-loader/pkg/s3"
@@ -19,7 +20,18 @@ type GetDeletedSpotInfo struct {
 	goConvert.UnsortedMap
 }
 
-func (request *GetDeletedSpotInfo) GetDataJson() (*StreamResponse, error) {
+type DeletedSpotInfoConfiguration struct {
+	Cron      string `json:"cron"`
+	DateStart string `json:"dateStart"`
+	DateEnd   string `json:"dateEnd"`
+}
+
+func (cfg *DeletedSpotInfoConfiguration) GetJob() func() {
+	return func() {
+	}
+}
+
+func (request *GetDeletedSpotInfo) GetDataJson() (*JsonResponse, error) {
 	req, err := request.getXml()
 	if err != nil {
 		return nil, err
@@ -28,8 +40,13 @@ func (request *GetDeletedSpotInfo) GetDataJson() (*StreamResponse, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &StreamResponse{
-		Body:    resp,
+	var body = map[string]interface{}{}
+	err = json.Unmarshal(resp, &body)
+	if err != nil {
+		return nil, err
+	}
+	return &JsonResponse{
+		Body:    body,
 		Request: string(req),
 	}, nil
 }
