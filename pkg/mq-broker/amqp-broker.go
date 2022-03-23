@@ -3,22 +3,22 @@ package mq_broker
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/advancemg/vimb-loader/pkg/utils"
 	"github.com/pkg/errors"
 	"github.com/streadway/amqp"
 	"github.com/valinurovam/garagemq/config"
 	"github.com/valinurovam/garagemq/metrics"
 	"github.com/valinurovam/garagemq/server"
 	"math"
+	"os"
 	"time"
 )
 
 type Config struct {
-	Host     string
-	Port     string
-	Username string
-	Password string
-	conn     *amqp.Connection
+	MqHost     string `json:"mqHost"`
+	MqPort     string `json:"mqPort"`
+	MqUsername string `json:"mqUsername"`
+	MqPassword string `json:"mqPassword"`
+	conn       *amqp.Connection
 }
 
 type Error struct {
@@ -26,18 +26,25 @@ type Error struct {
 }
 
 func InitConfig() *Config {
-	return &Config{
-		Host:     utils.GetEnv("RABBITMQ_HOST", "localhost"),
-		Port:     utils.GetEnv("RABBITMQ_PORT", "5555"),
-		Username: utils.GetEnv("RABBITMQ_USER", "guest"),
-		Password: utils.GetEnv("RABBITMQ_PWD", "guest"),
+	return loadConfig()
+}
+
+func loadConfig() *Config {
+	var config Config
+	configFile, err := os.Open("config.json")
+	if err != nil {
+		panic(err)
 	}
+	defer configFile.Close()
+	jsonParser := json.NewDecoder(configFile)
+	jsonParser.Decode(&config)
+	return &config
 }
 
 func (c *Config) ServerStart() error {
 	cfg, _ := config.CreateDefault()
 	metrics.NewTrackRegistry(15, time.Second, false)
-	srv := server.NewServer(c.Host, c.Port, cfg.Proto, cfg)
+	srv := server.NewServer(c.MqHost, c.MqPort, cfg.Proto, cfg)
 	srv.Start()
 	return errors.New("Amqp server - stop")
 }
@@ -47,7 +54,7 @@ func (c *Config) connection() (*Config, error) {
 	dialConfig.FrameSize = 0
 	dialConfig.Dial = amqp.DefaultDial(time.Second * 10)
 	dialConfig.Heartbeat = 10 * time.Second
-	connection, err := amqp.DialConfig(fmt.Sprintf("amqp://%s:%s@%s:%s/", c.Username, c.Password, c.Host, c.Port), dialConfig)
+	connection, err := amqp.DialConfig(fmt.Sprintf("amqp://%s:%s@%s:%s/", c.MqUsername, c.MqPassword, c.MqHost, c.MqPort), dialConfig)
 	if err != nil {
 		return nil, err
 	}

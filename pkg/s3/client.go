@@ -3,12 +3,14 @@ package s3
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
+	minio "github.com/minio/minio/cmd"
 	"github.com/zenthangplus/goccm"
 	"io"
 	"io/ioutil"
@@ -33,6 +35,7 @@ type Config struct {
 	S3Endpoint        string `json:"s3Endpoint"`
 	S3Debug           string `json:"s3Debug"`
 	S3Bucket          string `json:"s3Bucket"`
+	S3LocalDir        string `json:"s3LocalDir"`
 	S3Session         *session.Session
 }
 
@@ -46,6 +49,15 @@ func loadConfig() *Config {
 	jsonParser := json.NewDecoder(configFile)
 	jsonParser.Decode(&config)
 	return &config
+}
+
+func InitConfig() *Config {
+	return loadConfig()
+}
+
+func (c *Config) ServerStart() error {
+	minio.Main([]string{"minio", "server", "--quiet", "--address", cfg.S3Endpoint, cfg.S3LocalDir})
+	return errors.New("Minio server - stop")
 }
 
 type ProgressWriter struct {
@@ -108,6 +120,11 @@ func CreateBucket(name string) error {
 	}
 	return nil
 }
+
+func CreateDefaultBucket() error {
+	return CreateBucket(cfg.S3Bucket)
+}
+
 func CheckFile(bucket, key string) (map[string]string, error) {
 	err := connection()
 	if err != nil {

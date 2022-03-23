@@ -6,6 +6,7 @@ import (
 	_ "github.com/advancemg/vimb-loader/docs"
 	mq "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/routes"
+	"github.com/advancemg/vimb-loader/pkg/s3"
 	"github.com/advancemg/vimb-loader/pkg/utils"
 	"github.com/gorilla/mux"
 	"github.com/swaggo/http-swagger"
@@ -63,6 +64,13 @@ func main() {
 		utils.CheckErr(s.ListenAndServe())
 	}()
 	/* s3 */
+	go func() {
+		config := s3.InitConfig()
+		utils.CheckErr(config.ServerStart())
+	}()
+	/* s3 CreateDefaultBucket */
+	time.Sleep(time.Second)
+	utils.CheckErr(s3.CreateDefaultBucket())
 	/* amqp server */
 	go func() {
 		config := mq.InitConfig()
