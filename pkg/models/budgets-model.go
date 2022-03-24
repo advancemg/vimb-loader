@@ -7,7 +7,6 @@ import (
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
 	"github.com/advancemg/vimb-loader/pkg/utils"
-	"time"
 )
 
 type SwaggerGetBudgetsRequest struct {
@@ -153,21 +152,8 @@ func (request *GetBudgets) UploadToS3() error {
 		data, err := request.GetDataXmlZip()
 		if err != nil {
 			if vimbError, ok := err.(*utils.VimbError); ok {
-				code := vimbError.Code
-				switch code {
-				case 1001:
-					fmt.Printf("Vimb code %v timeout...", code)
-					time.Sleep(time.Minute * 1)
-					continue
-				case 1003:
-					fmt.Printf("Vimb code %v timeout...", code)
-					time.Sleep(time.Minute * 2)
-					continue
-				default:
-					fmt.Printf("Vimb code %v - not implemented timeout...", code)
-					time.Sleep(time.Minute * 1)
-					continue
-				}
+				vimbError.CheckTimeout()
+				continue
 			}
 			return err
 		}
@@ -180,8 +166,18 @@ func (request *GetBudgets) UploadToS3() error {
 		if err != nil {
 			return err
 		}
+		/*update data from gz file*/
+		err = request.DataConfiguration(newS3Key)
+		if err != nil {
+			return err
+		}
 		return nil
 	}
+}
+
+func (request *GetBudgets) DataConfiguration(s3Key string) error {
+
+	return nil
 }
 
 func (request *GetBudgets) getXml() ([]byte, error) {

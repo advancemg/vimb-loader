@@ -179,6 +179,24 @@ type VimbError struct {
 	Message string `json:"message"`
 }
 
+func (e *VimbError) CheckTimeout() {
+	code := e.Code
+	switch code {
+	case 1001:
+		fmt.Printf("Vimb code %v timeout...", code)
+		time.Sleep(time.Minute * 1)
+		return
+	case 1003:
+		fmt.Printf("Vimb code %v timeout...", code)
+		time.Sleep(time.Minute * 2)
+		return
+	default:
+		fmt.Printf("Vimb code %v - not implemented timeout...", code)
+		time.Sleep(time.Minute * 1)
+		return
+	}
+}
+
 func (e VimbError) Error() string {
 	return fmt.Sprintf("%s", e.Message)
 }
