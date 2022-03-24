@@ -179,6 +179,6 @@ type VimbError struct {
 	Message string `json:"message"`
 }
 
-func (err *VimbError) Error() string {
-	return fmt.Sprintf("%s", err.Message)
+func (e VimbError) Error() string {
+	return fmt.Sprintf("%s", e.Message)
 }

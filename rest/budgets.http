@@ -3,8 +3,8 @@ Content-Type: application/json
 
 {
   "SellingDirectionID": "21",
-  "StartMonth": "202109",
-  "EndMonth": "202109"
+  "StartMonth": "202203",
+  "EndMonth": "202203"
 }
 
 ###

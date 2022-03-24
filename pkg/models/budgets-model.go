@@ -7,6 +7,7 @@ import (
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
 	"github.com/advancemg/vimb-loader/pkg/utils"
+	"time"
 )
 
 type SwaggerGetBudgetsRequest struct {
@@ -28,9 +29,13 @@ type GetBudgets struct {
 type BudgetConfiguration struct {
 	Cron             string `json:"cron"`
 	SellingDirection string `json:"sellingDirection"`
+	Loading          bool   `json:"loading"`
 }
 
 func (cfg *BudgetConfiguration) StartJob() error {
+	if !cfg.Loading {
+		return nil
+	}
 	qName := GetBudgetsType
 	amqpConfig := mq_broker.InitConfig()
 	err := amqpConfig.DeclareSimpleQueue(qName)
@@ -65,6 +70,9 @@ func (cfg *BudgetConfiguration) StartJob() error {
 
 func (cfg *BudgetConfiguration) InitJob() func() {
 	return func() {
+		if !cfg.Loading {
+			return
+		}
 		qName := GetBudgetsType
 		amqpConfig := mq_broker.InitConfig()
 		err := amqpConfig.DeclareSimpleQueue(qName)
@@ -87,11 +95,9 @@ func (cfg *BudgetConfiguration) InitJob() func() {
 		}
 		for _, month := range months {
 			request := goConvert.New()
-			body := goConvert.New()
-			body.Set("SellingDirectionID", cfg.SellingDirection)
-			body.Set("StartMonth", month.ValueString)
-			body.Set("EndMonth", month.ValueString)
-			request.Set("GetBudgets", body)
+			request.Set("SellingDirectionID", cfg.SellingDirection)
+			request.Set("StartMonth", month.ValueString)
+			request.Set("EndMonth", month.ValueString)
 			err := amqpConfig.PublishJson(qName, request)
 			if err != nil {
 				fmt.Printf("Q:%s - err:%s", qName, err.Error())
@@ -99,6 +105,11 @@ func (cfg *BudgetConfiguration) InitJob() func() {
 			}
 		}
 	}
+}
+
+func (request *GetBudgets) GetStartMonth() (string, error) {
+	startMonth, _ := request.Get("StartMonth")
+	return fmt.Sprintf("%v", startMonth), nil
 }
 
 func (request *GetBudgets) GetDataJson() (*JsonResponse, error) {
@@ -137,17 +148,40 @@ func (request *GetBudgets) GetDataXmlZip() (*StreamResponse, error) {
 }
 
 func (request *GetBudgets) UploadToS3() error {
-	typeName := GetBudgetsType
-	data, err := request.GetDataXmlZip()
-	if err != nil {
-		return err
+	for {
+		typeName := GetBudgetsType
+		data, err := request.GetDataXmlZip()
+		if err != nil {
+			if vimbError, ok := err.(*utils.VimbError); ok {
+				code := vimbError.Code
+				switch code {
+				case 1001:
+					fmt.Printf("Vimb code %v timeout...", code)
+					time.Sleep(time.Minute * 1)
+					continue
+				case 1003:
+					fmt.Printf("Vimb code %v timeout...", code)
+					time.Sleep(time.Minute * 2)
+					continue
+				default:
+					fmt.Printf("Vimb code %v - not implemented timeout...", code)
+					time.Sleep(time.Minute * 1)
+					continue
+				}
+			}
+			return err
+		}
+		month, _ := request.Get("StartMonth")
+		if err != nil {
+			return err
+		}
+		var newS3Key = fmt.Sprintf("vimb/%s/%s/%v/%s-%s.gz", utils.Actions.Client, typeName, month, utils.DateTimeNowInt(), typeName)
+		_, err = s3.UploadBytesWithBucket(newS3Key, data.Body)
+		if err != nil {
+			return err
+		}
+		return nil
 	}
-	var newS3Key = fmt.Sprintf("vimb/%s/%s/%s-%s.gz", utils.Actions.Client, typeName, utils.DateTimeNowInt(), typeName)
-	_, err = s3.UploadBytesWithBucket(newS3Key, data.Body)
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
 func (request *GetBudgets) getXml() ([]byte, error) {
