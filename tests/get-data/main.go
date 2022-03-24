@@ -15,7 +15,11 @@ func changeModel(input []byte, model string) ([]byte, error) {
 		if err != nil {
 			return nil, err
 		}
-		return data.Body, nil
+		marshal, err := json.Marshal(data.Body)
+		if err != nil {
+			return nil, err
+		}
+		return marshal, nil
 	case "AddSpot":
 		var js AddSpot
 		json.Unmarshal(input, &js)
@@ -23,7 +27,11 @@ func changeModel(input []byte, model string) ([]byte, error) {
 		if err != nil {
 			return nil, err
 		}
-		return data.Body, nil
+		marshal, err := json.Marshal(data.Body)
+		if err != nil {
+			return nil, err
+		}
+		return marshal, nil
 	case "GetAdvMessages":
 		var js GetAdvMessages
 		json.Unmarshal(input, &js)
@@ -31,7 +39,11 @@ func changeModel(input []byte, model string) ([]byte, error) {
 		if err != nil {
 			return nil, err
 		}
-		return data.Body, nil
+		marshal, err := json.Marshal(data.Body)
+		if err != nil {
+			return nil, err
+		}
+		return marshal, nil
 	case "GetBudgets":
 		var js GetBudgets
 		json.Unmarshal(input, &js)
@@ -39,7 +51,11 @@ func changeModel(input []byte, model string) ([]byte, error) {
 		if err != nil {
 			return nil, err
 		}
-		return data.Body, nil
+		marshal, err := json.Marshal(data.Body)
+		if err != nil {
+			return nil, err
+		}
+		return marshal, nil
 	case "ChangeMPlanFilmPlannedInventory":
 		var js ChangeMPlanFilmPlannedInventory
 		json.Unmarshal(input, &js)
@@ -47,7 +63,11 @@ func changeModel(input []byte, model string) ([]byte, error) {
 		if err != nil {
 			return nil, err
 		}
-		return data.Body, nil
+		marshal, err := json.Marshal(data.Body)
+		if err != nil {
+			return nil, err
+		}
+		return marshal, nil
 	case "ChangeSpot":
 		var js ChangeSpot
 		json.Unmarshal(input, &js)
@@ -55,7 +75,11 @@ func changeModel(input []byte, model string) ([]byte, error) {
 		if err != nil {
 			return nil, err
 		}
-		return data.Body, nil
+		marshal, err := json.Marshal(data.Body)
+		if err != nil {
+			return nil, err
+		}
+		return marshal, nil
 	case "GetChannels":
 		var js GetChannels
 		json.Unmarshal(input, &js)
@@ -63,7 +87,11 @@ func changeModel(input []byte, model string) ([]byte, error) {
 		if err != nil {
 			return nil, err
 		}
-		return data.Body, nil
+		marshal, err := json.Marshal(data.Body)
+		if err != nil {
+			return nil, err
+		}
+		return marshal, nil
 	case "GetCustomersWithAdvertisers":
 		var js GetCustomersWithAdvertisers
 		json.Unmarshal(input, &js)
@@ -71,7 +99,11 @@ func changeModel(input []byte, model string) ([]byte, error) {
 		if err != nil {
 			return nil, err
 		}
-		return data.Body, nil
+		marshal, err := json.Marshal(data.Body)
+		if err != nil {
+			return nil, err
+		}
+		return marshal, nil
 	case "DeleteMPlanFilm":
 		var js DeleteMPlanFilm
 		json.Unmarshal(input, &js)
@@ -79,7 +111,11 @@ func changeModel(input []byte, model string) ([]byte, error) {
 		if err != nil {
 			return nil, err
 		}
-		return data.Body, nil
+		marshal, err := json.Marshal(data.Body)
+		if err != nil {
+			return nil, err
+		}
+		return marshal, nil
 	case "DeleteSpot":
 		var js DeleteSpot
 		json.Unmarshal(input, &js)
@@ -87,7 +123,11 @@ func changeModel(input []byte, model string) ([]byte, error) {
 		if err != nil {
 			return nil, err
 		}
-		return data.Body, nil
+		marshal, err := json.Marshal(data.Body)
+		if err != nil {
+			return nil, err
+		}
+		return marshal, nil
 	case "GetDeletedSpotInfo":
 		var js GetDeletedSpotInfo
 		json.Unmarshal(input, &js)
@@ -95,7 +135,11 @@ func changeModel(input []byte, model string) ([]byte, error) {
 		if err != nil {
 			return nil, err
 		}
-		return data.Body, nil
+		marshal, err := json.Marshal(data.Body)
+		if err != nil {
+			return nil, err
+		}
+		return marshal, nil
 	case "GetMPLans":
 		var js GetMPLans
 		json.Unmarshal(input, &js)
@@ -103,7 +147,11 @@ func changeModel(input []byte, model string) ([]byte, error) {
 		if err != nil {
 			return nil, err
 		}
-		return data.Body, nil
+		marshal, err := json.Marshal(data.Body)
+		if err != nil {
+			return nil, err
+		}
+		return marshal, nil
 	case "GetSpots":
 		var js GetSpots
 		json.Unmarshal(input, &js)
@@ -111,7 +159,11 @@ func changeModel(input []byte, model string) ([]byte, error) {
 		if err != nil {
 			return nil, err
 		}
-		return data.Body, nil
+		marshal, err := json.Marshal(data.Body)
+		if err != nil {
+			return nil, err
+		}
+		return marshal, nil
 	case "GetProgramBreaks":
 		var js GetProgramBreaks
 		json.Unmarshal(input, &js)
@@ -119,7 +171,11 @@ func changeModel(input []byte, model string) ([]byte, error) {
 		if err != nil {
 			return nil, err
 		}
-		return data.Body, nil
+		marshal, err := json.Marshal(data.Body)
+		if err != nil {
+			return nil, err
+		}
+		return marshal, nil
 	case "GetRanks":
 		var js GetRanks
 		json.Unmarshal(input, &js)
@@ -127,7 +183,11 @@ func changeModel(input []byte, model string) ([]byte, error) {
 		if err != nil {
 			return nil, err
 		}
-		return data.Body, nil
+		marshal, err := json.Marshal(data.Body)
+		if err != nil {
+			return nil, err
+		}
+		return marshal, nil
 	case "SetSpotPosition":
 		var js SetSpotPosition
 		json.Unmarshal(input, &js)
@@ -135,7 +195,11 @@ func changeModel(input []byte, model string) ([]byte, error) {
 		if err != nil {
 			return nil, err
 		}
-		return data.Body, nil
+		marshal, err := json.Marshal(data.Body)
+		if err != nil {
+			return nil, err
+		}
+		return marshal, nil
 	case "AddMPlanFilm":
 		var js AddMPlanFilm
 		json.Unmarshal(input, &js)
@@ -143,7 +207,11 @@ func changeModel(input []byte, model string) ([]byte, error) {
 		if err != nil {
 			return nil, err
 		}
-		return data.Body, nil
+		marshal, err := json.Marshal(data.Body)
+		if err != nil {
+			return nil, err
+		}
+		return marshal, nil
 	}
 	return nil, nil
 }
@@ -153,6 +221,10 @@ func main() {
 		name  string
 		input []byte
 	}{
+		{
+			name:  "AddMPlanFilm",
+			input: []byte(`{"EndDate": "nil","FilmID": "751900","MplID": "14396424","StartDate": "2022-03-21"}`),
+		},
 		{
 			name:  "GetProgramBreaks",
 			input: []byte(`{"SellingDirectionID": "21","InclProgAttr": "1","InclForecast": "1","AudRatDec": "9","StartDate": "20210309","EndDate": "20210309","LightMode": "0","CnlList": {"Cnl": "1018566"},"ProtocolVersion": "2"}`),
@@ -208,10 +280,6 @@ func main() {
 		{
 			name:  "SetSpotPosition",
 			input: []byte(`{"Distance": "2","SpotID": "637435949"}`),
-		},
-		{
-			name:  "AddMPlanFilm",
-			input: []byte(`{"EndDate": "nil","FilmID": "751900","MplID": "14396424","StartDate": "2018-12-24"}`),
 		},
 		{
 			name:  "AddSpot",

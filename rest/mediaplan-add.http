@@ -1,0 +1,14 @@
+PUT {{base-url}}/api/v1/mediaplan
+Content-Type: application/json
+
+{
+  "BrandID": "nil",
+  "DateFrom": "2022-03-01",
+  "DateTo": "2022-03-30",
+  "MplCnlID": "1019882",
+  "MplName": "Тест",
+  "MultiSpotsInBlock": "false",
+  "OrdID": "499499"
+}
+
+###

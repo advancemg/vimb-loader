@@ -1,0 +1,17 @@
+POST {{base-url}}/api/v1/mediaplan
+Content-Type: application/json
+
+{
+  "AdtList": {
+    "AdtID": "1"
+  },
+  "ChannelList": {
+    "Cnl": "1018578"
+  },
+  "EndMonth": "201707",
+  "IncludeEmpty": "true",
+  "SellingDirectionID": "21",
+  "StartMonth": "201707"
+}
+
+###

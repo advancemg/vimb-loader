@@ -1,0 +1,18 @@
+POST {{base-url}}/api/v1/mediaplan/change-film-planned-inventory
+Content-Type: application/json
+
+{
+  "Data": [
+    {
+      "CommInMpl": {"ID": "1017603","Inventory": "10"}
+    },
+    {
+      "CommInMpl": {"ID": "1017604","Inventory": "10"}
+    },
+    {
+      "CommInMpl": {"ID": "1017609","Inventory": "10"}
+    }
+  ]
+}
+
+###

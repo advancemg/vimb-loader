@@ -18,7 +18,7 @@ func (svc *LoadService) Start() error {
 	if err != nil {
 		return err
 	}
-	/*err = scheduler.AddFunc(config.Channel.Cron, config.Channel.InitJob())
+	err = scheduler.AddFunc(config.Channel.Cron, config.Channel.InitJob())
 	if err != nil {
 		return err
 	}
@@ -53,7 +53,7 @@ func (svc *LoadService) Start() error {
 	err = scheduler.AddFunc(config.Spots.Cron, config.Spots.InitJob())
 	if err != nil {
 		return err
-	}*/
+	}
 	defer scheduler.Stop()
 	scheduler.Start()
 	/*jobs*/

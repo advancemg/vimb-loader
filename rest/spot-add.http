@@ -1,0 +1,12 @@
+PUT {{base-url}}/api/v1/spot
+Content-Type: application/json
+
+{
+  "AuctionBidValue": "nil",
+  "BlockID": "1",
+  "FilmID": "1238114",
+  "FixedPosition": "true",
+  "Position": "nil"
+}
+
+###

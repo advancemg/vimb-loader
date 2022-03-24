@@ -107,11 +107,6 @@ func (cfg *BudgetConfiguration) InitJob() func() {
 	}
 }
 
-func (request *GetBudgets) GetStartMonth() (string, error) {
-	startMonth, _ := request.Get("StartMonth")
-	return fmt.Sprintf("%v", startMonth), nil
-}
-
 func (request *GetBudgets) GetDataJson() (*JsonResponse, error) {
 	req, err := request.getXml()
 	if err != nil {
@@ -172,9 +167,6 @@ func (request *GetBudgets) UploadToS3() error {
 			return err
 		}
 		month, _ := request.Get("StartMonth")
-		if err != nil {
-			return err
-		}
 		var newS3Key = fmt.Sprintf("vimb/%s/%s/%v/%s-%s.gz", utils.Actions.Client, typeName, month, utils.DateTimeNowInt(), typeName)
 		_, err = s3.UploadBytesWithBucket(newS3Key, data.Body)
 		if err != nil {

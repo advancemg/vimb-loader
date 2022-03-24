@@ -1,0 +1,9 @@
+POST {{base-url}}/api/v1/spot
+Content-Type: application/json
+
+{
+  "FirstSpotID": "1",
+  "SecondSpotID": "2"
+}
+
+###

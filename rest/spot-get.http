@@ -1,0 +1,18 @@
+POST {{base-url}}/api/v1/spot
+Content-Type: application/json
+
+{
+  "AdtList": {
+    "AdtID": "1"
+  },
+  "ChannelList": {
+    "Cnl": "2",
+    "Main": "1"
+  },
+  "EndDate": "20161016",
+  "InclOrdBlocks": "1",
+  "SellingDirectionID": "21",
+  "StartDate": "20161010"
+}
+
+###

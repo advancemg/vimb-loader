@@ -1,0 +1,8 @@
+POST {{base-url}}/api/v1/ranks
+Content-Type: application/json
+
+{
+  "GetRanks": ""
+}
+
+###

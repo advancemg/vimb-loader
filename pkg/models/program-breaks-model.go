@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	goConvert "github.com/advancemg/go-convert"
+	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
 	"github.com/advancemg/vimb-loader/pkg/utils"
+	"time"
 )
 
 type SwaggerGetProgramBreaksRequest struct {
@@ -28,20 +30,164 @@ type GetProgramBreaks struct {
 }
 
 type ProgramBreaksConfiguration struct {
-	Cron string `json:"cron"`
+	Cron             string `json:"cron"`
+	SellingDirection string `json:"sellingDirection"`
+	Loading          bool   `json:"loading"`
 }
 
-func (cfg *ProgramBreaksConfiguration) GetJob() func() {
+func (cfg *ProgramBreaksConfiguration) StartJob() error {
+	if !cfg.Loading {
+		return nil
+	}
+	qName := GetProgramBreaksType
+	amqpConfig := mq_broker.InitConfig()
+	err := amqpConfig.DeclareSimpleQueue(qName)
+	if err != nil {
+		return err
+	}
+	ch, err := amqpConfig.Channel()
+	if err != nil {
+		return err
+	}
+	err = ch.Qos(1, 0, false)
+	messages, err := ch.Consume(qName, "",
+		false,
+		false,
+		false,
+		false,
+		nil)
+	for msg := range messages {
+		var bodyJson GetProgramBreaks
+		err := json.Unmarshal(msg.Body, &bodyJson)
+		if err != nil {
+			return err
+		}
+		err = bodyJson.UploadToS3()
+		if err != nil {
+			return err
+		}
+		msg.Ack(false)
+	}
+	return nil
+}
+
+func (cfg *ProgramBreaksConfiguration) InitJob() func() {
 	return func() {
+		if !cfg.Loading {
+			return
+		}
+		qName := GetProgramBreaksType
+		amqpConfig := mq_broker.InitConfig()
+		err := amqpConfig.DeclareSimpleQueue(qName)
+		if err != nil {
+			fmt.Printf("Q:%s - err:%s", qName, err.Error())
+			return
+		}
+		qInfo, err := amqpConfig.GetQueueInfo(qName)
+		if err != nil {
+			fmt.Printf("Q:%s - err:%s", qName, err.Error())
+			return
+		}
+		if qInfo.Messages > 0 {
+			return
+		}
+		months, err := utils.GetActualMonths()
+		if err != nil {
+			fmt.Printf("Q:%s - err:%s", qName, err.Error())
+			return
+		}
+		for _, month := range months {
+			request := goConvert.New()
+			request.Set("SellingDirectionID", cfg.SellingDirection)
+			request.Set("StartDate", month.ValueString)
+			request.Set("EndDate", month.ValueString)
+			err := amqpConfig.PublishJson(qName, request)
+			if err != nil {
+				fmt.Printf("Q:%s - err:%s", qName, err.Error())
+				return
+			}
+		}
 	}
 }
 
 type ProgramBreaksLightConfiguration struct {
-	Cron string `json:"cron"`
+	Cron             string `json:"cron"`
+	SellingDirection string `json:"sellingDirection"`
+	Loading          bool   `json:"loading"`
 }
 
-func (cfg *ProgramBreaksLightConfiguration) GetJob() func() {
+func (cfg *ProgramBreaksLightConfiguration) StartJob() error {
+	if !cfg.Loading {
+		return nil
+	}
+	qName := GetProgramBreaksLightModeType
+	amqpConfig := mq_broker.InitConfig()
+	err := amqpConfig.DeclareSimpleQueue(qName)
+	if err != nil {
+		return err
+	}
+	ch, err := amqpConfig.Channel()
+	if err != nil {
+		return err
+	}
+	err = ch.Qos(1, 0, false)
+	messages, err := ch.Consume(qName, "",
+		false,
+		false,
+		false,
+		false,
+		nil)
+	for msg := range messages {
+		var bodyJson GetProgramBreaks
+		err := json.Unmarshal(msg.Body, &bodyJson)
+		if err != nil {
+			return err
+		}
+		err = bodyJson.UploadToS3()
+		if err != nil {
+			return err
+		}
+		msg.Ack(false)
+	}
+	return nil
+}
+
+func (cfg *ProgramBreaksLightConfiguration) InitJob() func() {
 	return func() {
+		if !cfg.Loading {
+			return
+		}
+		qName := GetProgramBreaksLightModeType
+		amqpConfig := mq_broker.InitConfig()
+		err := amqpConfig.DeclareSimpleQueue(qName)
+		if err != nil {
+			fmt.Printf("Q:%s - err:%s", qName, err.Error())
+			return
+		}
+		qInfo, err := amqpConfig.GetQueueInfo(qName)
+		if err != nil {
+			fmt.Printf("Q:%s - err:%s", qName, err.Error())
+			return
+		}
+		if qInfo.Messages > 0 {
+			return
+		}
+		months, err := utils.GetActualMonths()
+		if err != nil {
+			fmt.Printf("Q:%s - err:%s", qName, err.Error())
+			return
+		}
+		for _, month := range months {
+			request := goConvert.New()
+			request.Set("SellingDirectionID", cfg.SellingDirection)
+			request.Set("StartDate", month.ValueString)
+			request.Set("EndDate", month.ValueString)
+			err := amqpConfig.PublishJson(qName, request)
+			if err != nil {
+				fmt.Printf("Q:%s - err:%s", qName, err.Error())
+				return
+			}
+		}
 	}
 }
 
@@ -81,19 +227,39 @@ func (request *GetProgramBreaks) GetDataXmlZip() (*StreamResponse, error) {
 }
 
 func (request *GetProgramBreaks) UploadToS3() error {
-	typeName := GetProgramBreaksType
-	data, err := request.GetDataXmlZip()
-	if err != nil {
-		return err
+	for {
+		typeName := GetProgramBreaksType
+		data, err := request.GetDataXmlZip()
+		if err != nil {
+			if vimbError, ok := err.(*utils.VimbError); ok {
+				code := vimbError.Code
+				switch code {
+				case 1001:
+					fmt.Printf("Vimb code %v timeout...", code)
+					time.Sleep(time.Minute * 1)
+					continue
+				case 1003:
+					fmt.Printf("Vimb code %v timeout...", code)
+					time.Sleep(time.Minute * 2)
+					continue
+				default:
+					fmt.Printf("Vimb code %v - not implemented timeout...", code)
+					time.Sleep(time.Minute * 1)
+					continue
+				}
+			}
+			return err
+		}
+		sellingDirectionID, _ := request.Get("SellingDirectionID")
+		startDate, _ := request.Get("StartDate")
+		month, _ := request.Get("StartMonth")
+		var newS3Key = fmt.Sprintf("vimb/%s/%s/%s/%s/%s/%d/%s-%s.gz", sellingDirectionID, utils.Actions.Client, typeName, startDate, month, request.Path, utils.DateTimeNowInt(), typeName)
+		_, err = s3.UploadBytesWithBucket(newS3Key, data.Body)
+		if err != nil {
+			return err
+		}
+		return nil
 	}
-	sellingDirectionID, _ := request.Get("SellingDirectionID")
-	startDate, _ := request.Get("StartDate")
-	var newS3Key = fmt.Sprintf("vimb/%s/%s/%s/%s/%d/%s-%s.gz", sellingDirectionID, utils.Actions.Client, typeName, startDate, request.Path, utils.DateTimeNowInt(), typeName)
-	_, err = s3.UploadBytesWithBucket(newS3Key, data.Body)
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
 func (request *GetProgramBreaks) getXml() ([]byte, error) {

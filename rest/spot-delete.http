@@ -1,0 +1,8 @@
+DELETE {{base-url}}/api/v1/spot
+Content-Type: application/json
+
+{
+  "SpotID": "123"
+}
+
+###
