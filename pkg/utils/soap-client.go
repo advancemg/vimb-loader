@@ -23,6 +23,7 @@ type Config struct {
 	Cert     string `json:"cert"`
 	Password string `json:"password"`
 	Client   string `json:"client"`
+	Timeout  string `json:"timeout"`
 }
 
 type Action struct {
@@ -57,7 +58,10 @@ func loadConfig() *Config {
 }
 
 func (cfg *Config) newClient() *http.Client {
-	timeout := 30 * time.Second
+	timeout, err := time.ParseDuration(cfg.Timeout)
+	if err != nil {
+		panic(err)
+	}
 	dataCert, err := base64.StdEncoding.DecodeString(cfg.Cert)
 	if err != nil {
 		log.Fatal("error:", err)
@@ -177,6 +181,25 @@ func catchBody(resp []byte) ([]byte, error) {
 type VimbError struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
+}
+
+func (e *VimbError) CheckTimeout() {
+	code := e.Code
+	switch code {
+	case 1001:
+		fmt.Printf("Vimb code %v timeout...", code)
+		time.Sleep(time.Minute * 1)
+		return
+	case 1003:
+		fmt.Printf("Vimb code %v timeout...", code)
+		time.Sleep(time.Minute * 2)
+		return
+	default:
+		fmt.Printf("Vimb code %v - not implemented timeout...", code)
+		fmt.Println(e.Message)
+		time.Sleep(time.Minute * 1)
+		return
+	}
 }
 
 func (e VimbError) Error() string {

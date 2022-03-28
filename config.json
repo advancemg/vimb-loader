@@ -1,12 +1,17 @@
 {
   "budget": {
-    "cron": "10/10 * * * *",
-    "sellingDirection": "21",
+    "cron": "*/1 * * * *",
+    "sellingDirection": "23",
+    "loading": true
+  },
+  "programBreaks": {
+    "cron": "*/2 * * * *",
+    "sellingDirection": "23",
     "loading": true
   },
   "mediaplan": {
     "cron": "0 0/20 * * *",
-    "sellingDirection": "21",
+    "sellingDirection": "23",
     "loading": true
   },
   "advMessages": {
@@ -15,17 +20,17 @@
   },
   "spots": {
     "cron": "0 0/59 * * *",
-    "sellingDirection": "21",
+    "sellingDirection": "23",
     "loading": true
   },
   "channel": {
     "cron": "0 0/16 * * *",
-    "sellingDirection": "21",
+    "sellingDirection": "23",
     "loading": true
   },
   "customersWithAdvertisers": {
     "cron": "0 0/59 * * *",
-    "sellingDirection": "21",
+    "sellingDirection": "23",
     "loading": true
   },
   "rank": {
@@ -33,13 +38,8 @@
     "loading": true
   },
   "programBreaksLight": {
-    "cron": "0/2 * * * *",
-    "sellingDirection": "21",
-    "loading": true
-  },
-  "programBreaks": {
-    "cron": "0 0 0/8 * *",
-    "sellingDirection": "21",
+    "cron": "10/10 * * * *",
+    "sellingDirection": "23",
     "loading": true
   },
   "amqp": {
@@ -60,5 +60,6 @@
   "url": "https://vimb-svc.vitpc.com:436/VIMBService.asmx",
   "cert": "",
   "password": "",
-  "client": "test_client"
+  "client": "test_client",
+  "timeout": "120s"
 }

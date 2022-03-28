@@ -6,7 +6,9 @@ import (
 	goConvert "github.com/advancemg/go-convert"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
+	"github.com/advancemg/vimb-loader/pkg/storage"
 	"github.com/advancemg/vimb-loader/pkg/utils"
+	"strconv"
 	"time"
 )
 
@@ -35,40 +37,44 @@ type ProgramBreaksConfiguration struct {
 	Loading          bool   `json:"loading"`
 }
 
-func (cfg *ProgramBreaksConfiguration) StartJob() error {
+func (cfg *ProgramBreaksConfiguration) StartJob() chan error {
 	if !cfg.Loading {
 		return nil
 	}
-	qName := GetProgramBreaksType
-	amqpConfig := mq_broker.InitConfig()
-	err := amqpConfig.DeclareSimpleQueue(qName)
-	if err != nil {
-		return err
-	}
-	ch, err := amqpConfig.Channel()
-	if err != nil {
-		return err
-	}
-	err = ch.Qos(1, 0, false)
-	messages, err := ch.Consume(qName, "",
-		false,
-		false,
-		false,
-		false,
-		nil)
-	for msg := range messages {
-		var bodyJson GetProgramBreaks
-		err := json.Unmarshal(msg.Body, &bodyJson)
+	errorCh := make(chan error)
+	go func() {
+		qName := GetProgramBreaksType
+		amqpConfig := mq_broker.InitConfig()
+		err := amqpConfig.DeclareSimpleQueue(qName)
 		if err != nil {
-			return err
+			errorCh <- err
 		}
-		err = bodyJson.UploadToS3()
+		ch, err := amqpConfig.Channel()
 		if err != nil {
-			return err
+			errorCh <- err
 		}
-		msg.Ack(false)
-	}
-	return nil
+		err = ch.Qos(1, 0, false)
+		messages, err := ch.Consume(qName, "",
+			false,
+			false,
+			false,
+			false,
+			nil)
+		for msg := range messages {
+			var bodyJson GetProgramBreaks
+			err := json.Unmarshal(msg.Body, &bodyJson)
+			if err != nil {
+				errorCh <- err
+			}
+			err = bodyJson.UploadToS3()
+			if err != nil {
+				errorCh <- err
+			}
+			msg.Ack(false)
+		}
+		defer close(errorCh)
+	}()
+	return errorCh
 }
 
 func (cfg *ProgramBreaksConfiguration) InitJob() func() {
@@ -91,20 +97,66 @@ func (cfg *ProgramBreaksConfiguration) InitJob() func() {
 		if qInfo.Messages > 0 {
 			return
 		}
-		months, err := utils.GetActualMonths()
-		if err != nil {
-			fmt.Printf("Q:%s - err:%s", qName, err.Error())
-			return
+		type Cnl struct {
+			Cnl string `json:"Cnl" example:"1018566"`
 		}
-		for _, month := range months {
-			request := goConvert.New()
-			request.Set("SellingDirectionID", cfg.SellingDirection)
-			request.Set("StartDate", month.ValueString)
-			request.Set("EndDate", month.ValueString)
-			err := amqpConfig.PublishJson(qName, request)
+		badgerChannels := storage.NewBadger(DbCustomConfigChannels)
+		badgerMonth := storage.NewBadger(DbCustomConfigMonth)
+		defer badgerChannels.Close()
+		defer badgerMonth.Close()
+		months := map[string][]string{}
+		channels := map[string]Cnl{}
+		badgerChannels.Iterate(func(key []byte, value []byte) {
+			channels[string(key)] = Cnl{Cnl: string(value)}
+		})
+		badgerMonth.Iterate(func(key []byte, value []byte) {
+			month, err := strconv.Atoi(string(value)[4:6])
 			if err != nil {
-				fmt.Printf("Q:%s - err:%s", qName, err.Error())
-				return
+				panic(err)
+			}
+			year, err := strconv.Atoi(string(value)[0:4])
+			if err != nil {
+				panic(err)
+			}
+			days, err := utils.GetDaysFromMonth(year, time.Month(month))
+			if err != nil {
+				panic(err)
+			}
+			months[string(key)] = days
+		})
+		var cnl []Cnl
+		for _, c := range channels {
+			cnl = append(cnl, c)
+		}
+		for month, days := range months {
+			for _, day := range days {
+				chunk := 50
+				chunkCount := 0
+				var j int
+				for i := 0; i < len(cnl); i += chunk {
+					chunkCount++
+					j += chunk
+					if j > len(cnl) {
+						j = len(cnl)
+					}
+					startEndDay := fmt.Sprintf("%s%s", month, day)
+					request := goConvert.New()
+					request.Set("SellingDirectionID", cfg.SellingDirection)
+					request.Set("InclProgAttr", "0")
+					request.Set("InclForecast", "0")
+					request.Set("AudRatDec", "8")
+					request.Set("StartDate", startEndDay)
+					request.Set("EndDate", startEndDay)
+					request.Set("LightMode", "0")
+					request.Set("CnlList", cnl[i:j])
+					request.Set("ProtocolVersion", "2")
+					request.Set("Path", chunkCount)
+					err := amqpConfig.PublishJson(qName, request)
+					if err != nil {
+						fmt.Printf("Q:%s - err:%s", qName, err.Error())
+						return
+					}
+				}
 			}
 		}
 	}
@@ -116,40 +168,44 @@ type ProgramBreaksLightConfiguration struct {
 	Loading          bool   `json:"loading"`
 }
 
-func (cfg *ProgramBreaksLightConfiguration) StartJob() error {
+func (cfg *ProgramBreaksLightConfiguration) StartJob() chan error {
 	if !cfg.Loading {
 		return nil
 	}
-	qName := GetProgramBreaksLightModeType
-	amqpConfig := mq_broker.InitConfig()
-	err := amqpConfig.DeclareSimpleQueue(qName)
-	if err != nil {
-		return err
-	}
-	ch, err := amqpConfig.Channel()
-	if err != nil {
-		return err
-	}
-	err = ch.Qos(1, 0, false)
-	messages, err := ch.Consume(qName, "",
-		false,
-		false,
-		false,
-		false,
-		nil)
-	for msg := range messages {
-		var bodyJson GetProgramBreaks
-		err := json.Unmarshal(msg.Body, &bodyJson)
+	errorCh := make(chan error)
+	go func() {
+		qName := GetProgramBreaksLightModeType
+		amqpConfig := mq_broker.InitConfig()
+		err := amqpConfig.DeclareSimpleQueue(qName)
 		if err != nil {
-			return err
+			errorCh <- err
 		}
-		err = bodyJson.UploadToS3()
+		ch, err := amqpConfig.Channel()
 		if err != nil {
-			return err
+			errorCh <- err
 		}
-		msg.Ack(false)
-	}
-	return nil
+		err = ch.Qos(1, 0, false)
+		messages, err := ch.Consume(qName, "",
+			false,
+			false,
+			false,
+			false,
+			nil)
+		for msg := range messages {
+			var bodyJson GetProgramBreaks
+			err := json.Unmarshal(msg.Body, &bodyJson)
+			if err != nil {
+				errorCh <- err
+			}
+			err = bodyJson.UploadToS3()
+			if err != nil {
+				errorCh <- err
+			}
+			msg.Ack(false)
+		}
+		defer close(errorCh)
+	}()
+	return errorCh
 }
 
 func (cfg *ProgramBreaksLightConfiguration) InitJob() func() {
@@ -172,20 +228,66 @@ func (cfg *ProgramBreaksLightConfiguration) InitJob() func() {
 		if qInfo.Messages > 0 {
 			return
 		}
-		months, err := utils.GetActualMonths()
-		if err != nil {
-			fmt.Printf("Q:%s - err:%s", qName, err.Error())
-			return
+		type Cnl struct {
+			Cnl string `json:"Cnl" example:"1018566"`
 		}
-		for _, month := range months {
-			request := goConvert.New()
-			request.Set("SellingDirectionID", cfg.SellingDirection)
-			request.Set("StartDate", month.ValueString)
-			request.Set("EndDate", month.ValueString)
-			err := amqpConfig.PublishJson(qName, request)
+		badgerChannels := storage.NewBadger(DbCustomConfigChannels)
+		badgerMonth := storage.NewBadger(DbCustomConfigMonth)
+		defer badgerChannels.Close()
+		defer badgerMonth.Close()
+		months := map[string][]string{}
+		channels := map[string]Cnl{}
+		badgerChannels.Iterate(func(key []byte, value []byte) {
+			channels[string(key)] = Cnl{Cnl: string(value)}
+		})
+		badgerMonth.Iterate(func(key []byte, value []byte) {
+			month, err := strconv.Atoi(string(value)[4:6])
 			if err != nil {
-				fmt.Printf("Q:%s - err:%s", qName, err.Error())
-				return
+				panic(err)
+			}
+			year, err := strconv.Atoi(string(value)[0:4])
+			if err != nil {
+				panic(err)
+			}
+			days, err := utils.GetDaysFromMonth(year, time.Month(month))
+			if err != nil {
+				panic(err)
+			}
+			months[string(key)] = days
+		})
+		var cnl []Cnl
+		for _, c := range channels {
+			cnl = append(cnl, c)
+		}
+		for month, days := range months {
+			for _, day := range days {
+				chunk := 50
+				chunkCount := 0
+				var j int
+				for i := 0; i < len(cnl); i += chunk {
+					chunkCount++
+					j += chunk
+					if j > len(cnl) {
+						j = len(cnl)
+					}
+					startEndDay := fmt.Sprintf("%s%s", month, day)
+					request := goConvert.New()
+					request.Set("SellingDirectionID", cfg.SellingDirection)
+					request.Set("InclProgAttr", "0")
+					request.Set("InclForecast", "0")
+					request.Set("AudRatDec", "8")
+					request.Set("StartDate", startEndDay)
+					request.Set("EndDate", startEndDay)
+					request.Set("LightMode", "1")
+					request.Set("CnlList", cnl[i:j])
+					request.Set("ProtocolVersion", "2")
+					request.Set("Path", chunkCount)
+					err := amqpConfig.PublishJson(qName, request)
+					if err != nil {
+						fmt.Printf("Q:%s - err:%s", qName, err.Error())
+						return
+					}
+				}
 			}
 		}
 	}
@@ -232,28 +334,14 @@ func (request *GetProgramBreaks) UploadToS3() error {
 		data, err := request.GetDataXmlZip()
 		if err != nil {
 			if vimbError, ok := err.(*utils.VimbError); ok {
-				code := vimbError.Code
-				switch code {
-				case 1001:
-					fmt.Printf("Vimb code %v timeout...", code)
-					time.Sleep(time.Minute * 1)
-					continue
-				case 1003:
-					fmt.Printf("Vimb code %v timeout...", code)
-					time.Sleep(time.Minute * 2)
-					continue
-				default:
-					fmt.Printf("Vimb code %v - not implemented timeout...", code)
-					time.Sleep(time.Minute * 1)
-					continue
-				}
+				vimbError.CheckTimeout()
+				continue
 			}
 			return err
 		}
 		sellingDirectionID, _ := request.Get("SellingDirectionID")
 		startDate, _ := request.Get("StartDate")
-		month, _ := request.Get("StartMonth")
-		var newS3Key = fmt.Sprintf("vimb/%s/%s/%s/%s/%s/%d/%s-%s.gz", sellingDirectionID, utils.Actions.Client, typeName, startDate, month, request.Path, utils.DateTimeNowInt(), typeName)
+		var newS3Key = fmt.Sprintf("vimb/%s/%s/%s/%s/%s/%d/%s-%s.gz", sellingDirectionID, utils.Actions.Client, typeName, startDate.(string)[4:6], startDate, request.Path, utils.DateTimeNowInt(), typeName)
 		_, err = s3.UploadBytesWithBucket(newS3Key, data.Body)
 		if err != nil {
 			return err
@@ -267,6 +355,10 @@ func (request *GetProgramBreaks) getXml() ([]byte, error) {
 	attributes.Set("xmlns:xsi", "\"http://www.w3.org/2001/XMLSchema-instance\"")
 	xmlRequestHeader := goConvert.New()
 	body := goConvert.New()
+	path, exist := request.Get("Path")
+	if exist {
+		request.Path = int(path.(float64))
+	}
 	sellingDirectionID, exist := request.Get("SellingDirectionID")
 	if exist {
 		body.Set("SellingDirectionID", sellingDirectionID)

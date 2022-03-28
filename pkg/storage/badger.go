@@ -2,6 +2,7 @@ package storage
 
 import (
 	"github.com/dgraph-io/badger"
+	"os"
 	"time"
 )
 
@@ -12,12 +13,16 @@ type Badger struct {
 
 // NewBadger returns new instance of badger wrapper
 func NewBadger(storageDir string) *Badger {
+	var err error
+	err = os.MkdirAll(storageDir, os.ModePerm)
+	if err != nil {
+		panic(err.Error())
+	}
 	storage := &Badger{}
 	opts := badger.DefaultOptions(storageDir)
 	opts.SyncWrites = true
 	opts.Dir = storageDir
 	opts.ValueDir = storageDir
-	var err error
 	storage.db, err = badger.Open(opts)
 	if err != nil {
 		panic(err)

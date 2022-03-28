@@ -353,7 +353,8 @@ func DownloadBatch(bucket, prefix string) (string, error) {
 		}
 	}
 }
-func Download(bucket, key string) (string, error) {
+func Download(key string) (string, error) {
+	bucket := cfg.S3Bucket
 	err := connection()
 	if err != nil {
 		log.Print(map[string]string{"Download(s3Client)": "error", "error": err.Error()})

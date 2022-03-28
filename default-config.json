@@ -1,37 +1,37 @@
 {
   "budget": {
     "cron": "0 0/46 * * *",
-    "sellingDirection": "21"
+    "sellingDirection": "23"
   },
   "mediaplan": {
     "cron": "0 0/20 * * *",
-    "sellingDirection": "21"
+    "sellingDirection": "23"
   },
   "advMessages": {
     "cron": "0 0/2 * * *"
   },
   "spots": {
     "cron": "0 0/59 * * *",
-    "sellingDirection": "21"
+    "sellingDirection": "23"
   },
   "channel": {
     "cron": "0 0/16 * * *",
-    "sellingDirection": "21"
+    "sellingDirection": "23"
   },
   "customersWithAdvertisers": {
     "cron": "0 0/59 * * *",
-    "sellingDirection": "21"
+    "sellingDirection": "23"
   },
   "rank": {
     "cron": "0 0 0/23 * *"
   },
   "programBreaksLight": {
     "cron": "0/2 * * * *",
-    "sellingDirection": "21"
+    "sellingDirection": "23"
   },
   "programBreaks": {
     "cron": "0 0 0/8 * *",
-    "sellingDirection": "21"
+    "sellingDirection": "23"
   },
   "amqp": {
     "mqHost": "localhost",
