@@ -7,7 +7,6 @@ import (
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
 	"github.com/advancemg/vimb-loader/pkg/utils"
-	"time"
 )
 
 type SwaggerGetCustomersWithAdvertisersRequest struct {
@@ -19,45 +18,49 @@ type GetCustomersWithAdvertisers struct {
 }
 
 type CustomersWithAdvertisersConfiguration struct {
-	Cron               string `json:"cron"`
-	SellingDirectionID string `json:"sellingDirectionID"`
-	Loading            bool   `json:"loading"`
+	Cron             string `json:"cron"`
+	SellingDirection string `json:"sellingDirection"`
+	Loading          bool   `json:"loading"`
 }
 
-func (cfg *CustomersWithAdvertisersConfiguration) StartJob() error {
+func (cfg *CustomersWithAdvertisersConfiguration) StartJob() chan error {
 	if !cfg.Loading {
 		return nil
 	}
-	qName := GetCustomersWithAdvertisersType
-	amqpConfig := mq_broker.InitConfig()
-	err := amqpConfig.DeclareSimpleQueue(qName)
-	if err != nil {
-		return err
-	}
-	ch, err := amqpConfig.Channel()
-	if err != nil {
-		return err
-	}
-	err = ch.Qos(1, 0, false)
-	messages, err := ch.Consume(qName, "",
-		false,
-		false,
-		false,
-		false,
-		nil)
-	for msg := range messages {
-		var bodyJson GetCustomersWithAdvertisers
-		err := json.Unmarshal(msg.Body, &bodyJson)
+	errorCh := make(chan error)
+	go func() {
+		qName := GetCustomersWithAdvertisersType
+		amqpConfig := mq_broker.InitConfig()
+		err := amqpConfig.DeclareSimpleQueue(qName)
 		if err != nil {
-			return err
+			errorCh <- err
 		}
-		err = bodyJson.UploadToS3()
+		ch, err := amqpConfig.Channel()
 		if err != nil {
-			return err
+			errorCh <- err
 		}
-		msg.Ack(false)
-	}
-	return nil
+		err = ch.Qos(1, 0, false)
+		messages, err := ch.Consume(qName, "",
+			false,
+			false,
+			false,
+			false,
+			nil)
+		for msg := range messages {
+			var bodyJson GetCustomersWithAdvertisers
+			err := json.Unmarshal(msg.Body, &bodyJson)
+			if err != nil {
+				errorCh <- err
+			}
+			err = bodyJson.UploadToS3()
+			if err != nil {
+				errorCh <- err
+			}
+			msg.Ack(false)
+		}
+		defer close(errorCh)
+	}()
+	return errorCh
 }
 
 func (cfg *CustomersWithAdvertisersConfiguration) InitJob() func() {
@@ -78,6 +81,13 @@ func (cfg *CustomersWithAdvertisersConfiguration) InitJob() func() {
 			return
 		}
 		if qInfo.Messages > 0 {
+			return
+		}
+		request := goConvert.New()
+		request.Set("SellingDirectionID", cfg.SellingDirection)
+		err = amqpConfig.PublishJson(qName, request)
+		if err != nil {
+			fmt.Printf("Q:%s - err:%s", qName, err.Error())
 			return
 		}
 	}
@@ -124,21 +134,8 @@ func (request *GetCustomersWithAdvertisers) UploadToS3() error {
 		data, err := request.GetDataXmlZip()
 		if err != nil {
 			if vimbError, ok := err.(*utils.VimbError); ok {
-				code := vimbError.Code
-				switch code {
-				case 1001:
-					fmt.Printf("Vimb code %v timeout...", code)
-					time.Sleep(time.Minute * 1)
-					continue
-				case 1003:
-					fmt.Printf("Vimb code %v timeout...", code)
-					time.Sleep(time.Minute * 2)
-					continue
-				default:
-					fmt.Printf("Vimb code %v - not implemented timeout...", code)
-					time.Sleep(time.Minute * 1)
-					continue
-				}
+				vimbError.CheckTimeout()
+				continue
 			}
 			return err
 		}

@@ -6,8 +6,8 @@ import (
 	goConvert "github.com/advancemg/go-convert"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
+	"github.com/advancemg/vimb-loader/pkg/storage"
 	"github.com/advancemg/vimb-loader/pkg/utils"
-	"time"
 )
 
 type SwaggerGetMPLansRequest struct {
@@ -33,40 +33,44 @@ type MediaplanConfiguration struct {
 	Loading          bool   `json:"loading"`
 }
 
-func (cfg *MediaplanConfiguration) StartJob() error {
+func (cfg *MediaplanConfiguration) StartJob() chan error {
 	if !cfg.Loading {
 		return nil
 	}
-	qName := GetMPLansType
-	amqpConfig := mq_broker.InitConfig()
-	err := amqpConfig.DeclareSimpleQueue(qName)
-	if err != nil {
-		return err
-	}
-	ch, err := amqpConfig.Channel()
-	if err != nil {
-		return err
-	}
-	err = ch.Qos(1, 0, false)
-	messages, err := ch.Consume(qName, "",
-		false,
-		false,
-		false,
-		false,
-		nil)
-	for msg := range messages {
-		var bodyJson GetMPLans
-		err := json.Unmarshal(msg.Body, &bodyJson)
+	errorCh := make(chan error)
+	go func() {
+		qName := GetMPLansType
+		amqpConfig := mq_broker.InitConfig()
+		err := amqpConfig.DeclareSimpleQueue(qName)
 		if err != nil {
-			return err
+			errorCh <- err
 		}
-		err = bodyJson.UploadToS3()
+		ch, err := amqpConfig.Channel()
 		if err != nil {
-			return err
+			errorCh <- err
 		}
-		msg.Ack(false)
-	}
-	return nil
+		err = ch.Qos(1, 0, false)
+		messages, err := ch.Consume(qName, "",
+			false,
+			false,
+			false,
+			false,
+			nil)
+		for msg := range messages {
+			var bodyJson GetMPLans
+			err := json.Unmarshal(msg.Body, &bodyJson)
+			if err != nil {
+				errorCh <- err
+			}
+			err = bodyJson.UploadToS3()
+			if err != nil {
+				errorCh <- err
+			}
+			msg.Ack(false)
+		}
+		defer close(errorCh)
+	}()
+	return errorCh
 }
 
 func (cfg *MediaplanConfiguration) InitJob() func() {
@@ -89,16 +93,46 @@ func (cfg *MediaplanConfiguration) InitJob() func() {
 		if qInfo.Messages > 0 {
 			return
 		}
-		months, err := utils.GetActualMonths()
-		if err != nil {
-			fmt.Printf("Q:%s - err:%s", qName, err.Error())
-			return
+		type Cnl struct {
+			Cnl string `json:"Cnl"`
+		}
+		type AdtID struct {
+			AdtID string `json:"AdtID"`
+		}
+		badgerChannels := storage.NewBadger(DbCustomConfigChannels)
+		badgerAdvertisers := storage.NewBadger(DbCustomConfigAdvertisers)
+		badgerMonth := storage.NewBadger(DbCustomConfigMonth)
+		defer badgerChannels.Close()
+		defer badgerAdvertisers.Close()
+		defer badgerMonth.Close()
+		months := map[string]string{}
+		channels := map[string]Cnl{}
+		advertisers := map[string]AdtID{}
+		badgerChannels.Iterate(func(key []byte, value []byte) {
+			channels[string(key)] = Cnl{Cnl: string(value)}
+		})
+		badgerAdvertisers.Iterate(func(key []byte, value []byte) {
+			advertisers[string(key)] = AdtID{AdtID: string(value)}
+		})
+		badgerMonth.Iterate(func(key []byte, value []byte) {
+			months[string(key)] = string(value)
+		})
+		var channelList []Cnl
+		var adtList []AdtID
+		for _, c := range channels {
+			channelList = append(channelList, c)
+		}
+		for _, adt := range advertisers {
+			adtList = append(adtList, adt)
 		}
 		for _, month := range months {
 			request := goConvert.New()
 			request.Set("SellingDirectionID", cfg.SellingDirection)
-			request.Set("StartMonth", month.ValueString)
-			request.Set("EndMonth", month.ValueString)
+			request.Set("StartMonth", month)
+			request.Set("EndMonth", month)
+			request.Set("AdtList", adtList)
+			request.Set("ChannelList", channelList)
+			request.Set("IncludeEmpty", "true")
 			err := amqpConfig.PublishJson(qName, request)
 			if err != nil {
 				fmt.Printf("Q:%s - err:%s", qName, err.Error())
@@ -149,29 +183,17 @@ func (request *GetMPLans) UploadToS3() error {
 		data, err := request.GetDataXmlZip()
 		if err != nil {
 			if vimbError, ok := err.(*utils.VimbError); ok {
-				code := vimbError.Code
-				switch code {
-				case 1001:
-					fmt.Printf("Vimb code %v timeout...", code)
-					time.Sleep(time.Minute * 1)
-					continue
-				case 1003:
-					fmt.Printf("Vimb code %v timeout...", code)
-					time.Sleep(time.Minute * 2)
-					continue
-				default:
-					fmt.Printf("Vimb code %v - not implemented timeout...", code)
-					time.Sleep(time.Minute * 1)
-					continue
-				}
+				vimbError.CheckTimeout()
+				continue
 			}
 			return err
 		}
+		sellingDirectionID, _ := request.Get("SellingDirectionID")
 		month, _ := request.Get("StartMonth")
 		if err != nil {
 			return err
 		}
-		var newS3Key = fmt.Sprintf("vimb/%s/%s/%v/%s-%s.gz", utils.Actions.Client, typeName, month, utils.DateTimeNowInt(), typeName)
+		var newS3Key = fmt.Sprintf("vimb/%s/%s/%s/%v/%s-%s.gz", sellingDirectionID, utils.Actions.Client, typeName, month, utils.DateTimeNowInt(), typeName)
 		_, err = s3.UploadBytesWithBucket(newS3Key, data.Body)
 		if err != nil {
 			return err
@@ -211,5 +233,10 @@ func (request *GetMPLans) getXml() ([]byte, error) {
 	}
 	xmlRequestHeader.Set("GetMPLans", body)
 	xmlRequestHeader.Set("attributes", attributes)
+	xml, err := xmlRequestHeader.ToXml()
+	if err != nil {
+		fmt.Printf(err.Error())
+	}
+	fmt.Println(string(xml))
 	return xmlRequestHeader.ToXml()
 }

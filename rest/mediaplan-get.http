@@ -3,15 +3,15 @@ Content-Type: application/json
 
 {
   "AdtList": {
-    "AdtID": "1"
+    "AdtID": "700068653"
   },
   "ChannelList": {
     "Cnl": "1018578"
   },
-  "EndMonth": "201707",
+  "EndMonth": "201904",
   "IncludeEmpty": "true",
-  "SellingDirectionID": "21",
-  "StartMonth": "201707"
+  "SellingDirectionID": "23",
+  "StartMonth": "201904"
 }
 
 ###

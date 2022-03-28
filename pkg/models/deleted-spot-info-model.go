@@ -7,7 +7,6 @@ import (
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
 	"github.com/advancemg/vimb-loader/pkg/utils"
-	"time"
 )
 
 type SwaggerGetDeletedSpotInfoRequest struct {
@@ -27,40 +26,44 @@ type DeletedSpotInfoConfiguration struct {
 	Loading bool   `json:"loading"`
 }
 
-func (cfg *DeletedSpotInfoConfiguration) StartJob() error {
+func (cfg *DeletedSpotInfoConfiguration) StartJob() chan error {
 	if !cfg.Loading {
 		return nil
 	}
-	qName := GetDeletedSpotInfoType
-	amqpConfig := mq_broker.InitConfig()
-	err := amqpConfig.DeclareSimpleQueue(qName)
-	if err != nil {
-		return err
-	}
-	ch, err := amqpConfig.Channel()
-	if err != nil {
-		return err
-	}
-	err = ch.Qos(1, 0, false)
-	messages, err := ch.Consume(qName, "",
-		false,
-		false,
-		false,
-		false,
-		nil)
-	for msg := range messages {
-		var bodyJson GetDeletedSpotInfo
-		err := json.Unmarshal(msg.Body, &bodyJson)
+	errorCh := make(chan error)
+	go func() {
+		qName := GetDeletedSpotInfoType
+		amqpConfig := mq_broker.InitConfig()
+		err := amqpConfig.DeclareSimpleQueue(qName)
 		if err != nil {
-			return err
+			errorCh <- err
 		}
-		err = bodyJson.UploadToS3()
+		ch, err := amqpConfig.Channel()
 		if err != nil {
-			return err
+			errorCh <- err
 		}
-		msg.Ack(false)
-	}
-	return nil
+		err = ch.Qos(1, 0, false)
+		messages, err := ch.Consume(qName, "",
+			false,
+			false,
+			false,
+			false,
+			nil)
+		for msg := range messages {
+			var bodyJson GetDeletedSpotInfo
+			err := json.Unmarshal(msg.Body, &bodyJson)
+			if err != nil {
+				errorCh <- err
+			}
+			err = bodyJson.UploadToS3()
+			if err != nil {
+				errorCh <- err
+			}
+			msg.Ack(false)
+		}
+		defer close(errorCh)
+	}()
+	return errorCh
 }
 
 func (cfg *DeletedSpotInfoConfiguration) InitJob() func() {
@@ -142,21 +145,8 @@ func (request *GetDeletedSpotInfo) UploadToS3() error {
 		data, err := request.GetDataXmlZip()
 		if err != nil {
 			if vimbError, ok := err.(*utils.VimbError); ok {
-				code := vimbError.Code
-				switch code {
-				case 1001:
-					fmt.Printf("Vimb code %v timeout...", code)
-					time.Sleep(time.Minute * 1)
-					continue
-				case 1003:
-					fmt.Printf("Vimb code %v timeout...", code)
-					time.Sleep(time.Minute * 2)
-					continue
-				default:
-					fmt.Printf("Vimb code %v - not implemented timeout...", code)
-					time.Sleep(time.Minute * 1)
-					continue
-				}
+				vimbError.CheckTimeout()
+				continue
 			}
 			return err
 		}

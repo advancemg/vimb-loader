@@ -6,7 +6,9 @@ import (
 	goConvert "github.com/advancemg/go-convert"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
+	"github.com/advancemg/vimb-loader/pkg/storage"
 	"github.com/advancemg/vimb-loader/pkg/utils"
+	"strconv"
 	"time"
 )
 
@@ -34,40 +36,45 @@ type AdvMessagesConfiguration struct {
 	Loading bool   `json:"loading"`
 }
 
-func (cfg *AdvMessagesConfiguration) StartJob() error {
+func (cfg *AdvMessagesConfiguration) StartJob() chan error {
 	if !cfg.Loading {
 		return nil
 	}
-	qName := GetAdvMessagesType
-	amqpConfig := mq_broker.InitConfig()
-	err := amqpConfig.DeclareSimpleQueue(qName)
-	if err != nil {
-		return err
-	}
-	ch, err := amqpConfig.Channel()
-	if err != nil {
-		return err
-	}
-	err = ch.Qos(1, 0, false)
-	messages, err := ch.Consume(qName, "",
-		false,
-		false,
-		false,
-		false,
-		nil)
-	for msg := range messages {
-		var bodyJson GetAdvMessages
-		err := json.Unmarshal(msg.Body, &bodyJson)
+	errorCh := make(chan error)
+	go func() {
+		qName := GetAdvMessagesType
+		amqpConfig := mq_broker.InitConfig()
+		err := amqpConfig.DeclareSimpleQueue(qName)
 		if err != nil {
-			return err
+			errorCh <- err
 		}
-		err = bodyJson.UploadToS3()
+		ch, err := amqpConfig.Channel()
 		if err != nil {
-			return err
+			errorCh <- err
 		}
-		msg.Ack(false)
-	}
-	return nil
+		err = ch.Qos(1, 0, false)
+		messages, err := ch.Consume(qName, "",
+			false,
+			false,
+			false,
+			false,
+			nil)
+		for msg := range messages {
+			var bodyJson GetAdvMessages
+			err := json.Unmarshal(msg.Body, &bodyJson)
+			if err != nil {
+				errorCh <- err
+			}
+			err = bodyJson.UploadToS3()
+			if err != nil {
+				errorCh <- err
+			}
+			msg.Ack(false)
+		}
+		defer close(errorCh)
+	}()
+
+	return errorCh
 }
 
 func (cfg *AdvMessagesConfiguration) InitJob() func() {
@@ -90,15 +97,47 @@ func (cfg *AdvMessagesConfiguration) InitJob() func() {
 		if qInfo.Messages > 0 {
 			return
 		}
-		months, err := utils.GetActualMonths()
-		if err != nil {
-			fmt.Printf("Q:%s - err:%s", qName, err.Error())
-			return
+		type AdtID struct {
+			AdtID string `json:"AdtID"`
 		}
-		for _, month := range months {
+		badgerAdvertisers := storage.NewBadger(DbCustomConfigAdvertisers)
+		badgerMonth := storage.NewBadger(DbCustomConfigMonth)
+		defer badgerAdvertisers.Close()
+		defer badgerMonth.Close()
+		months := map[string][]string{}
+		advertisers := map[string]AdtID{}
+		badgerAdvertisers.Iterate(func(key []byte, value []byte) {
+			advertisers[string(key)] = AdtID{AdtID: string(value)}
+		})
+		badgerMonth.Iterate(func(key []byte, value []byte) {
+			month, err := strconv.Atoi(string(value)[4:6])
+			if err != nil {
+				panic(err)
+			}
+			year, err := strconv.Atoi(string(value)[0:4])
+			if err != nil {
+				panic(err)
+			}
+			days, err := utils.GetDaysFromMonth(year, time.Month(month))
+			if err != nil {
+				panic(err)
+			}
+			months[string(key)] = days
+		})
+		var adtList []AdtID
+		for _, adt := range advertisers {
+			adtList = append(adtList, adt)
+		}
+		for month, days := range months {
+			startDay := fmt.Sprintf("%s%s", month, days[0])
+			endDay := fmt.Sprintf("%s%s", month, days[len(days)-1])
 			request := goConvert.New()
-			request.Set("CreationDateStart", month.ValueString)
-			request.Set("CreationDateEnd", month.ValueString)
+			request.Set("CreationDateStart", fmt.Sprintf("%s-%s-%s", startDay[0:4], startDay[4:6], startDay[6:8]))
+			request.Set("CreationDateEnd", fmt.Sprintf("%s-%s-%s", endDay[0:4], endDay[4:6], endDay[6:8]))
+			//request.Set("Advertisers", adtList)
+			request.Set("Aspects", "2")
+			//request.Set("AdvertisingMessageIDs", "")
+			request.Set("FillMaterialTags", "true")
 			err := amqpConfig.PublishJson(qName, request)
 			if err != nil {
 				fmt.Printf("Q:%s - err:%s", qName, err.Error())
@@ -149,21 +188,8 @@ func (request *GetAdvMessages) UploadToS3() error {
 		data, err := request.GetDataXmlZip()
 		if err != nil {
 			if vimbError, ok := err.(*utils.VimbError); ok {
-				code := vimbError.Code
-				switch code {
-				case 1001:
-					fmt.Printf("Vimb code %v timeout...", code)
-					time.Sleep(time.Minute * 1)
-					continue
-				case 1003:
-					fmt.Printf("Vimb code %v timeout...", code)
-					time.Sleep(time.Minute * 2)
-					continue
-				default:
-					fmt.Printf("Vimb code %v - not implemented timeout...", code)
-					time.Sleep(time.Minute * 1)
-					continue
-				}
+				vimbError.CheckTimeout()
+				continue
 			}
 			return err
 		}
@@ -208,5 +234,7 @@ func (request *GetAdvMessages) getXml() ([]byte, error) {
 	}
 	xmlRequestHeader.Set("GetAdvMessages", body)
 	xmlRequestHeader.Set("attributes", attributes)
+	xml, _ := xmlRequestHeader.ToXml()
+	fmt.Println(string(xml))
 	return xmlRequestHeader.ToXml()
 }
