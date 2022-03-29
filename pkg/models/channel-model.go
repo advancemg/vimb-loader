@@ -1,12 +1,16 @@
 package models
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	goConvert "github.com/advancemg/go-convert"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
+	"github.com/advancemg/vimb-loader/pkg/storage"
 	"github.com/advancemg/vimb-loader/pkg/utils"
+	"io"
+	"os"
 )
 
 type SwaggerGetChannelsRequest struct {
@@ -145,8 +149,55 @@ func (request *GetChannels) UploadToS3() error {
 		if err != nil {
 			return err
 		}
+		/*update data from gz file*/
+		err = request.DataConfiguration(newS3Key)
+		if err != nil {
+			return err
+		}
 		return nil
 	}
+}
+
+func (request *GetChannels) DataConfiguration(s3Key string) error {
+	download, err := s3.Download(s3Key)
+	if err != nil {
+		return err
+	}
+	open, err := os.Open(download)
+	if err != nil {
+		return err
+	}
+	defer open.Close()
+	zipBuffer := new(bytes.Buffer)
+	_, err = io.Copy(zipBuffer, open)
+	if err != nil {
+		return fmt.Errorf("not copy zip data, %v", err)
+	}
+	toJson, err := goConvert.ZipXmlToJson(zipBuffer.Bytes())
+	if err != nil {
+		return fmt.Errorf("not ZipXmlToJson, %v", err)
+	}
+	channels := storage.NewBadger(DbChannels)
+	defer channels.Close()
+	var channelMap map[string]interface{}
+	json.Unmarshal(toJson, &channelMap)
+	if err != nil {
+		return err
+	}
+	for _, v := range channelMap {
+		if mapLevel2, ok := v.(map[string]interface{}); ok {
+			for _, v2 := range mapLevel2 {
+				if array, ok := v2.([]interface{}); ok {
+					for _, value := range array {
+						id := value.(map[string]interface{})["ID"].(string)
+						mainChan := value.(map[string]interface{})["MainChnl"].(string)
+						channels.Set(id, []byte(mainChan))
+					}
+				}
+			}
+		}
+	}
+	return nil
 }
 
 func (request *GetChannels) getXml() ([]byte, error) {

@@ -27,6 +27,7 @@ const (
 	DbCustomConfigMonth                 = "db/custom-config-month"
 	DbCustomConfigAdvertisers           = "db/custom-config-advertisers "
 	DbCustomConfigChannels              = "db/custom-config-channels"
+	DbChannels                          = "db/channels"
 )
 
 type Configuration struct {

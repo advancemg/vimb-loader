@@ -71,6 +71,7 @@ func (cfg *SpotsConfiguration) StartJob() chan error {
 			}
 			msg.Ack(false)
 		}
+		defer close(errorCh)
 	}()
 	return errorCh
 }
@@ -102,58 +103,72 @@ func (cfg *SpotsConfiguration) InitJob() func() {
 			Cnl  string `json:"Cnl"`
 			Main string `json:"Main"`
 		}
+		allChannels := storage.NewBadger(DbChannels)
 		badgerChannels := storage.NewBadger(DbCustomConfigChannels)
 		badgerAdvertisers := storage.NewBadger(DbCustomConfigAdvertisers)
 		badgerMonth := storage.NewBadger(DbCustomConfigMonth)
+		defer allChannels.Close()
 		defer badgerChannels.Close()
 		defer badgerAdvertisers.Close()
 		defer badgerMonth.Close()
 		months := map[string][]string{}
+		allchannels := map[string]string{}
 		channels := map[string]Cnl{}
 		advertisers := map[string]AdtID{}
-		badgerChannels.Iterate(func(key []byte, value []byte) {
-			channels[string(key)] = Cnl{Cnl: string(value)}
-		})
-		badgerAdvertisers.Iterate(func(key []byte, value []byte) {
-			advertisers[string(key)] = AdtID{AdtID: string(value)}
-		})
-		badgerMonth.Iterate(func(key []byte, value []byte) {
-			month, err := strconv.Atoi(string(value)[4:6])
-			if err != nil {
-				panic(err)
+		if allChannels.Count() > 0 {
+			allChannels.Iterate(func(key []byte, value []byte) {
+				allchannels[string(key)] = string(value)
+			})
+			badgerChannels.Iterate(func(key []byte, value []byte) {
+				for id, main := range allchannels {
+					if id == string(key) {
+						channels[id] = Cnl{
+							Cnl:  id,
+							Main: main}
+					}
+				}
+			})
+			badgerAdvertisers.Iterate(func(key []byte, value []byte) {
+				advertisers[string(key)] = AdtID{AdtID: string(value)}
+			})
+			badgerMonth.Iterate(func(key []byte, value []byte) {
+				month, err := strconv.Atoi(string(value)[4:6])
+				if err != nil {
+					panic(err)
+				}
+				year, err := strconv.Atoi(string(value)[0:4])
+				if err != nil {
+					panic(err)
+				}
+				days, err := utils.GetDaysFromMonth(year, time.Month(month))
+				if err != nil {
+					panic(err)
+				}
+				months[string(key)] = days
+			})
+			var channelList []Cnl
+			var adtList []AdtID
+			for _, c := range channels {
+				channelList = append(channelList, c)
 			}
-			year, err := strconv.Atoi(string(value)[0:4])
-			if err != nil {
-				panic(err)
+			for _, adt := range advertisers {
+				adtList = append(adtList, adt)
 			}
-			days, err := utils.GetDaysFromMonth(year, time.Month(month))
-			if err != nil {
-				panic(err)
-			}
-			months[string(key)] = days
-		})
-		var channelList []Cnl
-		var adtList []AdtID
-		for _, c := range channels {
-			channelList = append(channelList, c)
-		}
-		for _, adt := range advertisers {
-			adtList = append(adtList, adt)
-		}
-		for month, days := range months {
-			request := goConvert.New()
-			startDay := fmt.Sprintf("%s%s", month, days[0])
-			endDay := fmt.Sprintf("%s%s", month, days[len(days)-1])
-			request.Set("SellingDirectionID", cfg.SellingDirection)
-			request.Set("StartDate", startDay)
-			request.Set("EndDate", endDay)
-			request.Set("InclOrdBlocks", "1")
-			//request.Set("ChannelList", channelList)
-			request.Set("AdtList", adtList)
-			err := amqpConfig.PublishJson(qName, request)
-			if err != nil {
-				fmt.Printf("Q:%s - err:%s", qName, err.Error())
-				return
+			for month, days := range months {
+				request := goConvert.New()
+				startDay := fmt.Sprintf("%s%s", month, days[0])
+				endDay := fmt.Sprintf("%s%s", month, days[len(days)-1])
+				request.Set("SellingDirectionID", cfg.SellingDirection)
+				request.Set("StartDate", startDay)
+				request.Set("EndDate", endDay)
+				request.Set("InclOrdBlocks", "1")
+				request.Set("ChannelList", channelList)
+				request.Set("AdtList", adtList)
+				err := amqpConfig.PublishJson(qName, request)
+				if err != nil {
+					fmt.Printf("Q:%s - err:%s", qName, err.Error())
+					return
+				}
 			}
 		}
 	}

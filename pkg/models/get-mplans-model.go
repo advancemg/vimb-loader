@@ -99,40 +99,20 @@ func (cfg *MediaplanConfiguration) InitJob() func() {
 		type AdtID struct {
 			AdtID string `json:"AdtID"`
 		}
-		badgerChannels := storage.NewBadger(DbCustomConfigChannels)
-		badgerAdvertisers := storage.NewBadger(DbCustomConfigAdvertisers)
 		badgerMonth := storage.NewBadger(DbCustomConfigMonth)
-		defer badgerChannels.Close()
-		defer badgerAdvertisers.Close()
 		defer badgerMonth.Close()
 		months := map[string]string{}
-		channels := map[string]Cnl{}
-		advertisers := map[string]AdtID{}
-		badgerChannels.Iterate(func(key []byte, value []byte) {
-			channels[string(key)] = Cnl{Cnl: string(value)}
-		})
-		badgerAdvertisers.Iterate(func(key []byte, value []byte) {
-			advertisers[string(key)] = AdtID{AdtID: string(value)}
-		})
 		badgerMonth.Iterate(func(key []byte, value []byte) {
 			months[string(key)] = string(value)
 		})
-		var channelList []Cnl
-		var adtList []AdtID
-		for _, c := range channels {
-			channelList = append(channelList, c)
-		}
-		for _, adt := range advertisers {
-			adtList = append(adtList, adt)
-		}
 		for _, month := range months {
 			request := goConvert.New()
 			request.Set("SellingDirectionID", cfg.SellingDirection)
 			request.Set("StartMonth", month)
 			request.Set("EndMonth", month)
-			request.Set("AdtList", adtList)
-			request.Set("ChannelList", channelList)
-			request.Set("IncludeEmpty", "true")
+			request.Set("AdtList", []AdtID{})
+			request.Set("ChannelList", []Cnl{})
+			request.Set("IncludeEmpty", "false")
 			err := amqpConfig.PublishJson(qName, request)
 			if err != nil {
 				fmt.Printf("Q:%s - err:%s", qName, err.Error())
@@ -231,7 +211,7 @@ func (request *GetMPLans) getXml() ([]byte, error) {
 	if exist {
 		body.Set("IncludeEmpty", IncludeEmpty)
 	}
-	xmlRequestHeader.Set("GetMPLans", body)
+	xmlRequestHeader.Set("GetMPlans", body)
 	xmlRequestHeader.Set("attributes", attributes)
 	xml, err := xmlRequestHeader.ToXml()
 	if err != nil {

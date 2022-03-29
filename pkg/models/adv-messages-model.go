@@ -8,8 +8,6 @@ import (
 	"github.com/advancemg/vimb-loader/pkg/s3"
 	"github.com/advancemg/vimb-loader/pkg/storage"
 	"github.com/advancemg/vimb-loader/pkg/utils"
-	"strconv"
-	"time"
 )
 
 type SwaggerGetAdvMessagesRequest struct {
@@ -97,48 +95,31 @@ func (cfg *AdvMessagesConfiguration) InitJob() func() {
 		if qInfo.Messages > 0 {
 			return
 		}
-		type AdtID struct {
+		type adtID struct {
 			AdtID string `json:"AdtID"`
 		}
-		badgerAdvertisers := storage.NewBadger(DbCustomConfigAdvertisers)
-		badgerMonth := storage.NewBadger(DbCustomConfigMonth)
-		defer badgerAdvertisers.Close()
-		defer badgerMonth.Close()
-		months := map[string][]string{}
-		advertisers := map[string]AdtID{}
-		badgerAdvertisers.Iterate(func(key []byte, value []byte) {
-			advertisers[string(key)] = AdtID{AdtID: string(value)}
-		})
-		badgerMonth.Iterate(func(key []byte, value []byte) {
-			month, err := strconv.Atoi(string(value)[4:6])
-			if err != nil {
-				panic(err)
-			}
-			year, err := strconv.Atoi(string(value)[0:4])
-			if err != nil {
-				panic(err)
-			}
-			days, err := utils.GetDaysFromMonth(year, time.Month(month))
-			if err != nil {
-				panic(err)
-			}
-			months[string(key)] = days
-		})
-		var adtList []AdtID
-		for _, adt := range advertisers {
-			adtList = append(adtList, adt)
+		type filed struct {
+			Id string `json:"ID"`
 		}
-		for month, days := range months {
-			startDay := fmt.Sprintf("%s%s", month, days[0])
-			endDay := fmt.Sprintf("%s%s", month, days[len(days)-1])
+		badgerMonth := storage.NewBadger(DbCustomConfigMonth)
+		defer badgerMonth.Close()
+		months := map[string]string{}
+		badgerMonth.Iterate(func(key []byte, value []byte) {
+			months[string(key)] = string(value)
+		})
+		for _, month := range months {
+			days, err := utils.GetDaysFromYearMonth(month)
+			if err != nil {
+				panic(err)
+			}
 			request := goConvert.New()
-			request.Set("CreationDateStart", fmt.Sprintf("%s-%s-%s", startDay[0:4], startDay[4:6], startDay[6:8]))
-			request.Set("CreationDateEnd", fmt.Sprintf("%s-%s-%s", endDay[0:4], endDay[4:6], endDay[6:8]))
-			//request.Set("Advertisers", adtList)
-			request.Set("Aspects", "2")
-			//request.Set("AdvertisingMessageIDs", "")
+			request.Set("CreationDateStart", days[0].String()[:10])
+			request.Set("CreationDateEnd", days[len(days)-1].String()[:10])
+			request.Set("Advertisers", []adtID{})
+			request.Set("Aspects", []filed{})
+			request.Set("AdvertisingMessageIDs", []filed{})
 			request.Set("FillMaterialTags", "true")
-			err := amqpConfig.PublishJson(qName, request)
+			err = amqpConfig.PublishJson(qName, request)
 			if err != nil {
 				fmt.Printf("Q:%s - err:%s", qName, err.Error())
 				return
@@ -234,7 +215,5 @@ func (request *GetAdvMessages) getXml() ([]byte, error) {
 	}
 	xmlRequestHeader.Set("GetAdvMessages", body)
 	xmlRequestHeader.Set("attributes", attributes)
-	xml, _ := xmlRequestHeader.ToXml()
-	fmt.Println(string(xml))
 	return xmlRequestHeader.ToXml()
 }

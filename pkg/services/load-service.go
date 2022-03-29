@@ -43,10 +43,10 @@ func (svc *LoadService) Start() error {
 	if err != nil {
 		return err
 	}
-	//err = scheduler.AddFunc(config.Mediaplan.Cron, config.Mediaplan.InitJob())
-	//if err != nil {
-	//	return err
-	//}
+	err = scheduler.AddFunc(config.Mediaplan.Cron, config.Mediaplan.InitJob())
+	if err != nil {
+		return err
+	}
 	err = scheduler.AddFunc(config.AdvMessages.Cron, config.AdvMessages.InitJob())
 	if err != nil {
 		return err
@@ -58,36 +58,39 @@ func (svc *LoadService) Start() error {
 	defer scheduler.Stop()
 	scheduler.Start()
 	/*jobs*/
-	//budgetErrChan := config.Budget.StartJob()
-	//programBreaksErrChan := config.ProgramBreaks.StartJob()
-	//programBreaksLightErrChan := config.ProgramBreaksLight.StartJob()
-	//mediaplanErrChan := config.Mediaplan.StartJob()
-	//channelErrChan := config.Channel.StartJob()
-	//rankErrChan := config.Rank.StartJob()
-	//spotsChan := config.Spots.StartJob()
-	//advMessagesChan := config.AdvMessages.StartJob()
-	//customersWithAdvertisersErrChan := config.CustomersWithAdvertisers.StartJob()
+	budgetErrChan := config.Budget.StartJob()
+	programBreaksErrChan := config.ProgramBreaks.StartJob()
+	programBreaksLightErrChan := config.ProgramBreaksLight.StartJob()
+	mediaplanErrChan := config.Mediaplan.StartJob()
+	channelErrChan := config.Channel.StartJob()
+	rankErrChan := config.Rank.StartJob()
+	spotsChan := config.Spots.StartJob()
+	advMessagesChan := config.AdvMessages.StartJob()
+	customersWithAdvertisersErrChan := config.CustomersWithAdvertisers.StartJob()
+	deletedSpotInfoErrChan := config.DeletedSpotInfo.StartJob()
 	allStartJobs := true
 	for allStartJobs {
 		select {
-		//case <-budgetErrChan:
-		//	allStartJobs = false
-		//case <-programBreaksErrChan:
-		//	allStartJobs = false
-		//case <-programBreaksLightErrChan:
-		//	allStartJobs = false
-		//case <-mediaplanErrChan:
-		//	allStartJobs = false
-		//case <-channelErrChan:
-		//	allStartJobs = false
-		//case <-rankErrChan:
-		//	allStartJobs = false
-		//case <-customersWithAdvertisersErrChan:
-		//	allStartJobs = false
-		//case <-spotsChan:
-		//	allStartJobs = false
-		//case <-advMessagesChan:
-		//	allStartJobs = false
+		case <-budgetErrChan:
+			allStartJobs = false
+		case <-programBreaksErrChan:
+			allStartJobs = false
+		case <-programBreaksLightErrChan:
+			allStartJobs = false
+		case <-mediaplanErrChan:
+			allStartJobs = false
+		case <-channelErrChan:
+			allStartJobs = false
+		case <-rankErrChan:
+			allStartJobs = false
+		case <-customersWithAdvertisersErrChan:
+			allStartJobs = false
+		case <-spotsChan:
+			allStartJobs = false
+		case <-advMessagesChan:
+			allStartJobs = false
+		case <-deletedSpotInfoErrChan:
+			allStartJobs = false
 		case <-time.After(time.Second * 3):
 			continue
 		}

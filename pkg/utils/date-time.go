@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"time"
@@ -40,6 +41,24 @@ func GetDaysFromMonth(year int, month time.Month) ([]string, error) {
 		}
 	}
 	return days, nil
+}
+
+func GetDaysFromYearMonth(yearMonth string) ([]time.Time, error) {
+	if len(yearMonth) < 6 || len(yearMonth) > 6 {
+		return nil, errors.New("not year month format [200012]")
+	}
+	year := Int(yearMonth[:4])
+	month := Int(yearMonth[4:6])
+	actualYear := year
+	actualMonth := time.Month(month)
+	begin := time.Date(actualYear, actualMonth, 1, 0, 0, 0, 0, time.UTC)
+	end := begin.AddDate(0, 1, 0).Add(time.Nanosecond * -1)
+	var result []time.Time
+	for begin.Unix() <= end.Unix() {
+		result = append(result, begin)
+		begin = begin.AddDate(0, 0, 1)
+	}
+	return result, nil
 }
 
 func GetActualMonths() ([]YearMonth, error) {

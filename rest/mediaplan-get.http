@@ -6,12 +6,12 @@ Content-Type: application/json
     "AdtID": "700068653"
   },
   "ChannelList": {
-    "Cnl": "1018578"
+    "Cnl": "1020231"
   },
-  "EndMonth": "201904",
+  "EndMonth": "201908",
   "IncludeEmpty": "true",
   "SellingDirectionID": "23",
-  "StartMonth": "201904"
+  "StartMonth": "201908"
 }
 
 ###

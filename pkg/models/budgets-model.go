@@ -102,10 +102,8 @@ func (cfg *BudgetConfiguration) InitJob() func() {
 		}
 		for _, month := range months {
 			request := goConvert.New()
-			request.Set("SellingDirectionID", cfg.SellingDirection)
-			//request.Set("StartMonth", month.ValueString)
-			//request.Set("EndMonth", month.ValueString)
 			ym := fmt.Sprintf("%v", month.IntValue-300)
+			request.Set("SellingDirectionID", cfg.SellingDirection)
 			request.Set("StartMonth", ym)
 			request.Set("EndMonth", ym)
 			err := amqpConfig.PublishJson(qName, request)

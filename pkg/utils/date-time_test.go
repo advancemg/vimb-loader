@@ -19,8 +19,8 @@ func TestGetDaysFromMonth(t *testing.T) {
 		{
 			name: "days",
 			args: args{
-				year:  2022,
-				month: 4,
+				year:  2020,
+				month: 2,
 			},
 			wantErr: false,
 		},
@@ -33,6 +33,36 @@ func TestGetDaysFromMonth(t *testing.T) {
 				return
 			}
 			fmt.Println(got)
+		})
+	}
+}
+
+func TestGetDaysFromYearMonth(t *testing.T) {
+	type args struct {
+		yearMonth string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{
+			name:    "days",
+			args:    args{"201908"},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := GetDaysFromYearMonth(tt.args.yearMonth)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetDaysFromYearMonth() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			startDay := fmt.Sprintf("%v", got[0].Format(time.RFC3339))
+			fmt.Println(startDay[0 : len(startDay)-1])
+			endDay := fmt.Sprintf("%v", got[len(got)-1].Format(time.RFC3339))
+			fmt.Println(endDay[0 : len(endDay)-1])
 		})
 	}
 }

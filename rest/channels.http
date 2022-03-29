@@ -2,7 +2,7 @@ POST {{base-url}}/api/v1/channels
 Content-Type: application/json
 
 {
-  "SellingDirectionID": "21"
+  "SellingDirectionID": "23"
 }
 
 ###

@@ -6,7 +6,9 @@ import (
 	goConvert "github.com/advancemg/go-convert"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
+	"github.com/advancemg/vimb-loader/pkg/storage"
 	"github.com/advancemg/vimb-loader/pkg/utils"
+	"time"
 )
 
 type SwaggerGetDeletedSpotInfoRequest struct {
@@ -86,16 +88,27 @@ func (cfg *DeletedSpotInfoConfiguration) InitJob() func() {
 		if qInfo.Messages > 0 {
 			return
 		}
-		months, err := utils.GetActualMonths()
-		if err != nil {
-			fmt.Printf("Q:%s - err:%s", qName, err.Error())
-			return
+		badgerMonth := storage.NewBadger(DbCustomConfigMonth)
+		defer badgerMonth.Close()
+		months := map[string]string{}
+		badgerMonth.Iterate(func(key []byte, value []byte) {
+			months[string(key)] = string(value)
+		})
+		type agreement struct {
+			Id string `json:"ID"`
 		}
 		for _, month := range months {
+			days, err := utils.GetDaysFromYearMonth(month)
+			if err != nil {
+				panic(err)
+			}
+			startDay := fmt.Sprintf("%v", days[0].Format(time.RFC3339))
+			endDay := fmt.Sprintf("%v", days[len(days)-1].Format(time.RFC3339))
 			request := goConvert.New()
-			request.Set("DateStart", month.ValueString)
-			request.Set("DateEnd", month.ValueString)
-			err := amqpConfig.PublishJson(qName, request)
+			request.Set("DateStart", startDay[0:len(startDay)-1])
+			request.Set("DateEnd", endDay[0 : len(endDay)-1][:11]+"12:00:00")
+			request.Set("Agreements", []agreement{})
+			err = amqpConfig.PublishJson(qName, request)
 			if err != nil {
 				fmt.Printf("Q:%s - err:%s", qName, err.Error())
 				return
