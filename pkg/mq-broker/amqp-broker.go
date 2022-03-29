@@ -9,20 +9,26 @@ import (
 	"github.com/valinurovam/garagemq/metrics"
 	"github.com/valinurovam/garagemq/server"
 	"math"
+	"net"
 	"os"
 	"time"
 )
 
 type Config struct {
-	MqHost     string `json:"mqHost"`
-	MqPort     string `json:"mqPort"`
-	MqUsername string `json:"mqUsername"`
-	MqPassword string `json:"mqPassword"`
-	conn       *amqp.Connection
+	MqHost     string           `json:"Host"`
+	MqPort     string           `json:"Port"`
+	MqUsername string           `json:"Username"`
+	MqPassword string           `json:"Password"`
+	conn       *amqp.Connection `json:"-"`
 }
 
 type Error struct {
 	amqp.Error
+}
+
+type QInfo struct {
+	Messages  int // count of messages not awaiting acknowledgment
+	Consumers int // number of consumers receiving deliveries
 }
 
 func InitConfig() *Config {
@@ -30,7 +36,10 @@ func InitConfig() *Config {
 }
 
 func loadConfig() *Config {
-	var config Config
+	type configTemplate struct {
+		AmqpConfig *Config `json:"amqp"`
+	}
+	var config configTemplate
 	configFile, err := os.Open("config.json")
 	if err != nil {
 		panic(err)
@@ -38,7 +47,25 @@ func loadConfig() *Config {
 	defer configFile.Close()
 	jsonParser := json.NewDecoder(configFile)
 	jsonParser.Decode(&config)
-	return &config
+	return config.AmqpConfig
+}
+
+func (c *Config) Ping() bool {
+	for {
+		endpoint := fmt.Sprintf("%s:%s", c.MqHost, c.MqPort)
+
+		conn, err := net.DialTimeout("tcp", endpoint, time.Second*1)
+		if err != nil {
+			time.Sleep(time.Second * 2)
+			fmt.Printf("ping amqp endpoint %s ...\n", endpoint)
+			continue
+		}
+		if conn != nil {
+			conn.Close()
+			break
+		}
+	}
+	return true
 }
 
 func (c *Config) ServerStart() error {

@@ -1,0 +1,13 @@
+POST {{base-url}}/api/v1/mediaplan
+Content-Type: application/json
+
+{
+  "SellingDirectionID": "23",
+  "StartMonth": "201902",
+  "EndMonth": "201902",
+  "AdtList": [],
+  "ChannelList": [],
+  "IncludeEmpty": "true"
+}
+
+###

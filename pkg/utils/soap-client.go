@@ -34,23 +34,26 @@ var cfg *Config
 var Actions *Action
 
 func init() {
-	cfg = loadConfig()
+	//cfg = loadConfig()
 	Actions = &Action{
 		SOAPAction: "VIMBWebApplication2/GetVimbInfoStream",
-		Client:     cfg.Client,
+		Client:     "vimb",
 	}
 }
 
 func loadConfig() *Config {
 	var config Config
-	configFile, err := os.Open("config.json")
-	if err != nil {
-		panic(err)
+	if cfg == nil {
+		configFile, err := os.Open("config.json")
+		if err != nil {
+			panic(err)
+		}
+		defer configFile.Close()
+		jsonParser := json.NewDecoder(configFile)
+		jsonParser.Decode(&config)
+		cfg = &config
 	}
-	defer configFile.Close()
-	jsonParser := json.NewDecoder(configFile)
-	jsonParser.Decode(&config)
-	return &config
+	return cfg
 }
 
 func (cfg *Config) newClient() *http.Client {
@@ -85,6 +88,7 @@ func (cfg *Config) newClient() *http.Client {
 }
 
 func (act *Action) Request(input []byte) ([]byte, error) {
+	loadConfig()
 	reqBody := vimbRequest(string(input))
 	req, err := http.NewRequest("POST", cfg.Url, strings.NewReader(reqBody))
 	if err != nil {
@@ -132,7 +136,9 @@ func (act *Action) RequestJson(input []byte) ([]byte, error) {
 }
 
 func vimbRequest(inputXml string) string {
-	return fmt.Sprintf(`<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:vim="VIMBWebApplication2"><soapenv:Header/><soapenv:Body><vim:GetVimbInfoStream><vim:InputXML><![CDATA[%s]]></vim:InputXML></vim:GetVimbInfoStream></soapenv:Body></soapenv:Envelope>`, inputXml)
+	inputXml = strings.ReplaceAll(inputXml, "<", "&lt;")
+	inputXml = strings.ReplaceAll(inputXml, ">", "&gt;")
+	return fmt.Sprintf(`<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"><SOAP-ENV:Header/><SOAP-ENV:Body><GetVimbInfoStream xmlns="VIMBWebApplication2"><InputXML>%s</InputXML></GetVimbInfoStream></SOAP-ENV:Body></SOAP-ENV:Envelope>`, inputXml)
 }
 
 func catchError(resp []byte) (*VimbError, error) {
@@ -175,6 +181,24 @@ type VimbError struct {
 	Message string `json:"message"`
 }
 
-func (err *VimbError) Error() string {
-	return fmt.Sprintf("%s", err.Message)
+func (e *VimbError) CheckTimeout() {
+	code := e.Code
+	switch code {
+	case 1001:
+		fmt.Printf("Vimb code %v timeout...", code)
+		time.Sleep(time.Minute * 1)
+		return
+	case 1003:
+		fmt.Printf("Vimb code %v timeout...", code)
+		time.Sleep(time.Minute * 2)
+		return
+	default:
+		fmt.Printf("Vimb code %v - not implemented timeout...", code)
+		time.Sleep(time.Minute * 1)
+		return
+	}
+}
+
+func (e VimbError) Error() string {
+	return fmt.Sprintf("%s", e.Message)
 }

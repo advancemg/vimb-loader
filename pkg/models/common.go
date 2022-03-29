@@ -1,5 +1,10 @@
 package models
 
+import (
+	"encoding/json"
+	"os"
+)
+
 const (
 	GetProgramBreaksType                = "GetProgramBreaks"
 	GetProgramBreaksLightModeType       = "GetProgramBreaksLightMode"
@@ -21,6 +26,27 @@ const (
 	GetChannelsType                     = "GetChannels"
 )
 
+var QueueNames = []string{
+	GetProgramBreaksType,
+	GetProgramBreaksLightModeType,
+	AddMPlanFilmType,
+	AddMPlanType,
+	AddSpotType,
+	GetAdvMessagesType,
+	GetBudgetsType,
+	ChangeMPlanFilmPlannedInventoryType,
+	ChangeSpotType,
+	GetCustomersWithAdvertisersType,
+	DeleteMPlanFilmType,
+	DeleteSpotType,
+	GetDeletedSpotInfoType,
+	GetMPLansType,
+	GetSpotsType,
+	GetRanksType,
+	SetSpotPositionType,
+	GetChannelsType,
+}
+
 type Configuration struct {
 	Mediaplan                MediaplanConfiguration                `json:"mediaplan"`
 	Budget                   BudgetConfiguration                   `json:"budget"`
@@ -33,6 +59,8 @@ type Configuration struct {
 	ProgramBreaksLight       ProgramBreaksLightConfiguration       `json:"programBreaksLight"`
 	Spots                    SpotsConfiguration                    `json:"spots"`
 }
+
+type CommonResponse map[string]interface{}
 
 type StreamResponse struct {
 	Body    []byte `json:"body"`
@@ -47,3 +75,15 @@ type JsonResponse struct {
 var (
 	Config = Configuration{}
 )
+
+func LoadConfiguration() (*Configuration, error) {
+	var config Configuration
+	configFile, err := os.Open("config.json")
+	if err != nil {
+		return nil, err
+	}
+	defer configFile.Close()
+	jsonParser := json.NewDecoder(configFile)
+	jsonParser.Decode(&config)
+	return &config, nil
+}

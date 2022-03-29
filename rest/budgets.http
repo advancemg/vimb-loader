@@ -2,9 +2,9 @@ POST {{base-url}}/api/v1/budgets
 Content-Type: application/json
 
 {
-  "SellingDirectionID": "21",
-  "StartMonth": "202109",
-  "EndMonth": "202109"
+  "SellingDirectionID": "23",
+  "StartMonth": "201908",
+  "EndMonth": "201908"
 }
 
 ###

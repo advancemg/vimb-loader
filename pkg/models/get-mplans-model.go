@@ -87,8 +87,8 @@ func (request *GetMPLans) UploadToS3() error {
 }
 
 func (request *GetMPLans) getXml() ([]byte, error) {
-	attributes := goConvert.New()
-	attributes.Set("xmlns:xsi", "\"http://www.w3.org/2001/XMLSchema-instance\"")
+	//attributes := goConvert.New()
+	//attributes.Set("xmlns:xsi", "\"http://www.w3.org/2001/XMLSchema-instance\"")
 	xmlRequestHeader := goConvert.New()
 	body := goConvert.New()
 	SellingDirectionID, exist := request.Get("SellingDirectionID")
@@ -115,7 +115,7 @@ func (request *GetMPLans) getXml() ([]byte, error) {
 	if exist {
 		body.Set("IncludeEmpty", IncludeEmpty)
 	}
-	xmlRequestHeader.Set("GetMPLans", body)
-	xmlRequestHeader.Set("attributes", attributes)
+	xmlRequestHeader.Set("GetMPlans", body)
+	//xmlRequestHeader.Set("attributes", attributes)
 	return xmlRequestHeader.ToXml()
 }
