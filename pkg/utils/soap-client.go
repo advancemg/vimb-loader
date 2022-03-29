@@ -136,7 +136,9 @@ func (act *Action) RequestJson(input []byte) ([]byte, error) {
 }
 
 func vimbRequest(inputXml string) string {
-	return fmt.Sprintf(`<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:vim="VIMBWebApplication2"><soapenv:Header/><soapenv:Body><vim:GetVimbInfoStream><vim:InputXML><![CDATA[%s]]></vim:InputXML></vim:GetVimbInfoStream></soapenv:Body></soapenv:Envelope>`, inputXml)
+	inputXml = strings.ReplaceAll(inputXml, "<", "&lt;")
+	inputXml = strings.ReplaceAll(inputXml, ">", "&gt;")
+	return fmt.Sprintf(`<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"><SOAP-ENV:Header/><SOAP-ENV:Body><GetVimbInfoStream xmlns="VIMBWebApplication2"><InputXML>%s</InputXML></GetVimbInfoStream></SOAP-ENV:Body></SOAP-ENV:Envelope>`, inputXml)
 }
 
 func catchError(resp []byte) (*VimbError, error) {

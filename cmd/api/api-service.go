@@ -35,16 +35,21 @@ func main() {
 	route.HandleFunc("/api/v1", routes.Health).Methods("GET", "OPTIONS")
 	/*dictionaries*/
 	route.HandleFunc("/api/v1/channels", routes.PostGetChannels).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/channels/load", routes.PostLoadChannels).Methods("POST", "OPTIONS")
 	route.HandleFunc("/api/v1/adv-messages", routes.PostGetAdvMessages).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/adv-messages/load", routes.PostLoadAdvMessages).Methods("POST", "OPTIONS")
 	route.HandleFunc("/api/v1/ranks", routes.PostGetRanks).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/ranks/load", routes.PostLoadRanks).Methods("POST", "OPTIONS")
 	/*networks*/
 	route.HandleFunc("/api/v1/program-breaks", routes.PostGetProgramBreaks).Methods("POST", "OPTIONS")
 	/*deals*/
 	route.HandleFunc("/api/v1/budgets", routes.PostGetBudgets).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/budgets/load", routes.PostLoadBudgets).Methods("POST", "OPTIONS")
 	route.HandleFunc("/api/v1/customers-with-advertisers", routes.PostGetCustomersWithAdvertisers).Methods("POST", "OPTIONS")
 	/*mediaPlans*/
 	route.HandleFunc("/api/v1/mediaplan", routes.PutAddMPlan).Methods("PUT", "OPTIONS")
 	route.HandleFunc("/api/v1/mediaplan", routes.PostGetMPLans).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/mediaplan/load", routes.PostLoadMPLans).Methods("POST", "OPTIONS")
 	route.HandleFunc("/api/v1/mediaplan/film ", routes.PostAddMPlanFilm).Methods("POST", "OPTIONS")
 	route.HandleFunc("/api/v1/mediaplan/film", routes.DeleteMPlanFilm).Methods("DELETE", "OPTIONS")
 	route.HandleFunc("/api/v1/mediaplan/change-film-planned-inventory", routes.PostChangeMPlanFilmPlannedInventory).Methods("POST", "OPTIONS")
@@ -56,6 +61,8 @@ func main() {
 	route.HandleFunc("/api/v1/spot/set-position", routes.PostSetSpotPosition).Methods("POST", "OPTIONS")
 	route.HandleFunc("/api/v1/spot/change-films", routes.PostChangeFilms).Methods("POST", "OPTIONS")
 	route.HandleFunc("/api/v1/spot/deleted-info", routes.PostGetDeletedSpotInfo).Methods("POST", "OPTIONS")
+	/*mq-metrics*/
+	route.HandleFunc("/api/v1/mq/queues", routes.GetQueuesMetrics).Methods("GET", "OPTIONS")
 
 	s := &http.Server{
 		Addr:         port,

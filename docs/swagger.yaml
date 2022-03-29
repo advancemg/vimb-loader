@@ -1,5 +1,73 @@
 basePath: /
 definitions:
+  models.AdvMessagesLoadRequest:
+    properties:
+      Advertisers:
+        items:
+          properties:
+            ID:
+              type: string
+          type: object
+        type: array
+      AdvertisingMessageIDs:
+        items:
+          properties:
+            ID:
+              type: string
+          type: object
+        type: array
+      Aspects:
+        items:
+          properties:
+            ID:
+              type: string
+          type: object
+        type: array
+      CreationDateEnd:
+        example: "20191201"
+        type: string
+      CreationDateStart:
+        example: "20190301"
+        type: string
+      FillMaterialTags:
+        example: "true"
+        type: string
+    type: object
+  models.BudgetLoadRequest:
+    properties:
+      EndMonth:
+        example: "201912"
+        type: string
+      SellingDirectionID:
+        example: "23"
+        type: string
+      StartMonth:
+        example: "201903"
+        type: string
+    type: object
+  models.ChannelLoadRequest:
+    properties:
+      SellingDirectionID:
+        example: "23"
+        type: string
+    type: object
+  models.CommonResponse:
+    additionalProperties: true
+    type: object
+  models.MediaplanLoadRequest:
+    properties:
+      EndMonth:
+        example: "201912"
+        type: string
+      SellingDirectionID:
+        example: "23"
+        type: string
+      StartMonth:
+        example: "201903"
+        type: string
+    type: object
+  models.RanksLoadRequest:
+    type: object
   models.StreamResponse:
     properties:
       body:
@@ -64,24 +132,26 @@ definitions:
     type: object
   models.SwaggerChangeMPlanFilmPlannedInventoryRequest:
     properties:
-      Data:
+      data:
         items:
           properties:
             CommInMpl:
-              properties:
-                ID:
-                  type: string
-                Inventory:
-                  type: string
-              type: object
+              items:
+                properties:
+                  ID:
+                    type: string
+                  Inventory:
+                    type: string
+                type: object
+              type: array
           type: object
         type: array
     type: object
   models.SwaggerChangeSpotRequest:
     properties:
-      FilmID:
-        type: string
       FirstSpotID:
+        type: string
+      SecondSpotID:
         type: string
     type: object
   models.SwaggerDeleteMPlanFilmRequest:
@@ -253,6 +323,22 @@ definitions:
     type: object
   models.SwaggerGetSpotsRequest:
     properties:
+      AdtList:
+        items:
+          properties:
+            AdtID:
+              type: string
+          type: object
+        type: array
+      ChannelList:
+        items:
+          properties:
+            Cnl:
+              type: string
+            Main:
+              type: string
+          type: object
+        type: array
       EndDate:
         type: string
       InclOrdBlocks:
@@ -267,6 +353,15 @@ definitions:
       Distance:
         type: string
       SpotID:
+        type: string
+    type: object
+  routes.MqInfo:
+    properties:
+      consumers:
+        type: integer
+      messages:
+        type: integer
+      name:
         type: string
     type: object
 info:
@@ -314,6 +409,29 @@ paths:
         отфильтрован по правам НВ.
       tags:
       - Справочники
+  /api/v1/adv-messages/load:
+    post:
+      consumes:
+      - application/json
+      description: Создание задач, на загрузку роликов, за выбранный период.
+      operationId: routes-load-adv-messages
+      parameters:
+      - description: Запрос
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.AdvMessagesLoadRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.CommonResponse'
+      summary: Создание задач, на загрузку роликов.
+      tags:
+      - Справочники
   /api/v1/budgets:
     post:
       consumes:
@@ -335,6 +453,29 @@ paths:
           schema:
             $ref: '#/definitions/models.StreamResponse'
       summary: Возвращает данные по сделкам в разрезе канало-периодов.
+      tags:
+      - Сделки
+  /api/v1/budgets/load:
+    post:
+      consumes:
+      - application/json
+      description: Создание задач, на загрузку бюджетов, за выбранный период.
+      operationId: routes-load-budgets
+      parameters:
+      - description: Запрос
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.BudgetLoadRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.CommonResponse'
+      summary: Создание задач, на загрузку бюджетов.
       tags:
       - Сделки
   /api/v1/channels:
@@ -360,6 +501,29 @@ paths:
             $ref: '#/definitions/models.StreamResponse'
       summary: Возвращает отфильтрованный по правам НВ список каналов (точек врезки)
         указанного направления продаж.
+      tags:
+      - Справочники
+  /api/v1/channels/load:
+    post:
+      consumes:
+      - application/json
+      description: Создание задач, на загрузку каналов, за выбранный период.
+      operationId: routes-load-channels
+      parameters:
+      - description: Запрос
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.ChannelLoadRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.CommonResponse'
+      summary: Создание задач, на загрузку каналов.
       tags:
       - Справочники
   /api/v1/customers-with-advertisers:
@@ -506,6 +670,47 @@ paths:
         равным периоду медиаплана.
       tags:
       - Медиапланы
+  /api/v1/mediaplan/load:
+    post:
+      consumes:
+      - application/json
+      description: Создание задач, на загрузку медиапланов.
+      operationId: routes-load-mediaplans
+      parameters:
+      - description: Запрос
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.MediaplanLoadRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.CommonResponse'
+      summary: Создание задач, на загрузку медиапланов.
+      tags:
+      - Медиапланы
+  /api/v1/mq/queues:
+    get:
+      consumes:
+      - application/json
+      description: Состояние очередей.
+      operationId: routes-get-mq-queue-metrics
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/routes.MqInfo'
+            type: array
+      summary: Состояние очередей.
+      tags:
+      - MQ
   /api/v1/program-breaks:
     post:
       consumes:
@@ -550,6 +755,29 @@ paths:
           schema:
             $ref: '#/definitions/models.StreamResponse'
       summary: Возвращает справочник рангов размещения.
+      tags:
+      - Справочники
+  /api/v1/ranks/load:
+    post:
+      consumes:
+      - application/json
+      description: Создание задач, на загрузку рангов размещения.
+      operationId: routes-load-ranks
+      parameters:
+      - description: Запрос
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.RanksLoadRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.CommonResponse'
+      summary: Создание задач, на загрузку рангов размещения.
       tags:
       - Справочники
   /api/v1/spot:

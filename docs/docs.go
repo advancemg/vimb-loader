@@ -80,6 +80,41 @@ var doc = `{
                 }
             }
         },
+        "/api/v1/adv-messages/load": {
+            "post": {
+                "description": "Создание задач, на загрузку роликов, за выбранный период.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Справочники"
+                ],
+                "summary": "Создание задач, на загрузку роликов.",
+                "operationId": "routes-load-adv-messages",
+                "parameters": [
+                    {
+                        "description": "Запрос",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.AdvMessagesLoadRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.CommonResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/budgets": {
             "post": {
                 "description": "Возвращает данные по сделкам в разрезе канало-периодов.",
@@ -115,6 +150,41 @@ var doc = `{
                 }
             }
         },
+        "/api/v1/budgets/load": {
+            "post": {
+                "description": "Создание задач, на загрузку бюджетов, за выбранный период.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Сделки"
+                ],
+                "summary": "Создание задач, на загрузку бюджетов.",
+                "operationId": "routes-load-budgets",
+                "parameters": [
+                    {
+                        "description": "Запрос",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.BudgetLoadRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.CommonResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/channels": {
             "post": {
                 "description": "Результат включает активные в настоящий момент для размещения каналы, а также каналы, которые станут активными в течение ближайших трех месяцев.",
@@ -145,6 +215,41 @@ var doc = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/models.StreamResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/channels/load": {
+            "post": {
+                "description": "Создание задач, на загрузку каналов, за выбранный период.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Справочники"
+                ],
+                "summary": "Создание задач, на загрузку каналов.",
+                "operationId": "routes-load-channels",
+                "parameters": [
+                    {
+                        "description": "Запрос",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.ChannelLoadRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.CommonResponse"
                         }
                     }
                 }
@@ -356,6 +461,68 @@ var doc = `{
                 }
             }
         },
+        "/api/v1/mediaplan/load": {
+            "post": {
+                "description": "Создание задач, на загрузку медиапланов.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Медиапланы"
+                ],
+                "summary": "Создание задач, на загрузку медиапланов.",
+                "operationId": "routes-load-mediaplans",
+                "parameters": [
+                    {
+                        "description": "Запрос",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.MediaplanLoadRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.CommonResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/mq/queues": {
+            "get": {
+                "description": "Состояние очередей.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "MQ"
+                ],
+                "summary": "Состояние очередей.",
+                "operationId": "routes-get-mq-queue-metrics",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/routes.MqInfo"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/program-breaks": {
             "post": {
                 "description": "Возвращает Данные по блокам + занятые объемы блоков.",
@@ -421,6 +588,41 @@ var doc = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/models.StreamResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/ranks/load": {
+            "post": {
+                "description": "Создание задач, на загрузку рангов размещения.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Справочники"
+                ],
+                "summary": "Создание задач, на загрузку рангов размещения.",
+                "operationId": "routes-load-ranks",
+                "parameters": [
+                    {
+                        "description": "Запрос",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.RanksLoadRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.CommonResponse"
                         }
                     }
                 }
@@ -669,6 +871,106 @@ var doc = `{
         }
     },
     "definitions": {
+        "models.AdvMessagesLoadRequest": {
+            "type": "object",
+            "properties": {
+                "Advertisers": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "ID": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "AdvertisingMessageIDs": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "ID": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "Aspects": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "ID": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "CreationDateEnd": {
+                    "type": "string",
+                    "example": "20191201"
+                },
+                "CreationDateStart": {
+                    "type": "string",
+                    "example": "20190301"
+                },
+                "FillMaterialTags": {
+                    "type": "string",
+                    "example": "true"
+                }
+            }
+        },
+        "models.BudgetLoadRequest": {
+            "type": "object",
+            "properties": {
+                "EndMonth": {
+                    "type": "string",
+                    "example": "201912"
+                },
+                "SellingDirectionID": {
+                    "type": "string",
+                    "example": "23"
+                },
+                "StartMonth": {
+                    "type": "string",
+                    "example": "201903"
+                }
+            }
+        },
+        "models.ChannelLoadRequest": {
+            "type": "object",
+            "properties": {
+                "SellingDirectionID": {
+                    "type": "string",
+                    "example": "23"
+                }
+            }
+        },
+        "models.CommonResponse": {
+            "type": "object",
+            "additionalProperties": true
+        },
+        "models.MediaplanLoadRequest": {
+            "type": "object",
+            "properties": {
+                "EndMonth": {
+                    "type": "string",
+                    "example": "201912"
+                },
+                "SellingDirectionID": {
+                    "type": "string",
+                    "example": "23"
+                },
+                "StartMonth": {
+                    "type": "string",
+                    "example": "201903"
+                }
+            }
+        },
+        "models.RanksLoadRequest": {
+            "type": "object"
+        },
         "models.StreamResponse": {
             "type": "object",
             "properties": {
@@ -768,19 +1070,22 @@ var doc = `{
         "models.SwaggerChangeMPlanFilmPlannedInventoryRequest": {
             "type": "object",
             "properties": {
-                "Data": {
+                "data": {
                     "type": "array",
                     "items": {
                         "type": "object",
                         "properties": {
                             "CommInMpl": {
-                                "type": "object",
-                                "properties": {
-                                    "ID": {
-                                        "type": "string"
-                                    },
-                                    "Inventory": {
-                                        "type": "string"
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "ID": {
+                                            "type": "string"
+                                        },
+                                        "Inventory": {
+                                            "type": "string"
+                                        }
                                     }
                                 }
                             }
@@ -792,10 +1097,10 @@ var doc = `{
         "models.SwaggerChangeSpotRequest": {
             "type": "object",
             "properties": {
-                "FilmID": {
+                "FirstSpotID": {
                     "type": "string"
                 },
-                "FirstSpotID": {
+                "SecondSpotID": {
                     "type": "string"
                 }
             }
@@ -1040,6 +1345,31 @@ var doc = `{
         "models.SwaggerGetSpotsRequest": {
             "type": "object",
             "properties": {
+                "AdtList": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "AdtID": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "ChannelList": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "Cnl": {
+                                "type": "string"
+                            },
+                            "Main": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
                 "EndDate": {
                     "type": "string"
                 },
@@ -1061,6 +1391,20 @@ var doc = `{
                     "type": "string"
                 },
                 "SpotID": {
+                    "type": "string"
+                }
+            }
+        },
+        "routes.MqInfo": {
+            "type": "object",
+            "properties": {
+                "consumers": {
+                    "type": "integer"
+                },
+                "messages": {
+                    "type": "integer"
+                },
+                "name": {
                     "type": "string"
                 }
             }

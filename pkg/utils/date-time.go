@@ -6,8 +6,8 @@ import (
 )
 
 type YearMonth struct {
-	Month       time.Month
-	Year        int
+	Month       time.Month `json:"month"`
+	Year        int        `json:"year"`
 	IntValue    int
 	ValueString string
 }

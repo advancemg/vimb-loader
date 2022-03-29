@@ -26,6 +26,27 @@ const (
 	GetChannelsType                     = "GetChannels"
 )
 
+var QueueNames = []string{
+	GetProgramBreaksType,
+	GetProgramBreaksLightModeType,
+	AddMPlanFilmType,
+	AddMPlanType,
+	AddSpotType,
+	GetAdvMessagesType,
+	GetBudgetsType,
+	ChangeMPlanFilmPlannedInventoryType,
+	ChangeSpotType,
+	GetCustomersWithAdvertisersType,
+	DeleteMPlanFilmType,
+	DeleteSpotType,
+	GetDeletedSpotInfoType,
+	GetMPLansType,
+	GetSpotsType,
+	GetRanksType,
+	SetSpotPositionType,
+	GetChannelsType,
+}
+
 type Configuration struct {
 	Mediaplan                MediaplanConfiguration                `json:"mediaplan"`
 	Budget                   BudgetConfiguration                   `json:"budget"`
@@ -38,6 +59,8 @@ type Configuration struct {
 	ProgramBreaksLight       ProgramBreaksLightConfiguration       `json:"programBreaksLight"`
 	Spots                    SpotsConfiguration                    `json:"spots"`
 }
+
+type CommonResponse map[string]interface{}
 
 type StreamResponse struct {
 	Body    []byte `json:"body"`
