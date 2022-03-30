@@ -35,6 +35,7 @@ const (
 	RanksUpdateQueue                    = "ranks-update"
 	ChannelsUpdateQueue                 = "channels-update"
 	DbCustomConfigMonth                 = "db/custom-config-month"
+	DbBudgets                           = "db/budgets"
 	DbCustomConfigAdvertisers           = "db/custom-config-advertisers "
 	DbCustomConfigChannels              = "db/custom-config-channels"
 	DbChannels                          = "db/channels"
