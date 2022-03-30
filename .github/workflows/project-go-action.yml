@@ -42,8 +42,7 @@ jobs:
         run: go mod tidy -compat=1.17
       - name: Create swagger docs directory
         run: |
-          mkdir -p swagger-docs
-          cp -R docs swagger-docs
+          mkdir -p zipdir
       - name: Get OS and arch info
         run: |
           PROJECT_NAME=vimb-loader
@@ -61,13 +60,15 @@ jobs:
       - name: Release Notes
         run:
           git log $(git describe HEAD~ --tags --abbrev=0)..HEAD --pretty='format:* %h %s%n  * %an <%ae>' --no-merges >> ".github/RELEASE-TEMPLATE.md"
+      - name: Pack release
+        run: |
+          zip -rj -Z bzip2 zipdir/$BINARY_NAME.zip docs $BINARY_NAME
       - name: Release with Notes
         uses: softprops/action-gh-release@v1
         with:
           body_path: ".github/RELEASE-TEMPLATE.md"
           draft: true
           files: |
-            ${{env.BINARY_NAME}}
-            swagger-docs/*
+            zipdir/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
