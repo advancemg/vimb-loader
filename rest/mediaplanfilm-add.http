@@ -1,0 +1,11 @@
+POST {{base-url}}/api/v1/mediaplan/film
+Content-Type: application/json
+
+{
+  "StartDate": "2022-03-21",
+  "EndDate": "nil",
+  "FilmID": "751900",
+  "MplID": "14396424"
+}
+
+###

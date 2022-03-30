@@ -23,6 +23,7 @@ type Config struct {
 	Cert     string `json:"cert"`
 	Password string `json:"password"`
 	Client   string `json:"client"`
+	Timeout  string `json:"timeout"`
 }
 
 type Action struct {
@@ -57,7 +58,10 @@ func loadConfig() *Config {
 }
 
 func (cfg *Config) newClient() *http.Client {
-	timeout := 30 * time.Second
+	timeout, err := time.ParseDuration(cfg.Timeout)
+	if err != nil {
+		panic(err)
+	}
 	dataCert, err := base64.StdEncoding.DecodeString(cfg.Cert)
 	if err != nil {
 		log.Fatal("error:", err)
@@ -136,9 +140,7 @@ func (act *Action) RequestJson(input []byte) ([]byte, error) {
 }
 
 func vimbRequest(inputXml string) string {
-	inputXml = strings.ReplaceAll(inputXml, "<", "&lt;")
-	inputXml = strings.ReplaceAll(inputXml, ">", "&gt;")
-	return fmt.Sprintf(`<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"><SOAP-ENV:Header/><SOAP-ENV:Body><GetVimbInfoStream xmlns="VIMBWebApplication2"><InputXML>%s</InputXML></GetVimbInfoStream></SOAP-ENV:Body></SOAP-ENV:Envelope>`, inputXml)
+	return fmt.Sprintf(`<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:vim="VIMBWebApplication2"><soapenv:Header/><soapenv:Body><vim:GetVimbInfoStream><vim:InputXML><![CDATA[%s]]></vim:InputXML></vim:GetVimbInfoStream></soapenv:Body></soapenv:Envelope>`, inputXml)
 }
 
 func catchError(resp []byte) (*VimbError, error) {
@@ -194,6 +196,7 @@ func (e *VimbError) CheckTimeout() {
 		return
 	default:
 		fmt.Printf("Vimb code %v - not implemented timeout...", code)
+		fmt.Println(e.Message)
 		time.Sleep(time.Minute * 1)
 		return
 	}

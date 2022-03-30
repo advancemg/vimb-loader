@@ -5,13 +5,12 @@ Content-Type: application/json
   "SellingDirectionID": "23",
   "InclProgAttr": "0",
   "InclForecast": "0",
-  "AudRatDec": "2",
-  "StartDate": "20190809",
-  "EndDate": "20190809",
+  "StartDate": "20190803",
+  "EndDate": "20190803",
   "LightMode": "0",
   "CnlList": [
     {
-      "Cnl": "1020340"
+      "Cnl": "1020313"
     }
   ],
   "ProtocolVersion": "2"

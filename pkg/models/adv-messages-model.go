@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	goConvert "github.com/advancemg/go-convert"
+	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
+	"github.com/advancemg/vimb-loader/pkg/storage"
 	"github.com/advancemg/vimb-loader/pkg/utils"
 )
 
@@ -28,13 +30,101 @@ type GetAdvMessages struct {
 }
 
 type AdvMessagesConfiguration struct {
-	Cron              string `json:"cron"`
-	CreationDateStart string `json:"creationDateStart"`
-	CreationDateEnd   string `json:"creationDateEnd"`
+	Cron    string `json:"cron"`
+	Loading bool   `json:"loading"`
 }
 
-func (cfg *AdvMessagesConfiguration) GetJob() func() {
+func (cfg *AdvMessagesConfiguration) StartJob() chan error {
+	if !cfg.Loading {
+		return nil
+	}
+	errorCh := make(chan error)
+	go func() {
+		qName := GetAdvMessagesType
+		amqpConfig := mq_broker.InitConfig()
+		err := amqpConfig.DeclareSimpleQueue(qName)
+		if err != nil {
+			errorCh <- err
+		}
+		ch, err := amqpConfig.Channel()
+		if err != nil {
+			errorCh <- err
+		}
+		err = ch.Qos(1, 0, false)
+		messages, err := ch.Consume(qName, "",
+			false,
+			false,
+			false,
+			false,
+			nil)
+		for msg := range messages {
+			var bodyJson GetAdvMessages
+			err := json.Unmarshal(msg.Body, &bodyJson)
+			if err != nil {
+				errorCh <- err
+			}
+			err = bodyJson.UploadToS3()
+			if err != nil {
+				errorCh <- err
+			}
+			msg.Ack(false)
+		}
+		defer close(errorCh)
+	}()
+
+	return errorCh
+}
+
+func (cfg *AdvMessagesConfiguration) InitJob() func() {
 	return func() {
+		if !cfg.Loading {
+			return
+		}
+		qName := GetAdvMessagesType
+		amqpConfig := mq_broker.InitConfig()
+		err := amqpConfig.DeclareSimpleQueue(qName)
+		if err != nil {
+			fmt.Printf("Q:%s - err:%s", qName, err.Error())
+			return
+		}
+		qInfo, err := amqpConfig.GetQueueInfo(qName)
+		if err != nil {
+			fmt.Printf("Q:%s - err:%s", qName, err.Error())
+			return
+		}
+		if qInfo.Messages > 0 {
+			return
+		}
+		type adtID struct {
+			AdtID string `json:"AdtID"`
+		}
+		type filed struct {
+			Id string `json:"ID"`
+		}
+		badgerMonth := storage.NewBadger(DbCustomConfigMonth)
+		defer badgerMonth.Close()
+		months := map[string]string{}
+		badgerMonth.Iterate(func(key []byte, value []byte) {
+			months[string(key)] = string(value)
+		})
+		for _, month := range months {
+			days, err := utils.GetDaysFromYearMonth(month)
+			if err != nil {
+				panic(err)
+			}
+			request := goConvert.New()
+			request.Set("CreationDateStart", days[0].String()[:10])
+			request.Set("CreationDateEnd", days[len(days)-1].String()[:10])
+			request.Set("Advertisers", []adtID{})
+			request.Set("Aspects", []filed{})
+			request.Set("AdvertisingMessageIDs", []filed{})
+			request.Set("FillMaterialTags", "true")
+			err = amqpConfig.PublishJson(qName, request)
+			if err != nil {
+				fmt.Printf("Q:%s - err:%s", qName, err.Error())
+				return
+			}
+		}
 	}
 }
 
@@ -74,17 +164,24 @@ func (request *GetAdvMessages) GetDataXmlZip() (*StreamResponse, error) {
 }
 
 func (request *GetAdvMessages) UploadToS3() error {
-	typeName := GetAdvMessagesType
-	data, err := request.GetDataXmlZip()
-	if err != nil {
-		return err
+	for {
+		typeName := GetAdvMessagesType
+		data, err := request.GetDataXmlZip()
+		if err != nil {
+			if vimbError, ok := err.(*utils.VimbError); ok {
+				vimbError.CheckTimeout()
+				continue
+			}
+			return err
+		}
+		month, _ := request.Get("CreationDateStart")
+		var newS3Key = fmt.Sprintf("vimb/%s/%s/%v/%s-%s.gz", utils.Actions.Client, typeName, month, utils.DateTimeNowInt(), typeName)
+		_, err = s3.UploadBytesWithBucket(newS3Key, data.Body)
+		if err != nil {
+			return err
+		}
+		return nil
 	}
-	var newS3Key = fmt.Sprintf("vimb/%s/%s/%s-%s.gz", utils.Actions.Client, typeName, utils.DateTimeNowInt(), typeName)
-	_, err = s3.UploadBytesWithBucket(newS3Key, data.Body)
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
 func (request *GetAdvMessages) getXml() ([]byte, error) {

@@ -4,8 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	goConvert "github.com/advancemg/go-convert"
+	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
+	"github.com/advancemg/vimb-loader/pkg/storage"
 	"github.com/advancemg/vimb-loader/pkg/utils"
+	"strconv"
+	"time"
 )
 
 type SwaggerGetSpotsRequest struct {
@@ -27,11 +31,146 @@ type GetSpots struct {
 }
 
 type SpotsConfiguration struct {
-	Cron string `json:"cron"`
+	Cron             string `json:"cron"`
+	SellingDirection string `json:"sellingDirection"`
+	Loading          bool   `json:"loading"`
 }
 
-func (cfg *SpotsConfiguration) GetJob() func() {
+func (cfg *SpotsConfiguration) StartJob() chan error {
+	if !cfg.Loading {
+		return nil
+	}
+	errorCh := make(chan error)
+	go func() {
+		qName := GetSpotsType
+		amqpConfig := mq_broker.InitConfig()
+		err := amqpConfig.DeclareSimpleQueue(qName)
+		if err != nil {
+			errorCh <- err
+		}
+		ch, err := amqpConfig.Channel()
+		if err != nil {
+			errorCh <- err
+		}
+		err = ch.Qos(1, 0, false)
+		messages, err := ch.Consume(qName, "",
+			false,
+			false,
+			false,
+			false,
+			nil)
+		for msg := range messages {
+			var bodyJson GetSpots
+			err := json.Unmarshal(msg.Body, &bodyJson)
+			if err != nil {
+				errorCh <- err
+			}
+			err = bodyJson.UploadToS3()
+			if err != nil {
+				errorCh <- err
+			}
+			msg.Ack(false)
+		}
+		defer close(errorCh)
+	}()
+	return errorCh
+}
+
+func (cfg *SpotsConfiguration) InitJob() func() {
 	return func() {
+		if !cfg.Loading {
+			return
+		}
+		qName := GetSpotsType
+		amqpConfig := mq_broker.InitConfig()
+		err := amqpConfig.DeclareSimpleQueue(qName)
+		if err != nil {
+			fmt.Printf("Q:%s - err:%s", qName, err.Error())
+			return
+		}
+		qInfo, err := amqpConfig.GetQueueInfo(qName)
+		if err != nil {
+			fmt.Printf("Q:%s - err:%s", qName, err.Error())
+			return
+		}
+		if qInfo.Messages > 0 {
+			return
+		}
+		type AdtID struct {
+			AdtID string `json:"AdtID"`
+		}
+		type Cnl struct {
+			Cnl  string `json:"Cnl"`
+			Main string `json:"Main"`
+		}
+		allChannels := storage.NewBadger(DbChannels)
+		badgerChannels := storage.NewBadger(DbCustomConfigChannels)
+		badgerAdvertisers := storage.NewBadger(DbCustomConfigAdvertisers)
+		badgerMonth := storage.NewBadger(DbCustomConfigMonth)
+		defer allChannels.Close()
+		defer badgerChannels.Close()
+		defer badgerAdvertisers.Close()
+		defer badgerMonth.Close()
+		months := map[string][]string{}
+		allchannels := map[string]string{}
+		channels := map[string]Cnl{}
+		advertisers := map[string]AdtID{}
+		if allChannels.Count() > 0 {
+			allChannels.Iterate(func(key []byte, value []byte) {
+				allchannels[string(key)] = string(value)
+			})
+			badgerChannels.Iterate(func(key []byte, value []byte) {
+				for id, main := range allchannels {
+					if id == string(key) {
+						channels[id] = Cnl{
+							Cnl:  id,
+							Main: main}
+					}
+				}
+			})
+			badgerAdvertisers.Iterate(func(key []byte, value []byte) {
+				advertisers[string(key)] = AdtID{AdtID: string(value)}
+			})
+			badgerMonth.Iterate(func(key []byte, value []byte) {
+				month, err := strconv.Atoi(string(value)[4:6])
+				if err != nil {
+					panic(err)
+				}
+				year, err := strconv.Atoi(string(value)[0:4])
+				if err != nil {
+					panic(err)
+				}
+				days, err := utils.GetDaysFromMonth(year, time.Month(month))
+				if err != nil {
+					panic(err)
+				}
+				months[string(key)] = days
+			})
+			var channelList []Cnl
+			var adtList []AdtID
+			for _, c := range channels {
+				channelList = append(channelList, c)
+			}
+			for _, adt := range advertisers {
+				adtList = append(adtList, adt)
+			}
+			for month, days := range months {
+				request := goConvert.New()
+				startDay := fmt.Sprintf("%s%s", month, days[0])
+				endDay := fmt.Sprintf("%s%s", month, days[len(days)-1])
+				request.Set("SellingDirectionID", cfg.SellingDirection)
+				request.Set("StartDate", startDay)
+				request.Set("EndDate", endDay)
+				request.Set("InclOrdBlocks", "1")
+				request.Set("ChannelList", channelList)
+				request.Set("AdtList", adtList)
+				err := amqpConfig.PublishJson(qName, request)
+				if err != nil {
+					fmt.Printf("Q:%s - err:%s", qName, err.Error())
+					return
+				}
+			}
+		}
 	}
 }
 
@@ -71,17 +210,24 @@ func (request *GetSpots) GetDataXmlZip() (*StreamResponse, error) {
 }
 
 func (request *GetSpots) UploadToS3() error {
-	typeName := GetSpotsType
-	data, err := request.GetDataXmlZip()
-	if err != nil {
-		return err
+	for {
+		typeName := GetSpotsType
+		data, err := request.GetDataXmlZip()
+		if err != nil {
+			if vimbError, ok := err.(*utils.VimbError); ok {
+				vimbError.CheckTimeout()
+				continue
+			}
+			return err
+		}
+		month, _ := request.Get("StartDate")
+		var newS3Key = fmt.Sprintf("vimb/%s/%s/%v/%s-%s.gz", utils.Actions.Client, typeName, month, utils.DateTimeNowInt(), typeName)
+		_, err = s3.UploadBytesWithBucket(newS3Key, data.Body)
+		if err != nil {
+			return err
+		}
+		return nil
 	}
-	var newS3Key = fmt.Sprintf("vimb/%s/%s/%s-%s.gz", utils.Actions.Client, typeName, utils.DateTimeNowInt(), typeName)
-	_, err = s3.UploadBytesWithBucket(newS3Key, data.Body)
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
 func (request *GetSpots) getXml() ([]byte, error) {

@@ -1,0 +1,11 @@
+POST {{base-url}}/api/v1/spot/change-films
+Content-Type: application/json
+
+{
+  "FakeSpotIDs": "1",
+  "FakeSpotIDs": "2",
+  "CommInMplIDs": "1",
+  "CommInMplIDs": "2"
+}
+
+###

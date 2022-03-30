@@ -55,17 +55,24 @@ func (request *AddMPlanFilm) GetDataXmlZip() (*StreamResponse, error) {
 }
 
 func (request *AddMPlanFilm) UploadToS3() error {
-	typeName := AddMPlanFilmType
-	data, err := request.GetDataXmlZip()
-	if err != nil {
-		return err
+	for {
+		typeName := AddMPlanFilmType
+		data, err := request.GetDataXmlZip()
+		if err != nil {
+			if vimbError, ok := err.(*utils.VimbError); ok {
+				vimbError.CheckTimeout()
+				continue
+			}
+			return err
+		}
+		month, _ := request.Get("StartDate")
+		var newS3Key = fmt.Sprintf("vimb/%s/%s/%s/%s-%s.gz", utils.Actions.Client, typeName, month, utils.DateTimeNowInt(), typeName)
+		_, err = s3.UploadBytesWithBucket(newS3Key, data.Body)
+		if err != nil {
+			return err
+		}
+		return nil
 	}
-	var newS3Key = fmt.Sprintf("vimb/%s/%s/%s-%s.gz", utils.Actions.Client, typeName, utils.DateTimeNowInt(), typeName)
-	_, err = s3.UploadBytesWithBucket(newS3Key, data.Body)
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
 func (request *AddMPlanFilm) getXml() ([]byte, error) {

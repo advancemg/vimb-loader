@@ -1,0 +1,9 @@
+POST {{base-url}}/api/v1/spot/set-position
+Content-Type: application/json
+
+{
+  "SpotID": "21",
+  "Distance": "21"
+}
+
+###

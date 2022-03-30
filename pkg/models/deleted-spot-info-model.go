@@ -4,8 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	goConvert "github.com/advancemg/go-convert"
+	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
+	"github.com/advancemg/vimb-loader/pkg/storage"
 	"github.com/advancemg/vimb-loader/pkg/utils"
+	"time"
 )
 
 type SwaggerGetDeletedSpotInfoRequest struct {
@@ -21,13 +24,96 @@ type GetDeletedSpotInfo struct {
 }
 
 type DeletedSpotInfoConfiguration struct {
-	Cron      string `json:"cron"`
-	DateStart string `json:"dateStart"`
-	DateEnd   string `json:"dateEnd"`
+	Cron    string `json:"cron"`
+	Loading bool   `json:"loading"`
 }
 
-func (cfg *DeletedSpotInfoConfiguration) GetJob() func() {
+func (cfg *DeletedSpotInfoConfiguration) StartJob() chan error {
+	if !cfg.Loading {
+		return nil
+	}
+	errorCh := make(chan error)
+	go func() {
+		qName := GetDeletedSpotInfoType
+		amqpConfig := mq_broker.InitConfig()
+		err := amqpConfig.DeclareSimpleQueue(qName)
+		if err != nil {
+			errorCh <- err
+		}
+		ch, err := amqpConfig.Channel()
+		if err != nil {
+			errorCh <- err
+		}
+		err = ch.Qos(1, 0, false)
+		messages, err := ch.Consume(qName, "",
+			false,
+			false,
+			false,
+			false,
+			nil)
+		for msg := range messages {
+			var bodyJson GetDeletedSpotInfo
+			err := json.Unmarshal(msg.Body, &bodyJson)
+			if err != nil {
+				errorCh <- err
+			}
+			err = bodyJson.UploadToS3()
+			if err != nil {
+				errorCh <- err
+			}
+			msg.Ack(false)
+		}
+		defer close(errorCh)
+	}()
+	return errorCh
+}
+
+func (cfg *DeletedSpotInfoConfiguration) InitJob() func() {
 	return func() {
+		if !cfg.Loading {
+			return
+		}
+		qName := GetDeletedSpotInfoType
+		amqpConfig := mq_broker.InitConfig()
+		err := amqpConfig.DeclareSimpleQueue(qName)
+		if err != nil {
+			fmt.Printf("Q:%s - err:%s", qName, err.Error())
+			return
+		}
+		qInfo, err := amqpConfig.GetQueueInfo(qName)
+		if err != nil {
+			fmt.Printf("Q:%s - err:%s", qName, err.Error())
+			return
+		}
+		if qInfo.Messages > 0 {
+			return
+		}
+		badgerMonth := storage.NewBadger(DbCustomConfigMonth)
+		defer badgerMonth.Close()
+		months := map[string]string{}
+		badgerMonth.Iterate(func(key []byte, value []byte) {
+			months[string(key)] = string(value)
+		})
+		type agreement struct {
+			Id string `json:"ID"`
+		}
+		for _, month := range months {
+			days, err := utils.GetDaysFromYearMonth(month)
+			if err != nil {
+				panic(err)
+			}
+			startDay := fmt.Sprintf("%v", days[0].Format(time.RFC3339))
+			endDay := fmt.Sprintf("%v", days[len(days)-1].Format(time.RFC3339))
+			request := goConvert.New()
+			request.Set("DateStart", startDay[0:len(startDay)-1])
+			request.Set("DateEnd", endDay[0 : len(endDay)-1][:11]+"12:00:00")
+			request.Set("Agreements", []agreement{})
+			err = amqpConfig.PublishJson(qName, request)
+			if err != nil {
+				fmt.Printf("Q:%s - err:%s", qName, err.Error())
+				return
+			}
+		}
 	}
 }
 
@@ -67,17 +153,24 @@ func (request *GetDeletedSpotInfo) GetDataXmlZip() (*StreamResponse, error) {
 }
 
 func (request *GetDeletedSpotInfo) UploadToS3() error {
-	typeName := GetDeletedSpotInfoType
-	data, err := request.GetDataXmlZip()
-	if err != nil {
-		return err
+	for {
+		typeName := GetDeletedSpotInfoType
+		data, err := request.GetDataXmlZip()
+		if err != nil {
+			if vimbError, ok := err.(*utils.VimbError); ok {
+				vimbError.CheckTimeout()
+				continue
+			}
+			return err
+		}
+		month, _ := request.Get("DateStart")
+		var newS3Key = fmt.Sprintf("vimb/%s/%s/%v/%s-%s.gz", utils.Actions.Client, typeName, month, utils.DateTimeNowInt(), typeName)
+		_, err = s3.UploadBytesWithBucket(newS3Key, data.Body)
+		if err != nil {
+			return err
+		}
+		return nil
 	}
-	var newS3Key = fmt.Sprintf("vimb/%s/%s/%s-%s.gz", utils.Actions.Client, typeName, utils.DateTimeNowInt(), typeName)
-	_, err = s3.UploadBytesWithBucket(newS3Key, data.Body)
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
 func (request *GetDeletedSpotInfo) getXml() ([]byte, error) {

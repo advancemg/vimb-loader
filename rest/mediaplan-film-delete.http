@@ -1,0 +1,8 @@
+DELETE {{base-url}}/api/v1/mediaplan/film
+Content-Type: application/json
+
+{
+  "CommInMplID": "9249649"
+}
+
+###

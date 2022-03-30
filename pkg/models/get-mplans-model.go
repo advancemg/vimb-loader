@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	goConvert "github.com/advancemg/go-convert"
+	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
+	"github.com/advancemg/vimb-loader/pkg/storage"
 	"github.com/advancemg/vimb-loader/pkg/utils"
 )
 
@@ -26,14 +28,97 @@ type GetMPLans struct {
 }
 
 type MediaplanConfiguration struct {
-	Cron             string
-	SellingDirection string
-	StartMonth       string
-	EndMonth         string
+	Cron             string `json:"cron"`
+	SellingDirection string `json:"sellingDirection"`
+	Loading          bool   `json:"loading"`
 }
 
-func (cfg *MediaplanConfiguration) GetJob() func() {
+func (cfg *MediaplanConfiguration) StartJob() chan error {
+	if !cfg.Loading {
+		return nil
+	}
+	errorCh := make(chan error)
+	go func() {
+		qName := GetMPLansType
+		amqpConfig := mq_broker.InitConfig()
+		err := amqpConfig.DeclareSimpleQueue(qName)
+		if err != nil {
+			errorCh <- err
+		}
+		ch, err := amqpConfig.Channel()
+		if err != nil {
+			errorCh <- err
+		}
+		err = ch.Qos(1, 0, false)
+		messages, err := ch.Consume(qName, "",
+			false,
+			false,
+			false,
+			false,
+			nil)
+		for msg := range messages {
+			var bodyJson GetMPLans
+			err := json.Unmarshal(msg.Body, &bodyJson)
+			if err != nil {
+				errorCh <- err
+			}
+			err = bodyJson.UploadToS3()
+			if err != nil {
+				errorCh <- err
+			}
+			msg.Ack(false)
+		}
+		defer close(errorCh)
+	}()
+	return errorCh
+}
+
+func (cfg *MediaplanConfiguration) InitJob() func() {
 	return func() {
+		if !cfg.Loading {
+			return
+		}
+		qName := GetMPLansType
+		amqpConfig := mq_broker.InitConfig()
+		err := amqpConfig.DeclareSimpleQueue(qName)
+		if err != nil {
+			fmt.Printf("Q:%s - err:%s", qName, err.Error())
+			return
+		}
+		qInfo, err := amqpConfig.GetQueueInfo(qName)
+		if err != nil {
+			fmt.Printf("Q:%s - err:%s", qName, err.Error())
+			return
+		}
+		if qInfo.Messages > 0 {
+			return
+		}
+		type Cnl struct {
+			Cnl string `json:"Cnl"`
+		}
+		type AdtID struct {
+			AdtID string `json:"AdtID"`
+		}
+		badgerMonth := storage.NewBadger(DbCustomConfigMonth)
+		defer badgerMonth.Close()
+		months := map[string]string{}
+		badgerMonth.Iterate(func(key []byte, value []byte) {
+			months[string(key)] = string(value)
+		})
+		for _, month := range months {
+			request := goConvert.New()
+			request.Set("SellingDirectionID", cfg.SellingDirection)
+			request.Set("StartMonth", month)
+			request.Set("EndMonth", month)
+			request.Set("AdtList", []AdtID{})
+			request.Set("ChannelList", []Cnl{})
+			request.Set("IncludeEmpty", "false")
+			err := amqpConfig.PublishJson(qName, request)
+			if err != nil {
+				fmt.Printf("Q:%s - err:%s", qName, err.Error())
+				return
+			}
+		}
 	}
 }
 
@@ -73,22 +158,33 @@ func (request *GetMPLans) GetDataXmlZip() (*StreamResponse, error) {
 }
 
 func (request *GetMPLans) UploadToS3() error {
-	typeName := GetMPLansType
-	data, err := request.GetDataXmlZip()
-	if err != nil {
-		return err
+	for {
+		typeName := GetMPLansType
+		data, err := request.GetDataXmlZip()
+		if err != nil {
+			if vimbError, ok := err.(*utils.VimbError); ok {
+				vimbError.CheckTimeout()
+				continue
+			}
+			return err
+		}
+		sellingDirectionID, _ := request.Get("SellingDirectionID")
+		month, _ := request.Get("StartMonth")
+		if err != nil {
+			return err
+		}
+		var newS3Key = fmt.Sprintf("vimb/%s/%s/%s/%v/%s-%s.gz", sellingDirectionID, utils.Actions.Client, typeName, month, utils.DateTimeNowInt(), typeName)
+		_, err = s3.UploadBytesWithBucket(newS3Key, data.Body)
+		if err != nil {
+			return err
+		}
+		return nil
 	}
-	var newS3Key = fmt.Sprintf("vimb/%s/%s/%s-%s.gz", utils.Actions.Client, typeName, utils.DateTimeNowInt(), typeName)
-	_, err = s3.UploadBytesWithBucket(newS3Key, data.Body)
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
 func (request *GetMPLans) getXml() ([]byte, error) {
-	//attributes := goConvert.New()
-	//attributes.Set("xmlns:xsi", "\"http://www.w3.org/2001/XMLSchema-instance\"")
+	attributes := goConvert.New()
+	attributes.Set("xmlns:xsi", "\"http://www.w3.org/2001/XMLSchema-instance\"")
 	xmlRequestHeader := goConvert.New()
 	body := goConvert.New()
 	SellingDirectionID, exist := request.Get("SellingDirectionID")
@@ -116,6 +212,11 @@ func (request *GetMPLans) getXml() ([]byte, error) {
 		body.Set("IncludeEmpty", IncludeEmpty)
 	}
 	xmlRequestHeader.Set("GetMPlans", body)
-	//xmlRequestHeader.Set("attributes", attributes)
+	xmlRequestHeader.Set("attributes", attributes)
+	xml, err := xmlRequestHeader.ToXml()
+	if err != nil {
+		fmt.Printf(err.Error())
+	}
+	fmt.Println(string(xml))
 	return xmlRequestHeader.ToXml()
 }

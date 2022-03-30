@@ -1,12 +1,16 @@
 package models
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	goConvert "github.com/advancemg/go-convert"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
+	"github.com/advancemg/vimb-loader/pkg/storage"
 	"github.com/advancemg/vimb-loader/pkg/utils"
+	"io"
+	"os"
 )
 
 type SwaggerGetBudgetsRequest struct {
@@ -31,40 +35,44 @@ type BudgetConfiguration struct {
 	Loading          bool   `json:"loading"`
 }
 
-func (cfg *BudgetConfiguration) StartJob() error {
+func (cfg *BudgetConfiguration) StartJob() chan error {
 	if !cfg.Loading {
 		return nil
 	}
-	qName := GetBudgetsType
-	amqpConfig := mq_broker.InitConfig()
-	err := amqpConfig.DeclareSimpleQueue(qName)
-	if err != nil {
-		return err
-	}
-	ch, err := amqpConfig.Channel()
-	if err != nil {
-		return err
-	}
-	err = ch.Qos(1, 0, false)
-	messages, err := ch.Consume(qName, "",
-		false,
-		false,
-		false,
-		false,
-		nil)
-	for msg := range messages {
-		var bodyJson GetBudgets
-		err := json.Unmarshal(msg.Body, &bodyJson)
+	errorCh := make(chan error)
+	go func() {
+		qName := GetBudgetsType
+		amqpConfig := mq_broker.InitConfig()
+		err := amqpConfig.DeclareSimpleQueue(qName)
 		if err != nil {
-			return err
+			errorCh <- err
 		}
-		err = bodyJson.UploadToS3()
+		ch, err := amqpConfig.Channel()
 		if err != nil {
-			return err
+			errorCh <- err
 		}
-		msg.Ack(false)
-	}
-	return nil
+		err = ch.Qos(1, 0, false)
+		messages, err := ch.Consume(qName, "",
+			false,
+			false,
+			false,
+			false,
+			nil)
+		for msg := range messages {
+			var bodyJson GetBudgets
+			err := json.Unmarshal(msg.Body, &bodyJson)
+			if err != nil {
+				errorCh <- err
+			}
+			err = bodyJson.UploadToS3()
+			if err != nil {
+				errorCh <- err
+			}
+			msg.Ack(false)
+		}
+		defer close(errorCh)
+	}()
+	return errorCh
 }
 
 func (cfg *BudgetConfiguration) InitJob() func() {
@@ -94,9 +102,10 @@ func (cfg *BudgetConfiguration) InitJob() func() {
 		}
 		for _, month := range months {
 			request := goConvert.New()
+			ym := fmt.Sprintf("%v", month.IntValue-300)
 			request.Set("SellingDirectionID", cfg.SellingDirection)
-			request.Set("StartMonth", month.ValueString)
-			request.Set("EndMonth", month.ValueString)
+			request.Set("StartMonth", ym)
+			request.Set("EndMonth", ym)
 			err := amqpConfig.PublishJson(qName, request)
 			if err != nil {
 				fmt.Printf("Q:%s - err:%s", qName, err.Error())
@@ -104,11 +113,6 @@ func (cfg *BudgetConfiguration) InitJob() func() {
 			}
 		}
 	}
-}
-
-func (request *GetBudgets) GetStartMonth() (string, error) {
-	startMonth, _ := request.Get("StartMonth")
-	return fmt.Sprintf("%v", startMonth), nil
 }
 
 func (request *GetBudgets) GetDataJson() (*JsonResponse, error) {
@@ -176,7 +180,55 @@ func (request *GetBudgets) UploadToS3() error {
 }
 
 func (request *GetBudgets) DataConfiguration(s3Key string) error {
-
+	download, err := s3.Download(s3Key)
+	if err != nil {
+		return err
+	}
+	open, err := os.Open(download)
+	if err != nil {
+		return err
+	}
+	defer open.Close()
+	zipBuffer := new(bytes.Buffer)
+	_, err = io.Copy(zipBuffer, open)
+	if err != nil {
+		return fmt.Errorf("not copy zip data, %v", err)
+	}
+	toJson, err := goConvert.ZipXmlToJson(zipBuffer.Bytes())
+	if err != nil {
+		return fmt.Errorf("not ZipXmlToJson, %v", err)
+	}
+	badgerMonth := storage.NewBadger(DbCustomConfigMonth)
+	badgerAdvertisers := storage.NewBadger(DbCustomConfigAdvertisers)
+	badgerChannels := storage.NewBadger(DbCustomConfigChannels)
+	defer badgerMonth.Close()
+	defer badgerAdvertisers.Close()
+	defer badgerChannels.Close()
+	var budgetMap map[string]interface{}
+	err = json.Unmarshal(toJson, &budgetMap)
+	if err != nil {
+		return err
+	}
+	for _, v := range budgetMap {
+		if map1, ok := v.(map[string]interface{}); ok {
+			for _, v1 := range map1 {
+				if arr, ok := v1.([]interface{}); ok {
+					for _, arrVal := range arr {
+						for _, value := range arrVal.(map[string]interface{}) {
+							if mpL4, ok := value.(map[string]interface{}); ok {
+								adtId := mpL4["AdtID"].(string)
+								cnlId := mpL4["CnlID"].(string)
+								month := mpL4["Month"].(string)
+								badgerAdvertisers.Set(adtId, []byte(adtId))
+								badgerChannels.Set(cnlId, []byte(cnlId))
+								badgerMonth.Set(month, []byte(month))
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 	return nil
 }
 

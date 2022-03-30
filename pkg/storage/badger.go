@@ -2,6 +2,7 @@ package storage
 
 import (
 	"github.com/dgraph-io/badger"
+	"os"
 	"time"
 )
 
@@ -10,20 +11,30 @@ type Badger struct {
 	db *badger.DB
 }
 
+var cacheBadger = map[string]*Badger{}
+
 // NewBadger returns new instance of badger wrapper
 func NewBadger(storageDir string) *Badger {
+	if cacheBadger[storageDir] != nil {
+		return cacheBadger[storageDir]
+	}
+	var err error
+	err = os.MkdirAll(storageDir, os.ModePerm)
+	if err != nil {
+		panic(err.Error())
+	}
 	storage := &Badger{}
 	opts := badger.DefaultOptions(storageDir)
 	opts.SyncWrites = true
 	opts.Dir = storageDir
 	opts.ValueDir = storageDir
-	var err error
 	storage.db, err = badger.Open(opts)
 	if err != nil {
 		panic(err)
 	}
-	go storage.runStorageGC()
-	return storage
+	cacheBadger[storageDir] = storage
+	go cacheBadger[storageDir].runStorageGC()
+	return cacheBadger[storageDir]
 }
 
 // Close properly closes badger database
@@ -193,6 +204,15 @@ func (storage *Badger) IterateByPrefixFrom(prefix []byte, from []byte, limit uin
 		return nil
 	})
 	return totalIterated
+}
+
+// Count total keys
+func (storage *Badger) Count() int64 {
+	var count int64
+	storage.Iterate(func(key []byte, value []byte) {
+		count++
+	})
+	return count
 }
 
 func (storage *Badger) runStorageGC() {
