@@ -21,7 +21,10 @@ jobs:
       matrix:
         goosarch:
           - 'windows/amd64'
+          - 'windows/386'
           - 'linux/amd64'
+          - 'android/amd64'
+          - 'android/arm64'
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
