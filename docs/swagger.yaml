@@ -66,7 +66,108 @@ definitions:
         example: "201903"
         type: string
     type: object
+  models.ProgramBreaksLightModeLoadRequest:
+    properties:
+      CnlList:
+        items:
+          properties:
+            Cnl:
+              description: ID канала (int, not nillable)
+              example: "1018566"
+              type: string
+          type: object
+        type: array
+      EndDate:
+        description: Дата окончания периода (включительно) в формате YYYYMMDD
+        example: "20170702"
+        type: string
+      InclForecast:
+        description: Признак "Как заполнять секцию прогнозных рейтингов". 0 - Не заполнять,  1
+          - Заполнять только ЦА программатика, 2 - Заполнять всеми возможными ЦА
+        example: "1"
+        type: string
+      InclProgAttr:
+        description: Флаг "Заполнять секцию ProMaster". 1 - да, 0 - нет. (int, not
+          nillable)
+        example: "1"
+        type: string
+      ProtocolVersion:
+        example: "2"
+        type: string
+      SellingDirectionID:
+        description: ID направления продаж
+        example: "21"
+        type: string
+      StartDate:
+        description: Дата начала периода в формате YYYYMMDD
+        example: "20170701"
+        type: string
+    type: object
+  models.ProgramBreaksLoadRequest:
+    properties:
+      CnlList:
+        items:
+          properties:
+            Cnl:
+              description: ID канала (int, not nillable)
+              example: "1018566"
+              type: string
+          type: object
+        type: array
+      EndDate:
+        description: Дата окончания периода (включительно) в формате YYYYMMDD
+        example: "20170702"
+        type: string
+      InclForecast:
+        description: Признак "Как заполнять секцию прогнозных рейтингов". 0 - Не заполнять,  1
+          - Заполнять только ЦА программатика, 2 - Заполнять всеми возможными ЦА
+        example: "1"
+        type: string
+      InclProgAttr:
+        description: Флаг "Заполнять секцию ProMaster". 1 - да, 0 - нет. (int, not
+          nillable)
+        example: "1"
+        type: string
+      ProtocolVersion:
+        example: "2"
+        type: string
+      SellingDirectionID:
+        description: ID направления продаж
+        example: "21"
+        type: string
+      StartDate:
+        description: Дата начала периода в формате YYYYMMDD
+        example: "20170701"
+        type: string
+    type: object
   models.RanksLoadRequest:
+    type: object
+  models.SpotsLoadRequest:
+    properties:
+      AdtList:
+        items:
+          properties:
+            AdtID:
+              type: string
+          type: object
+        type: array
+      ChannelList:
+        items:
+          properties:
+            Cnl:
+              type: string
+            Main:
+              type: string
+          type: object
+        type: array
+      EndDate:
+        type: string
+      InclOrdBlocks:
+        type: string
+      SellingDirectionID:
+        type: string
+      StartDate:
+        type: string
     type: object
   models.StreamResponse:
     properties:
@@ -551,6 +652,31 @@ paths:
         продаж.
       tags:
       - Сделки
+  /api/v1/customers-with-advertisers/load:
+    post:
+      consumes:
+      - application/json
+      description: Создание задачи для загружки заказчиков с рекламодеталями для заданного
+        направления продаж.
+      operationId: routes-customers-with-advertisers-load
+      parameters:
+      - description: Запрос
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.SwaggerGetCustomersWithAdvertisersRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.StreamResponse'
+      summary: Создание задачи для загружки заказчиков с рекламодеталями для заданного
+        направления продаж.
+      tags:
+      - Сделки
   /api/v1/mediaplan:
     post:
       consumes:
@@ -732,6 +858,52 @@ paths:
           schema:
             $ref: '#/definitions/models.StreamResponse'
       summary: Возвращает Данные по блокам + занятые объемы блоков.
+      tags:
+      - Блоки
+  /api/v1/program-breaks-light/load:
+    post:
+      consumes:
+      - application/json
+      description: Создание задач, на загрузку сеток Light Mode, за выбранный период.
+      operationId: routes-load-program-breaks-light-mode
+      parameters:
+      - description: Запрос
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.ProgramBreaksLightModeLoadRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.CommonResponse'
+      summary: Создание задач, на загрузку сеток Light Mode.
+      tags:
+      - Блоки
+  /api/v1/program-breaks/load:
+    post:
+      consumes:
+      - application/json
+      description: Создание задач, на загрузку сеток, за выбранный период.
+      operationId: routes-load-program-breaks
+      parameters:
+      - description: Запрос
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.ProgramBreaksLoadRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.CommonResponse'
+      summary: Создание задач, на загрузку сеток.
       tags:
       - Блоки
   /api/v1/ranks:
@@ -916,6 +1088,29 @@ paths:
           schema:
             $ref: '#/definitions/models.StreamResponse'
       summary: Возвращает информацию об удаленных за период спотах
+      tags:
+      - Споты
+  /api/v1/spot/load:
+    post:
+      consumes:
+      - application/json
+      description: Создание задач на загрузку спотов.
+      operationId: routes-load-spots
+      parameters:
+      - description: Запрос
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.SpotsLoadRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.CommonResponse'
+      summary: Создание задач на загрузку спотов.
       tags:
       - Споты
   /api/v1/spot/set-position:

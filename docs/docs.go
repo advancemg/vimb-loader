@@ -290,6 +290,41 @@ var doc = `{
                 }
             }
         },
+        "/api/v1/customers-with-advertisers/load": {
+            "post": {
+                "description": "Создание задачи для загружки заказчиков с рекламодеталями для заданного направления продаж.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Сделки"
+                ],
+                "summary": "Создание задачи для загружки заказчиков с рекламодеталями для заданного направления продаж.",
+                "operationId": "routes-customers-with-advertisers-load",
+                "parameters": [
+                    {
+                        "description": "Запрос",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerGetCustomersWithAdvertisersRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.StreamResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/mediaplan": {
             "put": {
                 "description": "Создает новый медиаплан.",
@@ -553,6 +588,76 @@ var doc = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/models.StreamResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/program-breaks-light/load": {
+            "post": {
+                "description": "Создание задач, на загрузку сеток Light Mode, за выбранный период.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Блоки"
+                ],
+                "summary": "Создание задач, на загрузку сеток Light Mode.",
+                "operationId": "routes-load-program-breaks-light-mode",
+                "parameters": [
+                    {
+                        "description": "Запрос",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.ProgramBreaksLightModeLoadRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.CommonResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/program-breaks/load": {
+            "post": {
+                "description": "Создание задач, на загрузку сеток, за выбранный период.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Блоки"
+                ],
+                "summary": "Создание задач, на загрузку сеток.",
+                "operationId": "routes-load-program-breaks",
+                "parameters": [
+                    {
+                        "description": "Запрос",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.ProgramBreaksLoadRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.CommonResponse"
                         }
                     }
                 }
@@ -834,6 +939,41 @@ var doc = `{
                 }
             }
         },
+        "/api/v1/spot/load": {
+            "post": {
+                "description": "Создание задач на загрузку спотов.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Споты"
+                ],
+                "summary": "Создание задач на загрузку спотов.",
+                "operationId": "routes-load-spots",
+                "parameters": [
+                    {
+                        "description": "Запрос",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.SpotsLoadRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.CommonResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/spot/set-position": {
             "post": {
                 "description": "Выполняет позиционирование спота..",
@@ -968,8 +1108,144 @@ var doc = `{
                 }
             }
         },
+        "models.ProgramBreaksLightModeLoadRequest": {
+            "type": "object",
+            "properties": {
+                "CnlList": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "Cnl": {
+                                "description": "ID канала (int, not nillable)",
+                                "type": "string",
+                                "example": "1018566"
+                            }
+                        }
+                    }
+                },
+                "EndDate": {
+                    "description": "Дата окончания периода (включительно) в формате YYYYMMDD",
+                    "type": "string",
+                    "example": "20170702"
+                },
+                "InclForecast": {
+                    "description": "Признак \"Как заполнять секцию прогнозных рейтингов\". 0 - Не заполнять,  1 - Заполнять только ЦА программатика, 2 - Заполнять всеми возможными ЦА",
+                    "type": "string",
+                    "example": "1"
+                },
+                "InclProgAttr": {
+                    "description": "Флаг \"Заполнять секцию ProMaster\". 1 - да, 0 - нет. (int, not nillable)",
+                    "type": "string",
+                    "example": "1"
+                },
+                "ProtocolVersion": {
+                    "type": "string",
+                    "example": "2"
+                },
+                "SellingDirectionID": {
+                    "description": "ID направления продаж",
+                    "type": "string",
+                    "example": "21"
+                },
+                "StartDate": {
+                    "description": "Дата начала периода в формате YYYYMMDD",
+                    "type": "string",
+                    "example": "20170701"
+                }
+            }
+        },
+        "models.ProgramBreaksLoadRequest": {
+            "type": "object",
+            "properties": {
+                "CnlList": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "Cnl": {
+                                "description": "ID канала (int, not nillable)",
+                                "type": "string",
+                                "example": "1018566"
+                            }
+                        }
+                    }
+                },
+                "EndDate": {
+                    "description": "Дата окончания периода (включительно) в формате YYYYMMDD",
+                    "type": "string",
+                    "example": "20170702"
+                },
+                "InclForecast": {
+                    "description": "Признак \"Как заполнять секцию прогнозных рейтингов\". 0 - Не заполнять,  1 - Заполнять только ЦА программатика, 2 - Заполнять всеми возможными ЦА",
+                    "type": "string",
+                    "example": "1"
+                },
+                "InclProgAttr": {
+                    "description": "Флаг \"Заполнять секцию ProMaster\". 1 - да, 0 - нет. (int, not nillable)",
+                    "type": "string",
+                    "example": "1"
+                },
+                "ProtocolVersion": {
+                    "type": "string",
+                    "example": "2"
+                },
+                "SellingDirectionID": {
+                    "description": "ID направления продаж",
+                    "type": "string",
+                    "example": "21"
+                },
+                "StartDate": {
+                    "description": "Дата начала периода в формате YYYYMMDD",
+                    "type": "string",
+                    "example": "20170701"
+                }
+            }
+        },
         "models.RanksLoadRequest": {
             "type": "object"
+        },
+        "models.SpotsLoadRequest": {
+            "type": "object",
+            "properties": {
+                "AdtList": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "AdtID": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "ChannelList": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "Cnl": {
+                                "type": "string"
+                            },
+                            "Main": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "EndDate": {
+                    "type": "string"
+                },
+                "InclOrdBlocks": {
+                    "type": "string"
+                },
+                "SellingDirectionID": {
+                    "type": "string"
+                },
+                "StartDate": {
+                    "type": "string"
+                }
+            }
         },
         "models.StreamResponse": {
             "type": "object",

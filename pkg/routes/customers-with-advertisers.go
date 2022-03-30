@@ -52,7 +52,7 @@ func PostGetCustomersWithAdvertisers(w http.ResponseWriter, r *http.Request) {
 // PostLoadCustomersWithAdvertisers godoc
 // @Summary Создание задачи для загружки заказчиков с рекламодеталями для заданного направления продаж.
 // @Description Создание задачи для загружки заказчиков с рекламодеталями для заданного направления продаж.
-// @ID routes-customers-with-advertisers
+// @ID routes-customers-with-advertisers-load
 // @Tags Сделки
 // @Param body body models.SwaggerGetCustomersWithAdvertisersRequest true  "Запрос"
 // @Accept json
