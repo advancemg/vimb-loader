@@ -40,7 +40,7 @@ jobs:
         run: swag init -g cmd/api/api-service.go
       - name: Tidy
         run: go mod tidy -compat=1.17
-      - name: Create swagger docs directory
+      - name: Create zip directory
         run: |
           mkdir -p zipdir
       - name: Get OS and arch info
@@ -62,10 +62,12 @@ jobs:
           git log $(git describe HEAD~ --tags --abbrev=0)..HEAD --pretty='format:* %h %s%n  * %an <%ae>' --no-merges >> ".github/RELEASE-TEMPLATE.md"
       - name: Pack release
         run: |
-          zip -rj -Z bzip2 zipdir/$BINARY_NAME.zip docs $BINARY_NAME
+          zip -r -Z bzip2 zipdir/$BINARY_NAME.zip docs $BINARY_NAME
       - name: Release with Notes
         uses: softprops/action-gh-release@v1
         with:
+          tag_name: ${{ github.ref }}
+          release_name: Draft ${{ github.ref }}
           body_path: ".github/RELEASE-TEMPLATE.md"
           draft: true
           files: |

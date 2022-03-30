@@ -2,5 +2,6 @@
 config.json
 default-config.json
 /db/
+/zipdir/
 /s3-data/
 /s3-buckets/

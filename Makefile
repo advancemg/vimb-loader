@@ -12,3 +12,6 @@ git-update:
 build:
 	CGO_ENABLED=0 GOARCH=amd64 GOOS=windows ${GO} build -ldflags '-extldflags "-static"' -o dist/win cmd/api/api-service.go
 	CGO_ENABLED=0 GOARCH=amd64 GOOS=linux ${GO} build -ldflags '-extldflags "-static"' -o dist/lin cmd/api/api-service.go
+test-zip:
+	mkdir -p zipdir
+	zip -r -Z bzip2 zipdir/test.zip docs
