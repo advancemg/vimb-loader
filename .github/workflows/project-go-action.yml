@@ -40,6 +40,10 @@ jobs:
         run: swag init -g cmd/api/api-service.go
       - name: Tidy
         run: go mod tidy -compat=1.17
+      - name: Create swagger docs directory
+        run: |
+          mkdir -p swagger-docs
+          cp -R docs swagger-docs
       - name: Get OS and arch info
         run: |
           PROJECT_NAME=vimb-loader
@@ -64,6 +68,6 @@ jobs:
           draft: true
           files: |
             ${{env.BINARY_NAME}}
-            docs/*
+            swagger-docs/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
