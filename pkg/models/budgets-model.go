@@ -36,9 +36,6 @@ type BudgetConfiguration struct {
 }
 
 func (cfg *BudgetConfiguration) StartJob() chan error {
-	if !cfg.Loading {
-		return nil
-	}
 	errorCh := make(chan error)
 	go func() {
 		qName := GetBudgetsType
@@ -64,7 +61,11 @@ func (cfg *BudgetConfiguration) StartJob() chan error {
 			if err != nil {
 				errorCh <- err
 			}
-			err = bodyJson.UploadToS3()
+			s3Message, err := bodyJson.UploadToS3()
+			if err != nil {
+				errorCh <- err
+			}
+			err = amqpConfig.PublishJson(BudgetsUpdateQueue, s3Message)
 			if err != nil {
 				errorCh <- err
 			}
@@ -102,10 +103,9 @@ func (cfg *BudgetConfiguration) InitJob() func() {
 		}
 		for _, month := range months {
 			request := goConvert.New()
-			ym := fmt.Sprintf("%v", month.IntValue-300)
 			request.Set("SellingDirectionID", cfg.SellingDirection)
-			request.Set("StartMonth", ym)
-			request.Set("EndMonth", ym)
+			request.Set("StartMonth", month.ValueString)
+			request.Set("EndMonth", month.ValueString)
 			err := amqpConfig.PublishJson(qName, request)
 			if err != nil {
 				fmt.Printf("Q:%s - err:%s", qName, err.Error())
@@ -150,7 +150,7 @@ func (request *GetBudgets) GetDataXmlZip() (*StreamResponse, error) {
 	}, nil
 }
 
-func (request *GetBudgets) UploadToS3() error {
+func (request *GetBudgets) UploadToS3() (*MqUpdateMessage, error) {
 	for {
 		typeName := GetBudgetsType
 		data, err := request.GetDataXmlZip()
@@ -159,23 +159,25 @@ func (request *GetBudgets) UploadToS3() error {
 				vimbError.CheckTimeout()
 				continue
 			}
-			return err
+			return nil, err
 		}
 		month, _ := request.Get("StartMonth")
 		if err != nil {
-			return err
+			return nil, err
 		}
 		var newS3Key = fmt.Sprintf("vimb/%s/%s/%v/%s-%s.gz", utils.Actions.Client, typeName, month, utils.DateTimeNowInt(), typeName)
 		_, err = s3.UploadBytesWithBucket(newS3Key, data.Body)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		/*update data from gz file*/
-		err = request.DataConfiguration(newS3Key)
+		/*err = request.DataConfiguration(newS3Key)
 		if err != nil {
 			return err
-		}
-		return nil
+		}*/
+		return &MqUpdateMessage{
+			Key: newS3Key,
+		}, nil
 	}
 }
 

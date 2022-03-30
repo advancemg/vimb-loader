@@ -34,9 +34,6 @@ type MediaplanConfiguration struct {
 }
 
 func (cfg *MediaplanConfiguration) StartJob() chan error {
-	if !cfg.Loading {
-		return nil
-	}
 	errorCh := make(chan error)
 	go func() {
 		qName := GetMPLansType

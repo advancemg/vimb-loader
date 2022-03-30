@@ -24,6 +24,16 @@ const (
 	GetRanksType                        = "GetRanks"
 	SetSpotPositionType                 = "SetSpotPosition"
 	GetChannelsType                     = "GetChannels"
+	ProgramBreaksUpdateQueue            = "program-breaks-update"
+	ProgramBreaksLightModeUpdateQueue   = "program-breaks-light-mode-update"
+	AdvMessagesUpdateQueue              = "adv-messages-update"
+	BudgetsUpdateQueue                  = "budgets-update"
+	CustomersWithAdvertisersUpdateQueue = "customers-with-advertisers-update"
+	DeletedSpotInfoUpdateQueue          = "deleted-spot-info-update"
+	MPLansUpdateQueue                   = "mediaplans-update"
+	SpotsUpdateQueue                    = "spots-update"
+	RanksUpdateQueue                    = "ranks-update"
+	ChannelsUpdateQueue                 = "channels-update"
 	DbCustomConfigMonth                 = "db/custom-config-month"
 	DbCustomConfigAdvertisers           = "db/custom-config-advertisers "
 	DbCustomConfigChannels              = "db/custom-config-channels"
@@ -49,6 +59,16 @@ var QueueNames = []string{
 	GetRanksType,
 	SetSpotPositionType,
 	GetChannelsType,
+	ProgramBreaksUpdateQueue,
+	ProgramBreaksLightModeUpdateQueue,
+	AdvMessagesUpdateQueue,
+	BudgetsUpdateQueue,
+	CustomersWithAdvertisersUpdateQueue,
+	DeletedSpotInfoUpdateQueue,
+	MPLansUpdateQueue,
+	SpotsUpdateQueue,
+	RanksUpdateQueue,
+	ChannelsUpdateQueue,
 }
 
 type Configuration struct {
@@ -62,6 +82,11 @@ type Configuration struct {
 	ProgramBreaks            ProgramBreaksConfiguration            `json:"programBreaks"`
 	ProgramBreaksLight       ProgramBreaksLightConfiguration       `json:"programBreaksLight"`
 	Spots                    SpotsConfiguration                    `json:"spots"`
+}
+
+type MqUpdateMessage struct {
+	Bucket string `json:"bucket"`
+	Key    string `json:"key"`
 }
 
 type CommonResponse map[string]interface{}

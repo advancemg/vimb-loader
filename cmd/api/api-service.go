@@ -102,6 +102,10 @@ func main() {
 		service := services.LoadService{}
 		utils.CheckErr(service.Start())
 	}()
+	go func() {
+		service := services.UpdateService{}
+		utils.CheckErr(service.Start())
+	}()
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt)
 	<-quit

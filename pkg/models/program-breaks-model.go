@@ -38,9 +38,6 @@ type ProgramBreaksConfiguration struct {
 }
 
 func (cfg *ProgramBreaksConfiguration) StartJob() chan error {
-	if !cfg.Loading {
-		return nil
-	}
 	errorCh := make(chan error)
 	go func() {
 		qName := GetProgramBreaksType
@@ -169,9 +166,6 @@ type ProgramBreaksLightConfiguration struct {
 }
 
 func (cfg *ProgramBreaksLightConfiguration) StartJob() chan error {
-	if !cfg.Loading {
-		return nil
-	}
 	errorCh := make(chan error)
 	go func() {
 		qName := GetProgramBreaksLightModeType

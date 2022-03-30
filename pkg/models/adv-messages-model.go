@@ -35,9 +35,6 @@ type AdvMessagesConfiguration struct {
 }
 
 func (cfg *AdvMessagesConfiguration) StartJob() chan error {
-	if !cfg.Loading {
-		return nil
-	}
 	errorCh := make(chan error)
 	go func() {
 		qName := GetAdvMessagesType

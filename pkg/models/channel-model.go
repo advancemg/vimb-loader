@@ -28,9 +28,6 @@ type ChannelConfiguration struct {
 }
 
 func (cfg *ChannelConfiguration) StartJob() chan error {
-	if !cfg.Loading {
-		return nil
-	}
 	errorCh := make(chan error)
 	go func() {
 		qName := GetChannelsType
