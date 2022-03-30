@@ -42,10 +42,13 @@ func main() {
 	route.HandleFunc("/api/v1/ranks/load", routes.PostLoadRanks).Methods("POST", "OPTIONS")
 	/*networks*/
 	route.HandleFunc("/api/v1/program-breaks", routes.PostGetProgramBreaks).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/program-breaks/load", routes.PostLoadProgramBreaks).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/program-breaks-light/load", routes.PostLoadProgramLightModeBreaks).Methods("POST", "OPTIONS")
 	/*deals*/
 	route.HandleFunc("/api/v1/budgets", routes.PostGetBudgets).Methods("POST", "OPTIONS")
 	route.HandleFunc("/api/v1/budgets/load", routes.PostLoadBudgets).Methods("POST", "OPTIONS")
 	route.HandleFunc("/api/v1/customers-with-advertisers", routes.PostGetCustomersWithAdvertisers).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/customers-with-advertisers/load", routes.PostLoadCustomersWithAdvertisers).Methods("POST", "OPTIONS")
 	/*mediaPlans*/
 	route.HandleFunc("/api/v1/mediaplan", routes.PutAddMPlan).Methods("PUT", "OPTIONS")
 	route.HandleFunc("/api/v1/mediaplan", routes.PostGetMPLans).Methods("POST", "OPTIONS")
@@ -55,6 +58,7 @@ func main() {
 	route.HandleFunc("/api/v1/mediaplan/change-film-planned-inventory", routes.PostChangeMPlanFilmPlannedInventory).Methods("POST", "OPTIONS")
 	/*spots*/
 	route.HandleFunc("/api/v1/spot", routes.PostGetSpots).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/spot/load", routes.PostLoadSpots).Methods("POST", "OPTIONS")
 	route.HandleFunc("/api/v1/spot", routes.PutAddSpot).Methods("PUT", "OPTIONS")
 	route.HandleFunc("/api/v1/spot", routes.DeleteSpot).Methods("DELETE", "OPTIONS")
 	route.HandleFunc("/api/v1/spot/change", routes.PostChangeSpot).Methods("POST", "OPTIONS")
