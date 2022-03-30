@@ -1,7 +1,7 @@
 name: VIMB Loader
 on:
   push:
-    branches: [ actions ]
+    branches: [ master ]
 jobs:
   test:
     name: Test project
