@@ -6,7 +6,7 @@ import (
 	. "github.com/advancemg/vimb-loader/pkg/models"
 )
 
-func changeModel(input []byte, model string) ([]byte, error) {
+func changeModel(input []byte, model string) (interface{}, error) {
 	switch model {
 	case "AddMPlan":
 		var js AddMPlan
@@ -295,8 +295,12 @@ func main() {
 			fmt.Println(err.Error())
 			return
 		}
+		marshal, err := json.Marshal(got)
+		if err != nil {
+			fmt.Println(err.Error())
+			return
+		}
 		fmt.Println(tt.name)
-		fmt.Println(string(got))
-		fmt.Println()
+		fmt.Println(string(marshal))
 	}
 }

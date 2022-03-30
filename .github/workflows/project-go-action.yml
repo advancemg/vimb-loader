@@ -1,0 +1,79 @@
+name: VIMB Loader
+on:
+  push:
+    branches: [ master ]
+jobs:
+  test:
+    name: Test project
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-go@v2
+        with:
+          go-version: 1.18
+      - name: Testing
+        run: go test -race -vet=off ./...
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    needs: test
+    strategy:
+      matrix:
+        goosarch:
+          - 'windows/amd64'
+          - 'windows/386'
+          - 'linux/amd64'
+          - 'android/amd64'
+          - 'android/arm64'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v2
+        with:
+          go-version: 1.18
+      - name: Swag install
+        run: go install github.com/swaggo/swag/cmd/swag@latest
+      - name: Http-swagger
+        run: go get github.com/swaggo/http-swagger
+      - name: Swagger template
+        run: go get github.com/alecthomas/template
+      - name: Swagger init
+        run: swag init -g cmd/api/api-service.go
+      - name: Tidy
+        run: go mod tidy -compat=1.17
+      - name: Create zip directory
+        run: |
+          mkdir -p zipdir
+      - name: Get OS and arch info
+        run: |
+          PROJECT_NAME=vimb-loader
+          CGO_ENABLED=0
+          GOOSARCH=${{matrix.goosarch}}
+          GOOS=${GOOSARCH%/*}
+          GOARCH=${GOOSARCH#*/}
+          BINARY_NAME=$PROJECT_NAME-$GOOS-$GOARCH
+          echo "BINARY_NAME=$BINARY_NAME" >> $GITHUB_ENV
+          echo "GOOS=$GOOS" >> $GITHUB_ENV
+          echo "GOARCH=$GOARCH" >> $GITHUB_ENV
+      - name: Build
+        run: |
+          go build -ldflags '-extldflags "-static"' -o "$BINARY_NAME" cmd/api/api-service.go
+      - name: Release Notes
+        run:
+          git log $(git describe HEAD~ --tags --abbrev=0)..HEAD --pretty='format:* %h %s%n  * %an <%ae>' --no-merges >> ".github/RELEASE-TEMPLATE.md"
+      - name: Pack release
+        run: |
+          zip -r -Z bzip2 zipdir/$BINARY_NAME.zip docs $BINARY_NAME
+      - name: Release with Notes
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Draft ${{ github.ref }}
+          body_path: ".github/RELEASE-TEMPLATE.md"
+          draft: true
+          files: |
+            zipdir/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
