@@ -5,7 +5,7 @@ on:
     branches: [ actions ]
 jobs:
   releases-linux:
-    name: Linux
+    name: Audit project
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -23,5 +23,7 @@ jobs:
         run: swag init -g cmd/api/api-service.go
       - name: Tidy
         run: go mod tidy -compat=1.17
+      - name: Run go vet
+        run: go vet ./...
       - name: Testing
         run: go test -race -vet=off ./...
