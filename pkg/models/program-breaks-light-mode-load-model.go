@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-type ProgramBreaksLoadRequest struct {
+type ProgramBreaksLightModeLoadRequest struct {
 	SellingDirectionID string `json:"SellingDirectionID" example:"21"` //ID направления продаж
 	InclProgAttr       string `json:"InclProgAttr" example:"1"`        //Флаг "Заполнять секцию ProMaster". 1 - да, 0 - нет. (int, not nillable)
 	InclForecast       string `json:"InclForecast" example:"1"`        //Признак "Как заполнять секцию прогнозных рейтингов". 0 - Не заполнять,  1 - Заполнять только ЦА программатика, 2 - Заполнять всеми возможными ЦА
@@ -20,8 +20,8 @@ type ProgramBreaksLoadRequest struct {
 	ProtocolVersion string `json:"ProtocolVersion" example:"2"`
 }
 
-func (request *ProgramBreaksLoadRequest) InitTasks() (CommonResponse, error) {
-	qName := GetProgramBreaksType
+func (request *ProgramBreaksLightModeLoadRequest) InitTasks() (CommonResponse, error) {
+	qName := GetProgramBreaksLightModeType
 	amqpConfig := mq_broker.InitConfig()
 	err := amqpConfig.DeclareSimpleQueue(qName)
 	if err != nil {
@@ -49,7 +49,7 @@ func (request *ProgramBreaksLoadRequest) InitTasks() (CommonResponse, error) {
 			req.Set("AudRatDec", "8")
 			req.Set("StartDate", day.Format(`20060102`))
 			req.Set("EndDate", day.Format(`20060102`))
-			req.Set("LightMode", "0")
+			req.Set("LightMode", "1")
 			req.Set("CnlList", request.CnlList[i:j])
 			req.Set("ProtocolVersion", "2")
 			req.Set("Path", chunkCount)
@@ -65,6 +65,6 @@ func (request *ProgramBreaksLoadRequest) InitTasks() (CommonResponse, error) {
 	return result, nil
 }
 
-func (request *ProgramBreaksLoadRequest) getDays() ([]time.Time, error) {
+func (request *ProgramBreaksLightModeLoadRequest) getDays() ([]time.Time, error) {
 	return utils.GetDaysByPeriod(request.StartDate, request.EndDate)
 }
