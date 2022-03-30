@@ -42,11 +42,12 @@ jobs:
         run: go mod tidy -compat=1.17
       - name: Get OS and arch info
         run: |
+          PROJECT_NAME=vimb-loader
           CGO_ENABLED=0
           GOOSARCH=${{matrix.goosarch}}
           GOOS=${GOOSARCH%/*}
           GOARCH=${GOOSARCH#*/}
-          BINARY_NAME=${{github.repository}}-$GOOS-$GOARCH
+          BINARY_NAME=$PROJECT_NAME-$GOOS-$GOARCH
           echo "BINARY_NAME=$BINARY_NAME" >> $GITHUB_ENV
           echo "GOOS=$GOOS" >> $GITHUB_ENV
           echo "GOARCH=$GOARCH" >> $GITHUB_ENV
@@ -63,6 +64,6 @@ jobs:
           draft: true
           files: |
             ${{env.BINARY_NAME}}
-            docs
+            docs/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
