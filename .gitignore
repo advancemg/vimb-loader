@@ -5,3 +5,4 @@ default-config.json
 /zipdir/
 /s3-data/
 /s3-buckets/
+/dev-test-data/

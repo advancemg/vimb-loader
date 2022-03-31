@@ -3,6 +3,7 @@ package models
 import (
 	"encoding/json"
 	"os"
+	"time"
 )
 
 const (
@@ -82,6 +83,12 @@ type Configuration struct {
 	ProgramBreaks            ProgramBreaksConfiguration            `json:"programBreaks"`
 	ProgramBreaksLight       ProgramBreaksLightConfiguration       `json:"programBreaksLight"`
 	Spots                    SpotsConfiguration                    `json:"spots"`
+}
+
+type WeekInfo struct {
+	Number int       `json:"Number"`
+	Close  bool      `json:"Close"`
+	Date   time.Time `json:"Date"`
 }
 
 type MqUpdateMessage struct {
