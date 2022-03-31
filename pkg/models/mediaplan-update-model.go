@@ -5,6 +5,7 @@ import (
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
 	"github.com/advancemg/vimb-loader/pkg/utils"
+	"reflect"
 	"time"
 )
 
@@ -13,6 +14,10 @@ const MediaplanAggTable = "mediaplans-agg"
 
 type internalM struct {
 	M map[string]interface{} `json:"m"`
+}
+
+type internalMDiscount struct {
+	Item map[string]interface{} `json:"item"`
 }
 
 type Mediaplan struct {
@@ -26,14 +31,14 @@ type Mediaplan struct {
 	AmountPlan            float64                 `json:"AmountPlan"`
 	BrandID               int                     `json:"BrandID"`
 	BrandName             string                  `json:"BrandName"`
-	CPPoffprime           string                  `json:"CPPoffprime"`
-	CPPprime              string                  `json:"CPPprime"`
+	CPPoffprime           float64                 `json:"CPPoffprime"`
+	CPPprime              float64                 `json:"CPPprime"`
 	ComplimentId          int                     `json:"CommInMplID"`
-	ContractBeg           string                  `json:"ContractBeg"`
-	ContractEnd           string                  `json:"ContractEnd"`
-	DateFrom              string                  `json:"DateFrom"`
-	DateTo                string                  `json:"DateTo"`
-	DealChannelStatus     string                  `json:"DealChannelStatus"`
+	ContractBeg           int                     `json:"ContractBeg"`
+	ContractEnd           int                     `json:"ContractEnd"`
+	DateFrom              int                     `json:"DateFrom"`
+	DateTo                int                     `json:"DateTo"`
+	DealChannelStatus     int                     `json:"DealChannelStatus"`
 	Discounts             []MediaplanDiscountItem `json:"Discounts"`
 	DoubleAdvertiser      string                  `json:"DoubleAdvertiser"`
 	DtpID                 string                  `json:"DtpID"`
@@ -90,16 +95,18 @@ type Mediaplan struct {
 	OrdManager            string                  `json:"ordManager"`
 }
 type MediaplanDiscountItem struct {
-	DiscountFactor          string      `json:"DiscountFactor"`
-	TypeID                  string      `json:"TypeID"`
-	IsManual                string      `json:"IsManual"`
-	DicountEndDate          interface{} `json:"DicountEndDate"`
-	IsSpotPositionDependent string      `json:"IsSpotPositionDependent"`
-	DiscountTypeName        string      `json:"DiscountTypeName"`
-	DiscountStartDate       interface{} `json:"DiscountStartDate"`
-	ValueID                 interface{} `json:"ValueID"`
-	ApplicableToDeals       string      `json:"ApplicableToDeals"`
-	ApplyingTypeID          string      `json:"ApplyingTypeID"`
+	DiscountFactor          *float64   `json:"DiscountFactor"`
+	TypeID                  *int       `json:"TypeID"`
+	IsManual                *bool      `json:"IsManual"`
+	DicountEndDate          *time.Time `json:"DicountEndDate"`
+	IsSpotPositionDependent *bool      `json:"IsSpotPositionDependent"`
+	DiscountTypeName        *string    `json:"DiscountTypeName"`
+	DiscountStartDate       *time.Time `json:"DiscountStartDate"`
+	ValueID                 *int       `json:"ValueID"`
+	ApplicableToDeals       *bool      `json:"ApplicableToDeals"`
+	ApplyingTypeID          *int       `json:"ApplyingTypeID"`
+	IsDiscountAggregate     *bool      `json:"IsDiscountAggregate"`
+	AggregationMethodName   *string    `json:"AggregationMethodName"`
 }
 type MediaplanAgg struct {
 	AdtID                   int        `json:"AdtID"`
@@ -141,14 +148,68 @@ type MediaplanUpdateRequest struct {
 	S3Key string
 }
 
+func (m *internalMDiscount) Convert() (*MediaplanDiscountItem, error) {
+	startTime := utils.TimeI(m.Item["DiscountStartDate"], `2006-01-02T15:04:05`)
+	endTime := utils.TimeI(m.Item["DicountEndDate"], `2006-01-02T15:04:05`)
+	item := &MediaplanDiscountItem{
+		DiscountFactor:          utils.FloatI(m.Item["DiscountFactor"]),
+		TypeID:                  utils.IntI(m.Item["TypeID"]),
+		IsManual:                utils.BoolI(m.Item["IsManual"]),
+		DicountEndDate:          endTime,
+		IsSpotPositionDependent: utils.BoolI(m.Item["IsSpotPositionDependent"]),
+		DiscountTypeName:        utils.StringI(m.Item["DiscountTypeName"]),
+		AggregationMethodName:   utils.StringI(m.Item["AggregationMethodName"]),
+		DiscountStartDate:       startTime,
+		ValueID:                 utils.IntI(m.Item["ValueID"]),
+		ApplicableToDeals:       utils.BoolI(m.Item["ApplicableToDeals"]),
+		ApplyingTypeID:          utils.IntI(m.Item["ApplyingTypeID"]),
+		IsDiscountAggregate:     utils.BoolI(m.Item["IsDiscountAggregate"]),
+	}
+	return item, nil
+}
+
 func (m *internalM) Convert() (*Mediaplan, *MediaplanAgg, error) {
 	timestamp := time.Now()
-	month := utils.Int(m.M["MplMonth"].(string))
-	channelId := utils.Int(m.M["MplCnlID"].(string))
-	mediaplanId := utils.Int(m.M["MplID"].(string))
-	advertiserId := utils.Int(m.M["AdtID"].(string))
-	filmId := utils.Int(m.M["FilmID"].(string))
-	agreementId := utils.Int(m.M["AgrID"].(string))
+	month := *utils.IntI(m.M["MplMonth"])
+	channelId := *utils.IntI(m.M["MplCnlID"])
+	mediaplanId := *utils.IntI(m.M["MplID"])
+	advertiserId := *utils.IntI(m.M["AdtID"])
+	filmId := *utils.IntI(m.M["FilmID"])
+	agreementId := *utils.IntI(m.M["AgrID"])
+	/*discounts*/
+	var discounts []MediaplanDiscountItem
+	if _, ok := m.M["Discounts"]; ok {
+		marshalData, err := json.Marshal(m.M["Discounts"])
+		if err != nil {
+			return nil, nil, err
+		}
+		switch reflect.TypeOf(m.M["Discounts"]).Kind() {
+		case reflect.Array, reflect.Slice:
+			var internalDiscountData []internalMDiscount
+			err = json.Unmarshal(marshalData, &internalDiscountData)
+			if err != nil {
+				return nil, nil, err
+			}
+			for _, discountItem := range internalDiscountData {
+				discount, err := discountItem.Convert()
+				if err != nil {
+					return nil, nil, err
+				}
+				discounts = append(discounts, *discount)
+			}
+		case reflect.Map, reflect.Struct:
+			var internalDiscountData internalMDiscount
+			err = json.Unmarshal(marshalData, &internalDiscountData)
+			if err != nil {
+				return nil, nil, err
+			}
+			discount, err := internalDiscountData.Convert()
+			if err != nil {
+				return nil, nil, err
+			}
+			discounts = append(discounts, *discount)
+		}
+	}
 	mediaplan := &Mediaplan{
 		AdtID:                 utils.Int(m.M["AdtID"].(string)),
 		AdtName:               m.M["AdtName"].(string),
@@ -159,16 +220,16 @@ func (m *internalM) Convert() (*Mediaplan, *MediaplanAgg, error) {
 		AmountFact:            utils.Float(m.M["AmountFact"].(string)),
 		AmountPlan:            utils.Float(m.M["AmountPlan"].(string)),
 		BrandID:               utils.Int(m.M["BrandID"].(string)),
-		BrandName:             "",
-		CPPoffprime:           "",
-		CPPprime:              "",
+		BrandName:             m.M["BrandName"].(string),
+		CPPoffprime:           utils.Float(m.M["CPPoffprime"].(string)),
+		CPPprime:              utils.Float(m.M["CPPprime"].(string)),
 		ComplimentId:          utils.Int(m.M["CommInMplID"].(string)),
-		ContractBeg:           "",
-		ContractEnd:           "",
-		DateFrom:              "",
-		DateTo:                "",
-		DealChannelStatus:     "",
-		Discounts:             nil,
+		ContractBeg:           utils.Int(m.M["ContractBeg"].(string)),
+		ContractEnd:           utils.Int(m.M["ContractEnd"].(string)),
+		DateFrom:              utils.Int(m.M["DateFrom"].(string)),
+		DateTo:                utils.Int(m.M["DateTo"].(string)),
+		DealChannelStatus:     utils.Int(m.M["DealChannelStatus"].(string)),
+		Discounts:             discounts,
 		DoubleAdvertiser:      "",
 		DtpID:                 "",
 		DublSpot:              "",
@@ -302,6 +363,12 @@ func (request *MediaplanUpdateRequest) loadFromFile() error {
 	if err != nil {
 		return err
 	}
-	println(internalData)
+	for _, dataM := range internalData {
+		mediaplan, agg, err := dataM.Convert()
+		if err != nil {
+			return err
+		}
+		println(mediaplan, agg)
+	}
 	return nil
 }
