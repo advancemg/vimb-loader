@@ -211,24 +211,11 @@ func (request *BudgetsUpdateRequest) loadFromFile() error {
 		return err
 	}
 	badgerBudgets := storage.Open(DbBudgets)
-	badgerMonth := storage.NewBadger(DbCustomConfigMonth)
-	badgerAdvertisers := storage.NewBadger(DbCustomConfigAdvertisers)
-	badgerChannels := storage.NewBadger(DbCustomConfigChannels)
-	defer badgerBudgets.Close()
-	defer badgerMonth.Close()
-	defer badgerAdvertisers.Close()
-	defer badgerChannels.Close()
 	for _, dataM := range internalData {
 		budget, err := dataM.Convert()
 		if err != nil {
 			return err
 		}
-		adtId := fmt.Sprintf("%d", *budget.AdtID)
-		cnlId := fmt.Sprintf("%d", *budget.CnlID)
-		month := fmt.Sprintf("%d", *budget.Month)
-		badgerAdvertisers.Set(adtId, []byte(adtId))
-		badgerChannels.Set(cnlId, []byte(cnlId))
-		badgerMonth.Set(month, []byte(month))
 		err = badgerBudgets.Upsert(budget.Key(), budget)
 		if err != nil {
 			return err
