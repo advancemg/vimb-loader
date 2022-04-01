@@ -204,6 +204,7 @@ require (
 	github.com/tidwall/rtree v0.0.0-20180113144539-6cd427091e0e // indirect
 	github.com/tidwall/sjson v1.2.3 // indirect
 	github.com/tidwall/tinyqueue v0.0.0-20180302190814-1e39f5511563 // indirect
+	github.com/timshannon/badgerhold v1.0.0 // indirect
 	github.com/tinylib/msgp v1.1.7-0.20211026165309-e818a1881b0e // indirect
 	github.com/tklauser/go-sysconf v0.3.10 // indirect
 	github.com/tklauser/numcpus v0.4.0 // indirect

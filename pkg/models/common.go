@@ -40,6 +40,7 @@ const (
 	DbCustomConfigAdvertisers           = "db/custom-config-advertisers "
 	DbCustomConfigChannels              = "db/custom-config-channels"
 	DbChannels                          = "db/channels"
+	DbBudgets                           = "db/budgets"
 	DbMediaplans                        = "db/mediaplans"
 	DbAggMediaplans                     = "db/agg-mediaplans"
 )

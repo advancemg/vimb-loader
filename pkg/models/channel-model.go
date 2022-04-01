@@ -53,7 +53,11 @@ func (cfg *ChannelConfiguration) StartJob() chan error {
 			if err != nil {
 				errorCh <- err
 			}
-			err = bodyJson.UploadToS3()
+			s3Message, err := bodyJson.UploadToS3()
+			if err != nil {
+				errorCh <- err
+			}
+			err = amqpConfig.PublishJson(ChannelsUpdateQueue, s3Message)
 			if err != nil {
 				errorCh <- err
 			}
@@ -130,7 +134,7 @@ func (request *GetChannels) GetDataXmlZip() (*StreamResponse, error) {
 	}, nil
 }
 
-func (request *GetChannels) UploadToS3() error {
+func (request *GetChannels) UploadToS3() (*MqUpdateMessage, error) {
 	for {
 		typeName := GetChannelsType
 		data, err := request.GetDataXmlZip()
@@ -139,19 +143,21 @@ func (request *GetChannels) UploadToS3() error {
 				vimbError.CheckTimeout()
 				continue
 			}
-			return err
+			return nil, err
 		}
 		var newS3Key = fmt.Sprintf("vimb/%s/%s/%s-%s.gz", utils.Actions.Client, typeName, utils.DateTimeNowInt(), typeName)
 		_, err = s3.UploadBytesWithBucket(newS3Key, data.Body)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		/*update data from gz file*/
-		err = request.DataConfiguration(newS3Key)
-		if err != nil {
-			return err
-		}
-		return nil
+		//err = request.DataConfiguration(newS3Key)
+		//if err != nil {
+		//	return nil, err
+		//}
+		return &MqUpdateMessage{
+			Key: newS3Key,
+		}, nil
 	}
 }
 
