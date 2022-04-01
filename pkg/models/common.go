@@ -32,6 +32,7 @@ const (
 	CustomersWithAdvertisersUpdateQueue = "customers-with-advertisers-update"
 	DeletedSpotInfoUpdateQueue          = "deleted-spot-info-update"
 	MPLansUpdateQueue                   = "mediaplans-update"
+	MediaplanAggUpdateQueue             = "mediaplans-agg-update"
 	SpotsUpdateQueue                    = "spots-update"
 	RanksUpdateQueue                    = "ranks-update"
 	ChannelsUpdateQueue                 = "channels-update"
@@ -39,6 +40,8 @@ const (
 	DbCustomConfigAdvertisers           = "db/custom-config-advertisers "
 	DbCustomConfigChannels              = "db/custom-config-channels"
 	DbChannels                          = "db/channels"
+	DbMediaplans                        = "db/mediaplans"
+	DbAggMediaplans                     = "db/agg-mediaplans"
 )
 
 var QueueNames = []string{
@@ -67,6 +70,7 @@ var QueueNames = []string{
 	CustomersWithAdvertisersUpdateQueue,
 	DeletedSpotInfoUpdateQueue,
 	MPLansUpdateQueue,
+	MediaplanAggUpdateQueue,
 	SpotsUpdateQueue,
 	RanksUpdateQueue,
 	ChannelsUpdateQueue,

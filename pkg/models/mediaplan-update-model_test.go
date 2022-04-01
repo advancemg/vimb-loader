@@ -21,7 +21,7 @@ func TestMediaplanUpdateRequest_loadFromFile(t *testing.T) {
 			fields: fields{
 				S3Key: "../../dev-test-data/mediaplans.gz",
 			},
-			wantErr: true,
+			wantErr: false,
 		},
 	}
 	for _, tt := range tests {
