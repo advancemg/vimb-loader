@@ -170,11 +170,6 @@ func (request *GetBudgets) UploadToS3() (*MqUpdateMessage, error) {
 		if err != nil {
 			return nil, err
 		}
-		/*update data from gz file*/
-		/*err = request.DataConfiguration(newS3Key)
-		if err != nil {
-			return err
-		}*/
 		return &MqUpdateMessage{
 			Key: newS3Key,
 		}, nil
