@@ -90,6 +90,10 @@ type Configuration struct {
 	Spots                    SpotsConfiguration                    `json:"spots"`
 }
 
+type internalM struct {
+	M map[string]interface{} `json:"m"`
+}
+
 type WeekInfo struct {
 	Number int       `json:"Number"`
 	Close  bool      `json:"Close"`

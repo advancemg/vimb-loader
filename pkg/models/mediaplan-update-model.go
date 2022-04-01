@@ -13,10 +13,6 @@ import (
 
 const MediaplanTable = "mediaplans"
 
-type internalM struct {
-	M map[string]interface{} `json:"m"`
-}
-
 type internalMDiscount struct {
 	Item map[string]interface{} `json:"item"`
 }
@@ -141,7 +137,7 @@ func (m *internalMDiscount) Convert() (*MediaplanDiscountItem, error) {
 	return item, nil
 }
 
-func (m *internalM) Convert() (*Mediaplan, error) {
+func (m *internalM) ConvertMediaplan() (*Mediaplan, error) {
 	timestamp := time.Now()
 	month := utils.IntI(m.M["MplMonth"])
 	channelId := utils.IntI(m.M["MplCnlID"])
@@ -321,7 +317,7 @@ func (request *MediaplanUpdateRequest) Update() error {
 	badgerMediaplans := storage.Open(DbMediaplans)
 	aggTasks := map[string]MediaplanAggUpdateRequest{}
 	for _, dataM := range internalData {
-		mediaplan, err := dataM.Convert()
+		mediaplan, err := dataM.ConvertMediaplan()
 		if err != nil {
 			return err
 		}
@@ -371,7 +367,7 @@ func (request *MediaplanUpdateRequest) loadFromFile() error {
 	badgerMediaplans := storage.Open(DbMediaplans)
 	defer badgerMediaplans.Close()
 	for _, dataM := range internalData {
-		mediaplan, err := dataM.Convert()
+		mediaplan, err := dataM.ConvertMediaplan()
 		if err != nil {
 			return err
 		}

@@ -13,10 +13,6 @@ import (
 
 const BudgetTable = "budgets"
 
-type internalM struct {
-	M map[string]interface{} `json:"m"`
-}
-
 type internalMQuality struct {
 	Item map[string]interface{} `json:"item"`
 }
@@ -78,7 +74,7 @@ func (m *internalMQuality) Convert() (*BudgetItem, error) {
 	return item, nil
 }
 
-func (m *internalM) Convert() (*Budget, error) {
+func (m *internalM) ConvertBudget() (*Budget, error) {
 	timestamp := time.Now()
 	var qualities []BudgetItem
 	if _, ok := m.M["Quality"]; ok {
@@ -214,12 +210,8 @@ func (request *BudgetsUpdateRequest) loadFromFile() error {
 	badgerMonth := storage.NewBadger(DbCustomConfigMonth)
 	badgerAdvertisers := storage.NewBadger(DbCustomConfigAdvertisers)
 	badgerChannels := storage.NewBadger(DbCustomConfigChannels)
-	defer badgerBudgets.Close()
-	defer badgerMonth.Close()
-	defer badgerAdvertisers.Close()
-	defer badgerChannels.Close()
 	for _, dataM := range internalData {
-		budget, err := dataM.Convert()
+		budget, err := dataM.ConvertBudget()
 		if err != nil {
 			return err
 		}

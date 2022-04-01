@@ -20,7 +20,10 @@ require (
 	golang.org/x/crypto v0.0.0-20220315160706-3147a52a75dd
 )
 
-require github.com/minio/minio v0.0.0-20220323033659-fb9b53026d33
+require (
+	github.com/minio/minio v0.0.0-20220323033659-fb9b53026d33
+	github.com/timshannon/badgerhold v1.0.0
+)
 
 require (
 	cloud.google.com/go v0.100.2 // indirect
@@ -204,7 +207,6 @@ require (
 	github.com/tidwall/rtree v0.0.0-20180113144539-6cd427091e0e // indirect
 	github.com/tidwall/sjson v1.2.3 // indirect
 	github.com/tidwall/tinyqueue v0.0.0-20180302190814-1e39f5511563 // indirect
-	github.com/timshannon/badgerhold v1.0.0 // indirect
 	github.com/tinylib/msgp v1.1.7-0.20211026165309-e818a1881b0e // indirect
 	github.com/tklauser/go-sysconf v0.3.10 // indirect
 	github.com/tklauser/numcpus v0.4.0 // indirect
@@ -250,5 +252,4 @@ require (
 require (
 	github.com/hashicorp/go-hclog v1.2.0 // indirect
 	github.com/hashicorp/raft v1.3.6 // indirect
-	github.com/timshannon/badgerhold v1.0.0
 )
