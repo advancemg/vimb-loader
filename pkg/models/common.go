@@ -93,6 +93,9 @@ type Configuration struct {
 type internalM struct {
 	M map[string]interface{} `json:"m"`
 }
+type internalChannel struct {
+	Channel map[string]interface{} `json:"Channel"`
+}
 
 type WeekInfo struct {
 	Number int       `json:"Number"`

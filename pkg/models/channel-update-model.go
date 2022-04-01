@@ -19,23 +19,6 @@ func (channel *Channel) Key() string {
 	return fmt.Sprintf("%d", *channel.ID)
 }
 
-type internalChannel struct {
-	ID                 string      `json:"ID"`
-	MainChnl           string      `json:"MainChnl"`
-	SellingDirectionID string      `json:"SellingDirectionID"`
-	CnlOrderNo         string      `json:"CnlOrderNo"`
-	CnlCentralID       string      `json:"CnlCentralID"`
-	IsDisabled         string      `json:"IsDisabled"`
-	BcpCentralID       string      `json:"BcpCentralID"`
-	ShortName          string      `json:"ShortName"`
-	BcpName            string      `json:"BcpName"`
-	StartTime          string      `json:"StartTime"`
-	EndTime            string      `json:"EndTime"`
-	TotalOffset        string      `json:"TotalOffset"`
-	Timestamp          string      `json:"Timestamp"`
-	Aspects            interface{} `json:"Aspects"`
-}
-
 type iChanelAspect struct {
 	StartDate string `json:"StartDate"`
 	EndDate   string `json:"EndDate"`
@@ -77,12 +60,12 @@ func (m *iChanelAspect) Convert() (*ChanelAspect, error) {
 func (m *internalChannel) Convert() (*Channel, error) {
 	timestamp := time.Now()
 	var aspects []ChanelAspect
-	if m.Aspects != nil {
-		marshalData, err := json.Marshal(m.Aspects)
+	if _, ok := m.Channel["Aspects"]; ok {
+		marshalData, err := json.Marshal(m.Channel["Aspects"])
 		if err != nil {
 			return nil, err
 		}
-		switch reflect.TypeOf(m.Aspects).Kind() {
+		switch reflect.TypeOf(m.Channel["Aspects"]).Kind() {
 		case reflect.Array, reflect.Slice:
 			var internalChanelAspectData []iChanelAspect
 			err = json.Unmarshal(marshalData, &internalChanelAspectData)
@@ -110,18 +93,18 @@ func (m *internalChannel) Convert() (*Channel, error) {
 		}
 	}
 	channel := &Channel{
-		ID:                 utils.IntI(m.ID),
-		MainChnl:           utils.IntI(m.MainChnl),
-		SellingDirectionID: utils.IntI(m.SellingDirectionID),
-		CnlOrderNo:         utils.IntI(m.CnlOrderNo),
-		CnlCentralID:       utils.IntI(m.CnlCentralID),
-		IsDisabled:         utils.IntI(m.IsDisabled),
-		BcpCentralID:       utils.IntI(m.BcpCentralID),
-		ShortName:          utils.StringI(m.ShortName),
-		BcpName:            utils.StringI(m.BcpName),
-		StartTime:          utils.StringI(m.StartTime),
-		EndTime:            utils.StringI(m.EndTime),
-		TotalOffset:        utils.StringI(m.TotalOffset),
+		ID:                 utils.IntI(m.Channel["ID"]),
+		MainChnl:           utils.IntI(m.Channel["MainChnl"]),
+		SellingDirectionID: utils.IntI(m.Channel["SellingDirectionID"]),
+		CnlOrderNo:         utils.IntI(m.Channel["CnlOrderNo"]),
+		CnlCentralID:       utils.IntI(m.Channel["CnlCentralID"]),
+		IsDisabled:         utils.IntI(m.Channel["IsDisabled"]),
+		BcpCentralID:       utils.IntI(m.Channel["BcpCentralID"]),
+		ShortName:          utils.StringI(m.Channel["ShortName"]),
+		BcpName:            utils.StringI(m.Channel["BcpName"]),
+		StartTime:          utils.StringI(m.Channel["StartTime"]),
+		EndTime:            utils.StringI(m.Channel["EndTime"]),
+		TotalOffset:        utils.StringI(m.Channel["TotalOffset"]),
 		Timestamp:          timestamp,
 		Aspects:            aspects,
 	}
@@ -184,7 +167,7 @@ func (request *ChannelsUpdateRequest) Update() error {
 
 func (request *ChannelsUpdateRequest) loadFromFile() error {
 	resp := utils.VimbResponse{FilePath: request.S3Key}
-	convertData, err := resp.Convert("Channel")
+	convertData, err := resp.Convert("responseGetChannels")
 	if err != nil {
 		return err
 	}

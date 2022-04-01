@@ -8,6 +8,7 @@ import (
 	"github.com/advancemg/vimb-loader/pkg/s3"
 	"github.com/advancemg/vimb-loader/pkg/storage"
 	"github.com/advancemg/vimb-loader/pkg/utils"
+	"github.com/timshannon/badgerhold"
 	"strconv"
 	"time"
 )
@@ -97,22 +98,26 @@ func (cfg *SpotsConfiguration) InitJob() func() {
 			Cnl  int
 			Main int
 		}
-		var cnl []int
-		var advertisers []int
 		var allChannels []Cnl
 		var budgets []Budget
 		var channels []Channel
 		channelList := map[int]Cnl{}
 		months := map[int][]string{}
-		badgerBudgets := storage.NewBadger(DbBudgets)
-		badgerBudgets.Iterate(func(key []byte, value []byte) {
-			var budget Budget
-			json.Unmarshal(value, &budget)
-			budgets = append(budgets, budget)
-		})
+		advertisers := map[int]int{}
+		badgerBudgets := storage.Open(DbBudgets)
+		err = badgerBudgets.Find(&budgets, badgerhold.Where("Month").Ge(-1))
+		if err != nil {
+			fmt.Printf("Q:%s - err:%s", qName, err.Error())
+			return
+		}
+		badgerChannels := storage.Open(DbChannels)
+		err = badgerChannels.Find(&channels, badgerhold.Where("ID").Ge(-1))
 		for _, budget := range budgets {
-			advertisers = append(advertisers, *budget.AdtID)
-			cnl = append(cnl, *budget.CnlID)
+			advertisers[*budget.AdtID] = *budget.AdtID
+			channelList[*budget.CnlID] = Cnl{
+				Cnl:  *budget.CnlID,
+				Main: 0,
+			}
 			monthStr := fmt.Sprintf("%d", *budget.Month)
 			month, err := strconv.Atoi(monthStr[4:6])
 			if err != nil {
@@ -128,25 +133,10 @@ func (cfg *SpotsConfiguration) InitJob() func() {
 			}
 			months[month] = days
 		}
-		channelsBadger := storage.NewBadger(DbChannels)
-		if channelsBadger.Count() > 0 {
-			channelsBadger.Iterate(func(key []byte, value []byte) {
-				var channel Channel
-				json.Unmarshal(value, &channel)
-				channels = append(channels, channel)
-			})
-			for _, channel := range channels {
-				allChannels = append(allChannels, Cnl{
-					Cnl:  *channel.ID,
-					Main: *channel.MainChnl,
-				})
-			}
-			for _, channel := range cnl {
-				for _, cnlIdMain := range allChannels {
-					if cnlIdMain.Cnl == channel {
-						channelList[channel] = cnlIdMain
-					}
-				}
+		for _, channel := range channels {
+			if channelItem, ok := channelList[*channel.ID]; ok {
+				channelItem.Main = *channel.MainChnl
+				allChannels = append(allChannels, channelItem)
 			}
 		}
 		for month, days := range months {

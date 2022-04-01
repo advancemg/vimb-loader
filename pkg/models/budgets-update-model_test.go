@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/advancemg/vimb-loader/pkg/storage"
 	"github.com/advancemg/vimb-loader/pkg/utils"
+	"github.com/timshannon/badgerhold"
 	"strconv"
 	"testing"
 	"time"
@@ -40,6 +41,35 @@ func TestBudgetsUpdateRequest_loadFromFile(t *testing.T) {
 	}
 }
 
+func TestQueryBudgets(t *testing.T) {
+	type Cnl struct {
+		Cnl  int
+		Main int
+	}
+	var budgets []Budget
+	var channels []Channel
+	var allChannels []Cnl
+	advertisers := map[int]int{}
+	channelList := map[int]Cnl{}
+	badgerBudgets := storage.Open(DbBudgets)
+	_ = badgerBudgets.Find(&budgets, badgerhold.Where("Month").Ge(-1))
+	badgerChannels := storage.Open(DbChannels)
+	_ = badgerChannels.Find(&channels, badgerhold.Where("ID").Ge(-1))
+	for _, budget := range budgets {
+		advertisers[*budget.AdtID] = *budget.AdtID
+		channelList[*budget.CnlID] = Cnl{
+			Cnl:  *budget.CnlID,
+			Main: 0,
+		}
+	}
+	for _, channel := range channels {
+		if channelItem, ok := channelList[*channel.ID]; ok {
+			channelItem.Main = *channel.MainChnl
+			allChannels = append(allChannels, channelItem)
+		}
+	}
+}
+
 func TestBudgetsUpdateRequest_readBudgets(t *testing.T) {
 	if testing.Short() {
 		t.SkipNow()
@@ -50,7 +80,10 @@ func TestBudgetsUpdateRequest_readBudgets(t *testing.T) {
 	badgerBudgets := storage.NewBadger(DbBudgets)
 	badgerBudgets.Iterate(func(key []byte, value []byte) {
 		var budget Budget
-		json.Unmarshal(value, &budget)
+		err := json.Unmarshal(value, &budget)
+		if err != nil {
+			return
+		}
 		result = append(result, budget)
 	})
 	for _, budget := range result {
