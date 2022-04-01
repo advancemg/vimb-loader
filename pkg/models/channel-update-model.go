@@ -203,7 +203,6 @@ func (request *ChannelsUpdateRequest) loadFromFile() error {
 			return err
 		}
 		badgerChannels := storage.Open(DbChannels)
-		defer badgerChannels.Close()
 		err = badgerChannels.Upsert(channel.Key(), channel)
 		if err != nil {
 			return err

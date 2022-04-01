@@ -94,24 +94,23 @@ func (cfg *ProgramBreaksConfiguration) InitJob() func() {
 		if qInfo.Messages > 0 {
 			return
 		}
-		type Cnl struct {
-			Cnl string `json:"Cnl" example:"1018566"`
-		}
-		badgerChannels := storage.NewBadger(DbCustomConfigChannels)
-		badgerMonth := storage.NewBadger(DbCustomConfigMonth)
-		defer badgerChannels.Close()
-		defer badgerMonth.Close()
-		months := map[string][]string{}
-		channels := map[string]Cnl{}
-		badgerChannels.Iterate(func(key []byte, value []byte) {
-			channels[string(key)] = Cnl{Cnl: string(value)}
+		var cnl []int
+		var budgets []Budget
+		months := map[int][]string{}
+		badgerBudgets := storage.NewBadger(DbBudgets)
+		badgerBudgets.Iterate(func(key []byte, value []byte) {
+			var budget Budget
+			json.Unmarshal(value, &budget)
+			budgets = append(budgets, budget)
 		})
-		badgerMonth.Iterate(func(key []byte, value []byte) {
-			month, err := strconv.Atoi(string(value)[4:6])
+		for _, budget := range budgets {
+			cnl = append(cnl, *budget.CnlID)
+			monthStr := fmt.Sprintf("%d", *budget.Month)
+			month, err := strconv.Atoi(monthStr[4:6])
 			if err != nil {
 				panic(err)
 			}
-			year, err := strconv.Atoi(string(value)[0:4])
+			year, err := strconv.Atoi(monthStr[0:4])
 			if err != nil {
 				panic(err)
 			}
@@ -119,11 +118,7 @@ func (cfg *ProgramBreaksConfiguration) InitJob() func() {
 			if err != nil {
 				panic(err)
 			}
-			months[string(key)] = days
-		})
-		var cnl []Cnl
-		for _, c := range channels {
-			cnl = append(cnl, c)
+			months[month] = days
 		}
 		for month, days := range months {
 			for _, day := range days {
@@ -136,7 +131,7 @@ func (cfg *ProgramBreaksConfiguration) InitJob() func() {
 					if j > len(cnl) {
 						j = len(cnl)
 					}
-					startEndDay := fmt.Sprintf("%s%s", month, day)
+					startEndDay := fmt.Sprintf("%d%s", month, day)
 					request := goConvert.New()
 					request.Set("SellingDirectionID", cfg.SellingDirection)
 					request.Set("InclProgAttr", "0")
@@ -222,24 +217,23 @@ func (cfg *ProgramBreaksLightConfiguration) InitJob() func() {
 		if qInfo.Messages > 0 {
 			return
 		}
-		type Cnl struct {
-			Cnl string `json:"Cnl" example:"1018566"`
-		}
-		badgerChannels := storage.NewBadger(DbCustomConfigChannels)
-		badgerMonth := storage.NewBadger(DbCustomConfigMonth)
-		defer badgerChannels.Close()
-		defer badgerMonth.Close()
-		months := map[string][]string{}
-		channels := map[string]Cnl{}
-		badgerChannels.Iterate(func(key []byte, value []byte) {
-			channels[string(key)] = Cnl{Cnl: string(value)}
+		var cnl []int
+		var budgets []Budget
+		months := map[int][]string{}
+		badgerBudgets := storage.NewBadger(DbBudgets)
+		badgerBudgets.Iterate(func(key []byte, value []byte) {
+			var budget Budget
+			json.Unmarshal(value, &budget)
+			budgets = append(budgets, budget)
 		})
-		badgerMonth.Iterate(func(key []byte, value []byte) {
-			month, err := strconv.Atoi(string(value)[4:6])
+		for _, budget := range budgets {
+			cnl = append(cnl, *budget.CnlID)
+			monthStr := fmt.Sprintf("%d", *budget.Month)
+			month, err := strconv.Atoi(monthStr[4:6])
 			if err != nil {
 				panic(err)
 			}
-			year, err := strconv.Atoi(string(value)[0:4])
+			year, err := strconv.Atoi(monthStr[0:4])
 			if err != nil {
 				panic(err)
 			}
@@ -247,11 +241,7 @@ func (cfg *ProgramBreaksLightConfiguration) InitJob() func() {
 			if err != nil {
 				panic(err)
 			}
-			months[string(key)] = days
-		})
-		var cnl []Cnl
-		for _, c := range channels {
-			cnl = append(cnl, c)
+			months[month] = days
 		}
 		for month, days := range months {
 			for _, day := range days {
@@ -264,7 +254,7 @@ func (cfg *ProgramBreaksLightConfiguration) InitJob() func() {
 					if j > len(cnl) {
 						j = len(cnl)
 					}
-					startEndDay := fmt.Sprintf("%s%s", month, day)
+					startEndDay := fmt.Sprintf("%d%s", month, day)
 					request := goConvert.New()
 					request.Set("SellingDirectionID", cfg.SellingDirection)
 					request.Set("InclProgAttr", "0")

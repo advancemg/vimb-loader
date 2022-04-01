@@ -85,12 +85,18 @@ func (cfg *DeletedSpotInfoConfiguration) InitJob() func() {
 		if qInfo.Messages > 0 {
 			return
 		}
-		badgerMonth := storage.NewBadger(DbCustomConfigMonth)
-		defer badgerMonth.Close()
-		months := map[string]string{}
-		badgerMonth.Iterate(func(key []byte, value []byte) {
-			months[string(key)] = string(value)
+		var budgets []Budget
+		var months []string
+		badgerBudgets := storage.NewBadger(DbBudgets)
+		badgerBudgets.Iterate(func(key []byte, value []byte) {
+			var budget Budget
+			json.Unmarshal(value, &budget)
+			budgets = append(budgets, budget)
 		})
+		for _, budget := range budgets {
+			month := fmt.Sprintf("%d", *budget.Month)
+			months = append(months, month)
+		}
 		type agreement struct {
 			Id string `json:"ID"`
 		}

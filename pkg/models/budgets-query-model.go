@@ -9,7 +9,7 @@ type BudgetsBadgerQuery struct {
 }
 
 func (query *BudgetsBadgerQuery) connect() *badgerhold.Store {
-	return storage.Open(DbMediaplans)
+	return storage.Open(DbBudgets)
 }
 
 func (query *BudgetsBadgerQuery) Find(result interface{}, filter *badgerhold.Query) error {
