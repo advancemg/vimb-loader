@@ -13,10 +13,13 @@ type UpdateService struct {
 
 func (svc *UpdateService) Start() error {
 	budgetErrChan := models.BudgetStartJob()
+	channelErrChan := models.ChannelsStartJob()
 	allStartJobs := true
 	for allStartJobs {
 		select {
 		case <-budgetErrChan:
+			allStartJobs = false
+		case <-channelErrChan:
 			allStartJobs = false
 		case <-time.After(time.Second * 3):
 			continue

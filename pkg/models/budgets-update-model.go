@@ -7,47 +7,138 @@ import (
 	"github.com/advancemg/vimb-loader/pkg/s3"
 	"github.com/advancemg/vimb-loader/pkg/storage"
 	"github.com/advancemg/vimb-loader/pkg/utils"
+	"reflect"
+	"time"
 )
 
 const BudgetTable = "budgets"
 
+type internalM struct {
+	M map[string]interface{} `json:"m"`
+}
+
+type internalMQuality struct {
+	Item map[string]interface{} `json:"item"`
+}
+
 type Budget struct {
-	Month                 int          `json:"month"`
-	CnlID                 int          `json:"cnlID"`
-	AdtID                 int          `json:"adtID"`
-	AgrID                 int          `json:"agrID"`
-	InventoryUnitDuration int          `json:"inventoryUnitDuration"`
-	DealChannelStatus     int          `json:"dealChannelStatus"`
-	FixPercent            int          `json:"fixPercent"`
-	GRPFix                int          `json:"GRPFix"`
-	AdtName               string       `json:"adtName"`
-	AgrName               string       `json:"agrName"`
-	CmpName               string       `json:"cmpName"`
-	CnlName               string       `json:"cnlName"`
-	TP                    string       `json:"TP"`
-	Budget                float64      `json:"budget"`
-	CoordCost             float64      `json:"coordCost"`
-	Cost                  float64      `json:"cost"`
-	FixPercentPrime       float64      `json:"fixPercentPrime"`
-	FloatPercent          float64      `json:"floatPercent"`
-	FloatPercentPrime     float64      `json:"floatPercentPrime"`
-	GRP                   float64      `json:"GRP"`
-	GRPWithoutKF          float64      `json:"GRPWithoutKF"`
-	Quality               []BudgetItem `json:"quality"`
+	Month                 *int         `json:"Month"`
+	CnlID                 *int         `json:"CnlID"`
+	AdtID                 *int         `json:"AdtID"`
+	AgrID                 *int         `json:"AgrID"`
+	InventoryUnitDuration *int         `json:"InventoryUnitDuration"`
+	DealChannelStatus     *int         `json:"DealChannelStatus"`
+	FixPercent            *int         `json:"FixPercent"`
+	GRPFix                *int         `json:"GRPFix"`
+	AdtName               *string      `json:"AdtName"`
+	AgrName               *string      `json:"AgrName"`
+	CmpName               *string      `json:"CmpName"`
+	CnlName               *string      `json:"CnlName"`
+	TP                    *string      `json:"TP"`
+	Budget                *float64     `json:"Budget"`
+	CoordCost             *float64     `json:"CoordCost"`
+	Cost                  *float64     `json:"Cost"`
+	FixPercentPrime       *float64     `json:"FixPercentPrime"`
+	FloatPercent          *float64     `json:"FloatPercent"`
+	FloatPercentPrime     *float64     `json:"FloatPercentPrime"`
+	GRP                   *float64     `json:"GRP"`
+	GRPWithoutKF          *float64     `json:"GRPWithoutKF"`
+	Timestamp             time.Time    `json:"Timestamp"`
+	Quality               []BudgetItem `json:"Quality"`
 }
 
 type BudgetItem struct {
-	Percent           int     `json:"percent"`
-	RankID            int     `json:"rankID"`
-	BudgetOffprime    float64 `json:"budgetOffprime"`
-	BudgetPrime       float64 `json:"budgetPrime"`
-	InventoryOffprime float64 `json:"inventoryOffprime"`
-	InventoryPrime    float64 `json:"inventoryPrime"`
-	PercentPrime      float64 `json:"percentPrime"`
+	RankID            *int     `json:"RankID"`
+	Percent           *float64 `json:"Percent"`
+	BudgetOffprime    *float64 `json:"BudgetOffprime"`
+	BudgetPrime       *float64 `json:"BudgetPrime"`
+	InventoryOffprime *float64 `json:"InventoryOffprime"`
+	InventoryPrime    *float64 `json:"InventoryPrime"`
+	PercentPrime      *float64 `json:"PercentPrime"`
 }
 
 type BudgetsUpdateRequest struct {
 	S3Key string
+}
+
+func (budget *Budget) Key() string {
+	return fmt.Sprintf("%d-%d-%d-%d", *budget.Month, *budget.CnlID, *budget.AdtID, *budget.AgrID)
+}
+
+func (m *internalMQuality) Convert() (*BudgetItem, error) {
+	item := &BudgetItem{
+		RankID:            utils.IntI(m.Item["RankID"]),
+		Percent:           utils.FloatI(m.Item["Percent"]),
+		BudgetOffprime:    utils.FloatI(m.Item["BudgetOffprime"]),
+		BudgetPrime:       utils.FloatI(m.Item["BudgetPrime"]),
+		InventoryOffprime: utils.FloatI(m.Item["InventoryOffprime"]),
+		InventoryPrime:    utils.FloatI(m.Item["InventoryPrime"]),
+		PercentPrime:      utils.FloatI(m.Item["PercentPrime"]),
+	}
+	return item, nil
+}
+
+func (m *internalM) Convert() (*Budget, error) {
+	timestamp := time.Now()
+	var qualities []BudgetItem
+	if _, ok := m.M["Quality"]; ok {
+		marshalData, err := json.Marshal(m.M["Quality"])
+		if err != nil {
+			return nil, err
+		}
+		switch reflect.TypeOf(m.M["Quality"]).Kind() {
+		case reflect.Array, reflect.Slice:
+			var internalQualityData []internalMQuality
+			err = json.Unmarshal(marshalData, &internalQualityData)
+			if err != nil {
+				return nil, err
+			}
+			for _, qualityItem := range internalQualityData {
+				quality, err := qualityItem.Convert()
+				if err != nil {
+					return nil, err
+				}
+				qualities = append(qualities, *quality)
+			}
+		case reflect.Map, reflect.Struct:
+			var internalQualityData internalMQuality
+			err = json.Unmarshal(marshalData, &internalQualityData)
+			if err != nil {
+				return nil, err
+			}
+			quality, err := internalQualityData.Convert()
+			if err != nil {
+				return nil, err
+			}
+			qualities = append(qualities, *quality)
+		}
+	}
+	budget := &Budget{
+		Month:                 utils.IntI(m.M["Month"]),
+		CnlID:                 utils.IntI(m.M["CnlID"]),
+		AdtID:                 utils.IntI(m.M["AdtID"]),
+		AgrID:                 utils.IntI(m.M["AgrID"]),
+		InventoryUnitDuration: utils.IntI(m.M["InventoryUnitDuration"]),
+		DealChannelStatus:     utils.IntI(m.M["DealChannelStatus"]),
+		FixPercent:            utils.IntI(m.M["FixPercent"]),
+		GRPFix:                utils.IntI(m.M["GRPFix"]),
+		AdtName:               utils.StringI(m.M["AdtName"]),
+		AgrName:               utils.StringI(m.M["AgrName"]),
+		CmpName:               utils.StringI(m.M["CmpName"]),
+		CnlName:               utils.StringI(m.M["CnlName"]),
+		TP:                    utils.StringI(m.M["TP"]),
+		Budget:                utils.FloatI(m.M["Budget"]),
+		CoordCost:             utils.FloatI(m.M["CoordCost"]),
+		Cost:                  utils.FloatI(m.M["Cost"]),
+		FixPercentPrime:       utils.FloatI(m.M["FixPercentPrime"]),
+		FloatPercent:          utils.FloatI(m.M["FloatPercent"]),
+		FloatPercentPrime:     utils.FloatI(m.M["FloatPercentPrime"]),
+		GRP:                   utils.FloatI(m.M["GRP"]),
+		GRPWithoutKF:          utils.FloatI(m.M["GRPWithoutKF"]),
+		Timestamp:             timestamp,
+		Quality:               qualities,
+	}
+	return budget, nil
 }
 
 func BudgetStartJob() chan error {
@@ -92,18 +183,34 @@ func BudgetStartJob() chan error {
 }
 
 func (request *BudgetsUpdateRequest) Update() error {
-	filePath, err := s3.Download(request.S3Key)
+	var err error
+	request.S3Key, err = s3.Download(request.S3Key)
 	if err != nil {
 		return err
 	}
-	resp := utils.VimbResponse{FilePath: filePath}
-	catchField, err := resp.Convert("BudgetList")
+	err = request.loadFromFile()
 	if err != nil {
 		return err
 	}
-	var budget = Budget{}
-	var quality = []BudgetItem{}
-	badgerBudgets := storage.NewBadger(DbBudgets)
+	return nil
+}
+
+func (request *BudgetsUpdateRequest) loadFromFile() error {
+	resp := utils.VimbResponse{FilePath: request.S3Key}
+	convertData, err := resp.Convert("BudgetList")
+	if err != nil {
+		return err
+	}
+	marshalData, err := json.Marshal(convertData)
+	if err != nil {
+		return err
+	}
+	var internalData []internalM
+	err = json.Unmarshal(marshalData, &internalData)
+	if err != nil {
+		return err
+	}
+	badgerBudgets := storage.Open(DbBudgets)
 	badgerMonth := storage.NewBadger(DbCustomConfigMonth)
 	badgerAdvertisers := storage.NewBadger(DbCustomConfigAdvertisers)
 	badgerChannels := storage.NewBadger(DbCustomConfigChannels)
@@ -111,73 +218,20 @@ func (request *BudgetsUpdateRequest) Update() error {
 	defer badgerMonth.Close()
 	defer badgerAdvertisers.Close()
 	defer badgerChannels.Close()
-	if array1, ok := catchField.([]interface{}); ok {
-		for _, arrVal1 := range array1 {
-			if mapLevel1, ok := arrVal1.(map[string]interface{}); ok {
-				for _, v1 := range mapLevel1 {
-					if mapLevel2, ok := v1.(map[string]interface{}); ok {
-						for _, v2 := range mapLevel2 {
-							if array2, ok := v2.([]interface{}); ok {
-								quality = []BudgetItem{}
-								for _, arrVal2 := range array2 {
-									if mapLevel3, ok := arrVal2.(map[string]interface{}); ok {
-										for _, v3 := range mapLevel3 {
-											if mapLevel4, ok := v3.(map[string]interface{}); ok {
-												item := BudgetItem{
-													Percent:           utils.Int(mapLevel4["Percent"].(string)),
-													RankID:            utils.Int(mapLevel4["RankID"].(string)),
-													BudgetOffprime:    utils.Float(mapLevel4["BudgetOffprime"].(string)),
-													BudgetPrime:       utils.Float(mapLevel4["BudgetPrime"].(string)),
-													InventoryOffprime: utils.Float(mapLevel4["InventoryOffprime"].(string)),
-													InventoryPrime:    utils.Float(mapLevel4["InventoryPrime"].(string)),
-													PercentPrime:      utils.Float(mapLevel4["PercentPrime"].(string)),
-												}
-												quality = append(quality, item)
-											}
-										}
-									}
-								}
-							}
-						}
-						adtId := mapLevel2["AdtID"].(string)
-						cnlId := mapLevel2["CnlID"].(string)
-						month := mapLevel2["Month"].(string)
-						badgerAdvertisers.Set(adtId, []byte(adtId))
-						badgerChannels.Set(cnlId, []byte(cnlId))
-						badgerMonth.Set(month, []byte(month))
-						budget = Budget{
-							Month:                 utils.Int(mapLevel2["Month"].(string)),
-							CnlID:                 utils.Int(mapLevel2["CnlID"].(string)),
-							AdtID:                 utils.Int(mapLevel2["AdtID"].(string)),
-							AgrID:                 utils.Int(mapLevel2["AgrID"].(string)),
-							InventoryUnitDuration: utils.Int(mapLevel2["InventoryUnitDuration"].(string)),
-							DealChannelStatus:     utils.Int(mapLevel2["DealChannelStatus"].(string)),
-							FixPercent:            utils.Int(mapLevel2["FixPercent"].(string)),
-							GRPFix:                utils.Int(mapLevel2["GRPFix"].(string)),
-							AdtName:               mapLevel2["AdtName"].(string),
-							AgrName:               mapLevel2["AgrName"].(string),
-							CmpName:               mapLevel2["CmpName"].(string),
-							CnlName:               mapLevel2["CnlName"].(string),
-							TP:                    mapLevel2["TP"].(string),
-							Budget:                utils.Float(mapLevel2["Budget"].(string)),
-							CoordCost:             utils.Float(mapLevel2["CoordCost"].(string)),
-							Cost:                  utils.Float(mapLevel2["Cost"].(string)),
-							FixPercentPrime:       utils.Float(mapLevel2["FixPercentPrime"].(string)),
-							FloatPercent:          utils.Float(mapLevel2["FloatPercent"].(string)),
-							FloatPercentPrime:     utils.Float(mapLevel2["FloatPercentPrime"].(string)),
-							GRP:                   utils.Float(mapLevel2["GRP"].(string)),
-							GRPWithoutKF:          utils.Float(mapLevel2["GRPWithoutKF"].(string)),
-							Quality:               quality,
-						}
-					}
-				}
-			}
-			key := fmt.Sprintf("%d%d%d%d", budget.Month, budget.CnlID, budget.AdtID, budget.AgrID)
-			body, err := json.Marshal(budget)
-			if err != nil {
-				return err
-			}
-			badgerBudgets.Set(key, body)
+	for _, dataM := range internalData {
+		budget, err := dataM.Convert()
+		if err != nil {
+			return err
+		}
+		adtId := fmt.Sprintf("%d", *budget.AdtID)
+		cnlId := fmt.Sprintf("%d", *budget.CnlID)
+		month := fmt.Sprintf("%d", *budget.Month)
+		badgerAdvertisers.Set(adtId, []byte(adtId))
+		badgerChannels.Set(cnlId, []byte(cnlId))
+		badgerMonth.Set(month, []byte(month))
+		err = badgerBudgets.Upsert(budget.Key(), budget)
+		if err != nil {
+			return err
 		}
 	}
 	return nil

@@ -18,7 +18,7 @@ func TestVimbResponse_Convert(t *testing.T) {
 	}{
 		{
 			name:    "testConvert",
-			fields:  fields{FilePath: "/Users/eminshakh/work/vimb-loader/s3-buckets/storage/vimb/vimb/GetBudgets/201904/2022330-GetBudgets.gz"},
+			fields:  fields{FilePath: "/Users/eminshakh/work/vimb-loader/s3-buckets/storage/vimb/vimb/GetBudgets/201904/budgets.gz"},
 			want:    nil,
 			wantErr: false,
 		},

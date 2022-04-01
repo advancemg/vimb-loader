@@ -3,6 +3,7 @@ package models
 import (
 	"encoding/json"
 	"os"
+	"time"
 )
 
 const (
@@ -31,14 +32,17 @@ const (
 	CustomersWithAdvertisersUpdateQueue = "customers-with-advertisers-update"
 	DeletedSpotInfoUpdateQueue          = "deleted-spot-info-update"
 	MPLansUpdateQueue                   = "mediaplans-update"
+	MediaplanAggUpdateQueue             = "mediaplans-agg-update"
 	SpotsUpdateQueue                    = "spots-update"
 	RanksUpdateQueue                    = "ranks-update"
 	ChannelsUpdateQueue                 = "channels-update"
 	DbCustomConfigMonth                 = "db/custom-config-month"
-	DbBudgets                           = "db/budgets"
 	DbCustomConfigAdvertisers           = "db/custom-config-advertisers "
 	DbCustomConfigChannels              = "db/custom-config-channels"
 	DbChannels                          = "db/channels"
+	DbBudgets                           = "db/budgets"
+	DbMediaplans                        = "db/mediaplans"
+	DbAggMediaplans                     = "db/agg-mediaplans"
 )
 
 var QueueNames = []string{
@@ -67,6 +71,7 @@ var QueueNames = []string{
 	CustomersWithAdvertisersUpdateQueue,
 	DeletedSpotInfoUpdateQueue,
 	MPLansUpdateQueue,
+	MediaplanAggUpdateQueue,
 	SpotsUpdateQueue,
 	RanksUpdateQueue,
 	ChannelsUpdateQueue,
@@ -83,6 +88,12 @@ type Configuration struct {
 	ProgramBreaks            ProgramBreaksConfiguration            `json:"programBreaks"`
 	ProgramBreaksLight       ProgramBreaksLightConfiguration       `json:"programBreaksLight"`
 	Spots                    SpotsConfiguration                    `json:"spots"`
+}
+
+type WeekInfo struct {
+	Number int       `json:"Number"`
+	Close  bool      `json:"Close"`
+	Date   time.Time `json:"Date"`
 }
 
 type MqUpdateMessage struct {

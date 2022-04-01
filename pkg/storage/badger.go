@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"encoding/json"
 	"github.com/dgraph-io/badger"
 	"os"
 	"time"
@@ -40,6 +41,15 @@ func NewBadger(storageDir string) *Badger {
 // Close properly closes badger database
 func (storage *Badger) Close() error {
 	return storage.db.Close()
+}
+
+// SetJson adds a key-JsonValue pair to the database
+func (storage *Badger) SetJson(key string, value interface{}) (err error) {
+	marshalValue, err := json.Marshal(value)
+	if err != nil {
+		return err
+	}
+	return storage.Set(key, marshalValue)
 }
 
 // Set adds a key-value pair to the database
@@ -204,6 +214,23 @@ func (storage *Badger) IterateByPrefixFrom(prefix []byte, from []byte, limit uin
 		return nil
 	})
 	return totalIterated
+}
+
+func (storage *Badger) AddValues(values map[string]interface{}) error {
+	wb := storage.db.NewWriteBatch()
+	defer wb.Cancel()
+	for k, v := range values {
+		marshalData, err := json.Marshal(v)
+		err = wb.Set([]byte(k), marshalData)
+		if err != nil {
+			return err
+		}
+	}
+	err := wb.Flush()
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // Count total keys

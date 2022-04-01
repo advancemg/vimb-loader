@@ -2,5 +2,9 @@
 config.json
 default-config.json
 /db/
+pkg/models/db/
+pkg/storage/db/
+/zipdir/
 /s3-data/
 /s3-buckets/
+/dev-test-data/
