@@ -8,6 +8,7 @@ import (
 	"github.com/advancemg/vimb-loader/pkg/s3"
 	"github.com/advancemg/vimb-loader/pkg/storage"
 	"github.com/advancemg/vimb-loader/pkg/utils"
+	"github.com/timshannon/badgerhold"
 )
 
 type SwaggerGetMPLansRequest struct {
@@ -94,31 +95,25 @@ func (cfg *MediaplanConfiguration) InitJob() func() {
 		if qInfo.Messages > 0 {
 			return
 		}
-		type Cnl struct {
-			Cnl string `json:"Cnl"`
-		}
-		type AdtID struct {
-			AdtID string `json:"AdtID"`
-		}
+		months := map[int]struct{}{}
 		var budgets []Budget
-		var months []string
-		badgerBudgets := storage.NewBadger(DbBudgets)
-		badgerBudgets.Iterate(func(key []byte, value []byte) {
-			var budget Budget
-			json.Unmarshal(value, &budget)
-			budgets = append(budgets, budget)
-		})
-		for _, budget := range budgets {
-			month := fmt.Sprintf("%d", *budget.Month)
-			months = append(months, month)
+		badgerBudgets := storage.Open(DbBudgets)
+		err = badgerBudgets.Find(&budgets, badgerhold.Where("Month").Ge(-1))
+		if err != nil {
+			fmt.Printf("Q:%s - err:%s", qName, err.Error())
+			return
 		}
-		for _, month := range months {
+		for _, budget := range budgets {
+			months[*budget.Month] = struct{}{}
+		}
+		for month, _ := range months {
+			startMonth := fmt.Sprintf("%d", month)
 			request := goConvert.New()
 			request.Set("SellingDirectionID", cfg.SellingDirection)
-			request.Set("StartMonth", month)
-			request.Set("EndMonth", month)
-			request.Set("AdtList", []AdtID{})
-			request.Set("ChannelList", []Cnl{})
+			request.Set("StartMonth", startMonth)
+			request.Set("EndMonth", startMonth)
+			request.Set("AdtList", []string{})
+			request.Set("ChannelList", []string{})
 			request.Set("IncludeEmpty", "false")
 			err := amqpConfig.PublishJson(qName, request)
 			if err != nil {

@@ -8,6 +8,7 @@ import (
 	"github.com/advancemg/vimb-loader/pkg/s3"
 	"github.com/advancemg/vimb-loader/pkg/storage"
 	"github.com/advancemg/vimb-loader/pkg/utils"
+	"github.com/timshannon/badgerhold"
 	"time"
 )
 
@@ -85,31 +86,32 @@ func (cfg *DeletedSpotInfoConfiguration) InitJob() func() {
 		if qInfo.Messages > 0 {
 			return
 		}
-		var budgets []Budget
-		var months []string
-		badgerBudgets := storage.NewBadger(DbBudgets)
-		badgerBudgets.Iterate(func(key []byte, value []byte) {
-			var budget Budget
-			json.Unmarshal(value, &budget)
-			budgets = append(budgets, budget)
-		})
-		for _, budget := range budgets {
-			month := fmt.Sprintf("%d", *budget.Month)
-			months = append(months, month)
-		}
 		type agreement struct {
 			Id string `json:"ID"`
 		}
-		for _, month := range months {
-			days, err := utils.GetDaysFromYearMonth(month)
+		var budgets []Budget
+		months := map[int][]time.Time{}
+		badgerBudgets := storage.Open(DbBudgets)
+		err = badgerBudgets.Find(&budgets, badgerhold.Where("Month").Ge(-1))
+		if err != nil {
+			fmt.Printf("Q:%s - err:%s", qName, err.Error())
+			return
+		}
+		for _, budget := range budgets {
+			days, err := utils.GetDaysFromYearMonthInt(*budget.Month)
 			if err != nil {
 				panic(err)
 			}
+			months[*budget.Month] = days
+		}
+		for _, days := range months {
 			startDay := fmt.Sprintf("%v", days[0].Format(time.RFC3339))
 			endDay := fmt.Sprintf("%v", days[len(days)-1].Format(time.RFC3339))
+			startDay = startDay[0 : len(startDay)-1]
+			endDay = endDay[0 : len(endDay)-1][:11] + "12:00:00"
 			request := goConvert.New()
-			request.Set("DateStart", startDay[0:len(startDay)-1])
-			request.Set("DateEnd", endDay[0 : len(endDay)-1][:11]+"12:00:00")
+			request.Set("DateStart", startDay)
+			request.Set("DateEnd", endDay)
 			request.Set("Agreements", []agreement{})
 			err = amqpConfig.PublishJson(qName, request)
 			if err != nil {

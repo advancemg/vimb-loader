@@ -8,7 +8,7 @@ import (
 	"github.com/advancemg/vimb-loader/pkg/s3"
 	"github.com/advancemg/vimb-loader/pkg/storage"
 	"github.com/advancemg/vimb-loader/pkg/utils"
-	"strconv"
+	"github.com/timshannon/badgerhold"
 	"time"
 )
 
@@ -94,31 +94,26 @@ func (cfg *ProgramBreaksConfiguration) InitJob() func() {
 		if qInfo.Messages > 0 {
 			return
 		}
-		var cnl []int
+		channels := map[int]struct{}{}
 		var budgets []Budget
-		months := map[int][]string{}
-		badgerBudgets := storage.NewBadger(DbBudgets)
-		badgerBudgets.Iterate(func(key []byte, value []byte) {
-			var budget Budget
-			json.Unmarshal(value, &budget)
-			budgets = append(budgets, budget)
-		})
+		var cnl []int
+		months := map[int][]time.Time{}
+		badgerBudgets := storage.Open(DbBudgets)
+		err = badgerBudgets.Find(&budgets, badgerhold.Where("Month").Ge(-1))
+		if err != nil {
+			fmt.Printf("Q:%s - err:%s", qName, err.Error())
+			return
+		}
 		for _, budget := range budgets {
-			cnl = append(cnl, *budget.CnlID)
-			monthStr := fmt.Sprintf("%d", *budget.Month)
-			month, err := strconv.Atoi(monthStr[4:6])
+			channels[*budget.CnlID] = struct{}{}
+			days, err := utils.GetDaysFromYearMonthInt(*budget.Month)
 			if err != nil {
 				panic(err)
 			}
-			year, err := strconv.Atoi(monthStr[0:4])
-			if err != nil {
-				panic(err)
-			}
-			days, err := utils.GetDaysFromMonth(year, time.Month(month))
-			if err != nil {
-				panic(err)
-			}
-			months[month] = days
+			months[*budget.Month] = days
+		}
+		for channel, _ := range channels {
+			cnl = append(cnl, channel)
 		}
 		for month, days := range months {
 			for _, day := range days {
@@ -131,7 +126,12 @@ func (cfg *ProgramBreaksConfiguration) InitJob() func() {
 					if j > len(cnl) {
 						j = len(cnl)
 					}
-					startEndDay := fmt.Sprintf("%d%s", month, day)
+					var startEndDay string
+					if day.Day() <= 9 {
+						startEndDay = fmt.Sprintf("%d0%d", month, day.Day())
+					} else {
+						startEndDay = fmt.Sprintf("%d%d", month, day.Day())
+					}
 					request := goConvert.New()
 					request.Set("SellingDirectionID", cfg.SellingDirection)
 					request.Set("InclProgAttr", "0")
@@ -202,7 +202,7 @@ func (cfg *ProgramBreaksLightConfiguration) InitJob() func() {
 		if !cfg.Loading {
 			return
 		}
-		qName := GetProgramBreaksLightModeType
+		qName := GetProgramBreaksType
 		amqpConfig := mq_broker.InitConfig()
 		err := amqpConfig.DeclareSimpleQueue(qName)
 		if err != nil {
@@ -217,31 +217,29 @@ func (cfg *ProgramBreaksLightConfiguration) InitJob() func() {
 		if qInfo.Messages > 0 {
 			return
 		}
-		var cnl []int
+		type Cnl struct {
+			Cnl int
+		}
+		channels := map[int]struct{}{}
 		var budgets []Budget
-		months := map[int][]string{}
-		badgerBudgets := storage.NewBadger(DbBudgets)
-		badgerBudgets.Iterate(func(key []byte, value []byte) {
-			var budget Budget
-			json.Unmarshal(value, &budget)
-			budgets = append(budgets, budget)
-		})
+		var cnl []int
+		months := map[int][]time.Time{}
+		badgerBudgets := storage.Open(DbBudgets)
+		err = badgerBudgets.Find(&budgets, badgerhold.Where("Month").Ge(-1))
+		if err != nil {
+			fmt.Printf("Q:%s - err:%s", qName, err.Error())
+			return
+		}
 		for _, budget := range budgets {
-			cnl = append(cnl, *budget.CnlID)
-			monthStr := fmt.Sprintf("%d", *budget.Month)
-			month, err := strconv.Atoi(monthStr[4:6])
+			channels[*budget.CnlID] = struct{}{}
+			days, err := utils.GetDaysFromYearMonthInt(*budget.Month)
 			if err != nil {
 				panic(err)
 			}
-			year, err := strconv.Atoi(monthStr[0:4])
-			if err != nil {
-				panic(err)
-			}
-			days, err := utils.GetDaysFromMonth(year, time.Month(month))
-			if err != nil {
-				panic(err)
-			}
-			months[month] = days
+			months[*budget.Month] = days
+		}
+		for channel, _ := range channels {
+			cnl = append(cnl, channel)
 		}
 		for month, days := range months {
 			for _, day := range days {
@@ -254,7 +252,12 @@ func (cfg *ProgramBreaksLightConfiguration) InitJob() func() {
 					if j > len(cnl) {
 						j = len(cnl)
 					}
-					startEndDay := fmt.Sprintf("%d%s", month, day)
+					var startEndDay string
+					if day.Day() <= 9 {
+						startEndDay = fmt.Sprintf("%d0%d", month, day.Day())
+					} else {
+						startEndDay = fmt.Sprintf("%d%d", month, day.Day())
+					}
 					request := goConvert.New()
 					request.Set("SellingDirectionID", cfg.SellingDirection)
 					request.Set("InclProgAttr", "0")

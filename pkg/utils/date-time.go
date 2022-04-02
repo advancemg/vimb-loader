@@ -61,6 +61,10 @@ func GetDaysFromYearMonth(yearMonth string) ([]time.Time, error) {
 	return result, nil
 }
 
+func GetDaysFromYearMonthInt(yearMonth int) ([]time.Time, error) {
+	return GetDaysFromYearMonth(fmt.Sprintf("%d", yearMonth))
+}
+
 func GetActualMonths() ([]YearMonth, error) {
 	actual := time.Now().UTC()
 	actualYear := actual.Year()
@@ -167,35 +171,6 @@ func GetActualStartEndDays(month int) (string, string) {
 				}
 				if (len(days) - nextDay) == 1 {
 					endDay = fmt.Sprintf("%d%d%d", days[nextDay].Year(), int(days[nextDay].Month()), days[nextDay].Day())
-				}
-			}
-			tmpMonth = days[i].Month().String()
-		}
-	}
-	return startDay, endDay
-}
-
-func GetActualStartEndDaysForTest(year, month int) (string, string) {
-	days, _ := GetActualDays()
-	var tmpMonth string
-	var startDay string
-	var endDay string
-	for i := 0; i < len(days); i++ {
-		if month == int(days[i].Month()) {
-			nextDay := i + 1
-			if days[i].Month().String() != tmpMonth {
-				if days[i].Day() <= 9 {
-					startDay = fmt.Sprintf("%d%d%s", year, int(days[i].Month()), fmt.Sprintf("0%d", days[i].Day()))
-				} else {
-					startDay = fmt.Sprintf("%d%d%d", year, int(days[i].Month()), days[i].Day())
-				}
-			}
-			if nextDay < len(days) {
-				if days[i].Month().String() != days[nextDay].Month().String() {
-					endDay = fmt.Sprintf("%d%d%d", year, int(days[i].Month()), days[i].Day())
-				}
-				if (len(days) - nextDay) == 1 {
-					endDay = fmt.Sprintf("%d%d%d", year, int(days[nextDay].Month()), days[nextDay].Day())
 				}
 			}
 			tmpMonth = days[i].Month().String()

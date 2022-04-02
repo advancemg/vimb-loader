@@ -19,10 +19,8 @@ func (channel *Channel) Key() string {
 	return fmt.Sprintf("%d", *channel.ID)
 }
 
-type iChanelAspect struct {
-	StartDate string `json:"StartDate"`
-	EndDate   string `json:"EndDate"`
-	ID        string `json:"ID"`
+type internalChanelAspect struct {
+	Aspect map[string]interface{} `json:"Aspect"`
 }
 
 type Channel struct {
@@ -48,11 +46,11 @@ type ChanelAspect struct {
 	ID        *int       `json:"ID"`
 }
 
-func (m *iChanelAspect) Convert() (*ChanelAspect, error) {
+func (m *internalChanelAspect) Convert() (*ChanelAspect, error) {
 	aspect := &ChanelAspect{
-		StartDate: utils.TimeI(m.StartDate, `2006-01-02T15:04:05`),
-		EndDate:   utils.TimeI(m.EndDate, `2006-01-02T15:04:05`),
-		ID:        utils.IntI(m.ID),
+		StartDate: utils.TimeI(m.Aspect["StartDate"], `2006-01-02T15:04:05`),
+		EndDate:   utils.TimeI(m.Aspect["EndDate"], `2006-01-02T15:04:05`),
+		ID:        utils.IntI(m.Aspect["ID"]),
 	}
 	return aspect, nil
 }
@@ -67,7 +65,7 @@ func (m *internalChannel) Convert() (*Channel, error) {
 		}
 		switch reflect.TypeOf(m.Channel["Aspects"]).Kind() {
 		case reflect.Array, reflect.Slice:
-			var internalChanelAspectData []iChanelAspect
+			var internalChanelAspectData []internalChanelAspect
 			err = json.Unmarshal(marshalData, &internalChanelAspectData)
 			if err != nil {
 				return nil, err
@@ -80,7 +78,7 @@ func (m *internalChannel) Convert() (*Channel, error) {
 				aspects = append(aspects, *aspect)
 			}
 		case reflect.Map, reflect.Struct:
-			var internalChanelAspectData iChanelAspect
+			var internalChanelAspectData internalChanelAspect
 			err = json.Unmarshal(marshalData, &internalChanelAspectData)
 			if err != nil {
 				return nil, err

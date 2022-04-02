@@ -9,7 +9,6 @@ import (
 	"github.com/advancemg/vimb-loader/pkg/storage"
 	"github.com/advancemg/vimb-loader/pkg/utils"
 	"github.com/timshannon/badgerhold"
-	"strconv"
 	"time"
 )
 
@@ -102,7 +101,7 @@ func (cfg *SpotsConfiguration) InitJob() func() {
 		var budgets []Budget
 		var channels []Channel
 		channelList := map[int]Cnl{}
-		months := map[int][]string{}
+		months := map[int][]time.Time{}
 		advertisers := map[int]int{}
 		badgerBudgets := storage.Open(DbBudgets)
 		err = badgerBudgets.Find(&budgets, badgerhold.Where("Month").Ge(-1))
@@ -118,20 +117,11 @@ func (cfg *SpotsConfiguration) InitJob() func() {
 				Cnl:  *budget.CnlID,
 				Main: 0,
 			}
-			monthStr := fmt.Sprintf("%d", *budget.Month)
-			month, err := strconv.Atoi(monthStr[4:6])
+			days, err := utils.GetDaysFromYearMonthInt(*budget.Month)
 			if err != nil {
 				panic(err)
 			}
-			year, err := strconv.Atoi(monthStr[0:4])
-			if err != nil {
-				panic(err)
-			}
-			days, err := utils.GetDaysFromMonth(year, time.Month(month))
-			if err != nil {
-				panic(err)
-			}
-			months[month] = days
+			months[*budget.Month] = days
 		}
 		for _, channel := range channels {
 			if channelItem, ok := channelList[*channel.ID]; ok {
@@ -141,8 +131,8 @@ func (cfg *SpotsConfiguration) InitJob() func() {
 		}
 		for month, days := range months {
 			request := goConvert.New()
-			startDay := fmt.Sprintf("%d%s", month, days[0])
-			endDay := fmt.Sprintf("%d%s", month, days[len(days)-1])
+			startDay := fmt.Sprintf("%d%d", month, days[0].Day())
+			endDay := fmt.Sprintf("%d%d", month, days[len(days)-1].Day())
 			request.Set("SellingDirectionID", cfg.SellingDirection)
 			request.Set("StartDate", startDay)
 			request.Set("EndDate", endDay)
