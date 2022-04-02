@@ -39,6 +39,9 @@ func (req *VimbResponse) Convert(key string) (interface{}, error) {
 			if k == "attributes" {
 				continue
 			}
+			if _, ok := v.([]interface{}); ok {
+				continue
+			}
 			if k == key {
 				return v
 			}

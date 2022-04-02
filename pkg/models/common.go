@@ -36,11 +36,10 @@ const (
 	SpotsUpdateQueue                    = "spots-update"
 	RanksUpdateQueue                    = "ranks-update"
 	ChannelsUpdateQueue                 = "channels-update"
-	DbCustomConfigMonth                 = "db/custom-config-month"
-	DbCustomConfigAdvertisers           = "db/custom-config-advertisers "
-	DbCustomConfigChannels              = "db/custom-config-channels"
 	DbChannels                          = "db/channels"
 	DbBudgets                           = "db/budgets"
+	DbSpots                             = "db/spots"
+	DbSpotsOrderBlock                   = "db/spots-order-block"
 	DbMediaplans                        = "db/mediaplans"
 	DbAggMediaplans                     = "db/agg-mediaplans"
 )
@@ -92,6 +91,12 @@ type Configuration struct {
 
 type internalM struct {
 	M map[string]interface{} `json:"m"`
+}
+type internalS struct {
+	S map[string]interface{} `json:"s"`
+}
+type internalObl struct {
+	Obl map[string]interface{} `json:"obl"`
 }
 type internalChannel struct {
 	Channel map[string]interface{} `json:"Channel"`
