@@ -38,7 +38,9 @@ const (
 	ChannelsUpdateQueue                 = "channels-update"
 	DbChannels                          = "db/channels"
 	DbBudgets                           = "db/budgets"
+	DbAdvertisers                       = "db/advertisers"
 	DbSpots                             = "db/spots"
+	DbDeletedSpotInfo                   = "db/deleted-spot-info"
 	DbSpotsOrderBlock                   = "db/spots-order-block"
 	DbMediaplans                        = "db/mediaplans"
 	DbAggMediaplans                     = "db/agg-mediaplans"
@@ -91,6 +93,12 @@ type Configuration struct {
 
 type internalM struct {
 	M map[string]interface{} `json:"m"`
+}
+type internalI struct {
+	I map[string]interface{} `json:"i"`
+}
+type internalRow struct {
+	Row map[string]interface{} `json:"row"`
 }
 type internalS struct {
 	S map[string]interface{} `json:"s"`

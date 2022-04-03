@@ -62,7 +62,11 @@ func (cfg *AdvMessagesConfiguration) StartJob() chan error {
 			if err != nil {
 				errorCh <- err
 			}
-			err = bodyJson.UploadToS3()
+			s3Message, err := bodyJson.UploadToS3()
+			if err != nil {
+				errorCh <- err
+			}
+			err = amqpConfig.PublishJson(AdvMessagesUpdateQueue, s3Message)
 			if err != nil {
 				errorCh <- err
 			}
@@ -167,7 +171,7 @@ func (request *GetAdvMessages) GetDataXmlZip() (*StreamResponse, error) {
 	}, nil
 }
 
-func (request *GetAdvMessages) UploadToS3() error {
+func (request *GetAdvMessages) UploadToS3() (*MqUpdateMessage, error) {
 	for {
 		typeName := GetAdvMessagesType
 		data, err := request.GetDataXmlZip()
@@ -176,15 +180,17 @@ func (request *GetAdvMessages) UploadToS3() error {
 				vimbError.CheckTimeout()
 				continue
 			}
-			return err
+			return nil, err
 		}
 		month, _ := request.Get("CreationDateStart")
 		var newS3Key = fmt.Sprintf("vimb/%s/%s/%v/%s-%s.gz", utils.Actions.Client, typeName, month, utils.DateTimeNowInt(), typeName)
 		_, err = s3.UploadBytesWithBucket(newS3Key, data.Body)
 		if err != nil {
-			return err
+			return nil, err
 		}
-		return nil
+		return &MqUpdateMessage{
+			Key: newS3Key,
+		}, nil
 	}
 }
 
