@@ -12,35 +12,21 @@ import (
 	"time"
 )
 
-type SwaggerGetProgramBreaksRequest struct {
-	SellingDirectionID string `json:"SellingDirectionID" example:"21"` //ID направления продаж
-	InclProgAttr       string `json:"InclProgAttr" example:"1"`        //Флаг "Заполнять секцию ProMaster". 1 - да, 0 - нет. (int, not nillable)
-	InclForecast       string `json:"InclForecast" example:"1"`        //Признак "Как заполнять секцию прогнозных рейтингов". 0 - Не заполнять,  1 - Заполнять только ЦА программатика, 2 - Заполнять всеми возможными ЦА
-	AudRatDec          string `json:"AudRatDec" example:"2"`           //Внимание! Этот элемент является устаревшим. Его значение игнорируется (при расчетах всегда используется значение 9) и скоро он будет удален. Кол-во десятичных знаков округления. Допустимы значения 1..9. По умолчанию - 9. (int, nillable)
-	StartDate          string `json:"StartDate" example:"20170701"`    //Дата начала периода в формате YYYYMMDD
-	EndDate            string `json:"EndDate" example:"20170702"`      //Дата окончания периода (включительно) в формате YYYYMMDD
-	LightMode          string `json:"LightMode" example:"0"`           //Флаг "облегченного режима". Выходной xml имеет другой формат
-	CnlList            []struct {
-		Cnl string `json:"Cnl" example:"1018566"` //ID канала (int, not nillable)
-	} `json:"CnlList"`
-	ProtocolVersion string `json:"ProtocolVersion" example:"2"` //Флаг "ожидаемый формат ответа". (int, nillable). Допускается отсутствие этого элемента, в этом случае используется формат по умолчанию (1.0). 1 - старый формат (1.0), 2 - Новый формат (2.0), null - формат по-умолчанию (1.0). Внимание! В ближайших версиях этот элемент станет обязательным и не нулабельным.
-}
-
-type GetProgramBreaks struct {
+type GetProgramBreaksLight struct {
 	Path int
 	goConvert.UnsortedMap
 }
 
-type ProgramBreaksConfiguration struct {
+type ProgramBreaksLightConfiguration struct {
 	Cron             string `json:"cron"`
 	SellingDirection string `json:"sellingDirection"`
 	Loading          bool   `json:"loading"`
 }
 
-func (cfg *ProgramBreaksConfiguration) StartJob() chan error {
+func (cfg *ProgramBreaksLightConfiguration) StartJob() chan error {
 	errorCh := make(chan error)
 	go func() {
-		qName := GetProgramBreaksType
+		qName := GetProgramBreaksLightModeType
 		amqpConfig := mq_broker.InitConfig()
 		err := amqpConfig.DeclareSimpleQueue(qName)
 		if err != nil {
@@ -67,7 +53,7 @@ func (cfg *ProgramBreaksConfiguration) StartJob() chan error {
 			if err != nil {
 				errorCh <- err
 			}
-			err = amqpConfig.PublishJson(ProgramBreaksUpdateQueue, s3Message)
+			err = amqpConfig.PublishJson(ProgramBreaksLightModeUpdateQueue, s3Message)
 			if err != nil {
 				errorCh <- err
 			}
@@ -78,12 +64,12 @@ func (cfg *ProgramBreaksConfiguration) StartJob() chan error {
 	return errorCh
 }
 
-func (cfg *ProgramBreaksConfiguration) InitJob() func() {
+func (cfg *ProgramBreaksLightConfiguration) InitJob() func() {
 	return func() {
 		if !cfg.Loading {
 			return
 		}
-		qName := GetProgramBreaksType
+		qName := GetProgramBreaksLightModeType
 		amqpConfig := mq_broker.InitConfig()
 		err := amqpConfig.DeclareSimpleQueue(qName)
 		if err != nil {
@@ -97,6 +83,9 @@ func (cfg *ProgramBreaksConfiguration) InitJob() func() {
 		}
 		if qInfo.Messages > 0 {
 			return
+		}
+		type Cnl struct {
+			Cnl int
 		}
 		channels := map[int]struct{}{}
 		var budgets []Budget
@@ -143,7 +132,7 @@ func (cfg *ProgramBreaksConfiguration) InitJob() func() {
 					request.Set("AudRatDec", "8")
 					request.Set("StartDate", startEndDay)
 					request.Set("EndDate", startEndDay)
-					request.Set("LightMode", "0")
+					request.Set("LightMode", "1")
 					request.Set("CnlList", cnl[i:j])
 					request.Set("ProtocolVersion", "2")
 					request.Set("Path", chunkCount)
@@ -158,7 +147,7 @@ func (cfg *ProgramBreaksConfiguration) InitJob() func() {
 	}
 }
 
-func (request *GetProgramBreaks) GetDataJson() (*JsonResponse, error) {
+func (request *GetProgramBreaksLight) GetDataJson() (*JsonResponse, error) {
 	req, err := request.getXml()
 	if err != nil {
 		return nil, err
@@ -178,7 +167,7 @@ func (request *GetProgramBreaks) GetDataJson() (*JsonResponse, error) {
 	}, nil
 }
 
-func (request *GetProgramBreaks) GetDataXmlZip() (*StreamResponse, error) {
+func (request *GetProgramBreaksLight) GetDataXmlZip() (*StreamResponse, error) {
 	req, err := request.getXml()
 	if err != nil {
 		return nil, err
@@ -193,9 +182,9 @@ func (request *GetProgramBreaks) GetDataXmlZip() (*StreamResponse, error) {
 	}, nil
 }
 
-func (request *GetProgramBreaks) UploadToS3() (*MqUpdateMessage, error) {
+func (request *GetProgramBreaksLight) UploadToS3() (*MqUpdateMessage, error) {
 	for {
-		typeName := GetProgramBreaksType
+		typeName := GetProgramBreaksLightModeType
 		data, err := request.GetDataXmlZip()
 		if err != nil {
 			if vimbError, ok := err.(*utils.VimbError); ok {
@@ -217,7 +206,7 @@ func (request *GetProgramBreaks) UploadToS3() (*MqUpdateMessage, error) {
 	}
 }
 
-func (request *GetProgramBreaks) getXml() ([]byte, error) {
+func (request *GetProgramBreaksLight) getXml() ([]byte, error) {
 	attributes := goConvert.New()
 	attributes.Set("xmlns:xsi", "\"http://www.w3.org/2001/XMLSchema-instance\"")
 	xmlRequestHeader := goConvert.New()

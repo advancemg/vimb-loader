@@ -36,14 +36,14 @@ func (req *VimbResponse) Convert(key string) (interface{}, error) {
 	var recursiveGetField func(js map[string]interface{}) interface{}
 	recursiveGetField = func(js map[string]interface{}) interface{} {
 		for k, v := range js {
+			if k == key {
+				return v
+			}
 			if k == "attributes" {
 				continue
 			}
 			if _, ok := v.([]interface{}); ok {
 				continue
-			}
-			if k == key {
-				return v
 			}
 			return recursiveGetField(v.(map[string]interface{}))
 		}

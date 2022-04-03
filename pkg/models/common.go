@@ -40,6 +40,7 @@ const (
 	DbBudgets                           = "db/budgets"
 	DbAdvertisers                       = "db/advertisers"
 	DbSpots                             = "db/spots"
+	DbProgramBreaksLightMode            = "db/program-breaks-light-mode"
 	DbDeletedSpotInfo                   = "db/deleted-spot-info"
 	DbSpotsOrderBlock                   = "db/spots-order-block"
 	DbMediaplans                        = "db/mediaplans"
@@ -96,6 +97,12 @@ type internalM struct {
 }
 type internalI struct {
 	I map[string]interface{} `json:"i"`
+}
+type internalItem struct {
+	Item map[string]interface{} `json:"item"`
+}
+type internalB struct {
+	B map[string]interface{} `json:"b"`
 }
 type internalRow struct {
 	Row map[string]interface{} `json:"row"`
