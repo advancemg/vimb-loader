@@ -59,7 +59,9 @@ type ProgramBreaks struct {
 	TgrName                *string            `json:"TgrName"`
 	BlockDate              *string            `json:"BlockDate"`
 	Booked                 []BookedAttributes `json:"Booked"`
-	Attributes             Attributes         `json:"Attributes"`
+	BlockID                *int64             `json:"BlockID"`
+	VM                     *int               `json:"VM"`
+	VR                     *int               `json:"VR"`
 	DLDate                 *time.Time         `json:"DLDate"`
 	DLTrDate               *time.Time         `json:"DLTrDate"`
 	Timestamp              time.Time          `json:"Timestamp"`
@@ -151,7 +153,7 @@ func (t *internalTgr) Convert() (*BlockForecastTgr, error) {
 }
 
 func (program *ProgramBreaks) Key() string {
-	return fmt.Sprintf("%d", *program.Attributes.BlockID)
+	return fmt.Sprintf("%d", *program.BlockID)
 }
 func (pro *ProMaster) Key() string {
 	return fmt.Sprintf("%d", *pro.ProID)
@@ -165,7 +167,10 @@ func (trg *BlockForecastTgr) Key() string {
 
 func (b *internalB) ConvertProgramBreaks() (*ProgramBreaks, error) {
 	timestamp := time.Now()
-	var attribute Attributes
+	var blockID *int64
+	var vm *int
+	var vr *int
+	var attribute internalAttr
 	var attributes []BookedAttributes
 	if _, ok := b.B["Booked"]; ok {
 		marshalData, err := json.Marshal(b.B["Booked"])
@@ -206,17 +211,18 @@ func (b *internalB) ConvertProgramBreaks() (*ProgramBreaks, error) {
 		}
 		switch reflect.TypeOf(b.B["attributes"]).Kind() {
 		case reflect.Map, reflect.Struct:
-			var attrData internalAttr
-			err = json.Unmarshal(marshalData, &attrData)
+			err = json.Unmarshal(marshalData, &attribute)
 			if err != nil {
 				return nil, err
 			}
-			attribute = Attributes{
-				BlockID: utils.Int64I(attrData.BlockID),
-				VM:      utils.IntI(attrData.VM),
-				VR:      utils.IntI(attrData.VR),
-			}
+			blockID = utils.Int64I(attribute.BlockID)
+			vm = utils.IntI(attribute.VM)
+			vr = utils.IntI(attribute.VR)
 		}
+	} else {
+		blockID = utils.Int64I(b.B["BlockID"])
+		vm = utils.IntI(b.B["VM"])
+		vr = utils.IntI(b.B["VR"])
 	}
 	items := &ProgramBreaks{
 		CnlID:                  utils.IntI(b.B["CnlID"]),
@@ -261,7 +267,9 @@ func (b *internalB) ConvertProgramBreaks() (*ProgramBreaks, error) {
 		TgrID:                  utils.StringI(b.B["TgrID"]),
 		TgrName:                utils.StringI(b.B["TgrName"]),
 		BlockDate:              utils.StringI(b.B["BlockDate"]),
-		Attributes:             attribute,
+		BlockID:                blockID,
+		VM:                     vm,
+		VR:                     vr,
 		Booked:                 attributes,
 		DLDate:                 utils.TimeI(b.B["DLDate"], `2006-01-02T15:04:05`),
 		DLTrDate:               utils.TimeI(b.B["DLTrDate"], `2006-01-02T15:04:05`),
