@@ -38,6 +38,7 @@ const (
 	ChannelsUpdateQueue                 = "channels-update"
 	DbChannels                          = "db/channels"
 	DbBudgets                           = "db/budgets"
+	DbRanks                             = "db/ranks"
 	DbAdvertisers                       = "db/advertisers"
 	DbCustomersWithAdvertisers          = "db/customers-with-advertisers"
 	DbCustomersWithAdvertisersData      = "db/customers-with-advertisers-data"

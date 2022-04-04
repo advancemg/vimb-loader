@@ -9,7 +9,7 @@ import (
 type RanksLoadRequest struct{}
 
 func (request *RanksLoadRequest) InitTasks() (CommonResponse, error) {
-	qName := GetBudgetsType
+	qName := GetRanksType
 	amqpConfig := mq_broker.InitConfig()
 	err := amqpConfig.DeclareSimpleQueue(qName)
 	if err != nil {
