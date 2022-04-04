@@ -7,6 +7,9 @@ import (
 )
 
 func TestGetDaysFromMonth(t *testing.T) {
+	if testing.Short() {
+		t.SkipNow()
+	}
 	type args struct {
 		year  int
 		month time.Month
@@ -38,6 +41,9 @@ func TestGetDaysFromMonth(t *testing.T) {
 }
 
 func TestGetDaysFromYearMonth(t *testing.T) {
+	if testing.Short() {
+		t.SkipNow()
+	}
 	type args struct {
 		yearMonth string
 	}

@@ -7,6 +7,9 @@ import (
 )
 
 func TestVimbResponse_Convert(t *testing.T) {
+	if testing.Short() {
+		t.SkipNow()
+	}
 	type fields struct {
 		FilePath string
 	}
@@ -18,7 +21,7 @@ func TestVimbResponse_Convert(t *testing.T) {
 	}{
 		{
 			name:    "testConvert",
-			fields:  fields{FilePath: "/Users/eminshakh/work/vimb-loader/s3-buckets/storage/vimb/vimb/GetBudgets/201904/budgets.gz"},
+			fields:  fields{FilePath: "../../dev-test-data/budgets.gz"},
 			want:    nil,
 			wantErr: false,
 		},
