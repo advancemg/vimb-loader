@@ -39,6 +39,8 @@ const (
 	DbChannels                          = "db/channels"
 	DbBudgets                           = "db/budgets"
 	DbAdvertisers                       = "db/advertisers"
+	DbCustomersWithAdvertisers          = "db/customers-with-advertisers"
+	DbCustomersWithAdvertisersData      = "db/customers-with-advertisers-data"
 	DbSpots                             = "db/spots"
 	DbProgramBreaksLightMode            = "db/program-breaks-light-mode"
 	DbDeletedSpotInfo                   = "db/deleted-spot-info"

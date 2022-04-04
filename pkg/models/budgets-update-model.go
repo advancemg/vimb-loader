@@ -13,10 +13,6 @@ import (
 
 const BudgetTable = "budgets"
 
-type internalMQuality struct {
-	Item map[string]interface{} `json:"item"`
-}
-
 type Budget struct {
 	Month                 *int         `json:"Month"`
 	CnlID                 *int         `json:"CnlID"`
@@ -61,17 +57,17 @@ func (budget *Budget) Key() string {
 	return fmt.Sprintf("%d-%d-%d-%d", *budget.Month, *budget.CnlID, *budget.AdtID, *budget.AgrID)
 }
 
-func (m *internalMQuality) Convert() (*BudgetItem, error) {
-	item := &BudgetItem{
-		RankID:            utils.IntI(m.Item["RankID"]),
-		Percent:           utils.FloatI(m.Item["Percent"]),
-		BudgetOffprime:    utils.FloatI(m.Item["BudgetOffprime"]),
-		BudgetPrime:       utils.FloatI(m.Item["BudgetPrime"]),
-		InventoryOffprime: utils.FloatI(m.Item["InventoryOffprime"]),
-		InventoryPrime:    utils.FloatI(m.Item["InventoryPrime"]),
-		PercentPrime:      utils.FloatI(m.Item["PercentPrime"]),
+func (item *internalItem) Convert() (*BudgetItem, error) {
+	items := &BudgetItem{
+		RankID:            utils.IntI(item.Item["RankID"]),
+		Percent:           utils.FloatI(item.Item["Percent"]),
+		BudgetOffprime:    utils.FloatI(item.Item["BudgetOffprime"]),
+		BudgetPrime:       utils.FloatI(item.Item["BudgetPrime"]),
+		InventoryOffprime: utils.FloatI(item.Item["InventoryOffprime"]),
+		InventoryPrime:    utils.FloatI(item.Item["InventoryPrime"]),
+		PercentPrime:      utils.FloatI(item.Item["PercentPrime"]),
 	}
-	return item, nil
+	return items, nil
 }
 
 func (m *internalM) ConvertBudget() (*Budget, error) {
@@ -84,7 +80,7 @@ func (m *internalM) ConvertBudget() (*Budget, error) {
 		}
 		switch reflect.TypeOf(m.M["Quality"]).Kind() {
 		case reflect.Array, reflect.Slice:
-			var internalQualityData []internalMQuality
+			var internalQualityData []internalItem
 			err = json.Unmarshal(marshalData, &internalQualityData)
 			if err != nil {
 				return nil, err
@@ -97,7 +93,7 @@ func (m *internalM) ConvertBudget() (*Budget, error) {
 				qualities = append(qualities, *quality)
 			}
 		case reflect.Map, reflect.Struct:
-			var internalQualityData internalMQuality
+			var internalQualityData internalItem
 			err = json.Unmarshal(marshalData, &internalQualityData)
 			if err != nil {
 				return nil, err

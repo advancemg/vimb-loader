@@ -49,7 +49,11 @@ func (cfg *CustomersWithAdvertisersConfiguration) StartJob() chan error {
 			if err != nil {
 				errorCh <- err
 			}
-			err = bodyJson.UploadToS3()
+			s3Message, err := bodyJson.UploadToS3()
+			if err != nil {
+				errorCh <- err
+			}
+			err = amqpConfig.PublishJson(CustomersWithAdvertisersUpdateQueue, s3Message)
 			if err != nil {
 				errorCh <- err
 			}
@@ -125,7 +129,7 @@ func (request *GetCustomersWithAdvertisers) GetDataXmlZip() (*StreamResponse, er
 	}, nil
 }
 
-func (request *GetCustomersWithAdvertisers) UploadToS3() error {
+func (request *GetCustomersWithAdvertisers) UploadToS3() (*MqUpdateMessage, error) {
 	for {
 		typeName := GetCustomersWithAdvertisersType
 		data, err := request.GetDataXmlZip()
@@ -134,14 +138,16 @@ func (request *GetCustomersWithAdvertisers) UploadToS3() error {
 				vimbError.CheckTimeout()
 				continue
 			}
-			return err
+			return nil, err
 		}
 		var newS3Key = fmt.Sprintf("vimb/%s/%s/%s-%s.gz", utils.Actions.Client, typeName, utils.DateTimeNowInt(), typeName)
 		_, err = s3.UploadBytesWithBucket(newS3Key, data.Body)
 		if err != nil {
-			return err
+			return nil, err
 		}
-		return nil
+		return &MqUpdateMessage{
+			Key: newS3Key,
+		}, nil
 	}
 }
 

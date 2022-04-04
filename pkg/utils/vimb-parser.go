@@ -34,8 +34,10 @@ func (req *VimbResponse) Convert(key string) (interface{}, error) {
 		return nil, err
 	}
 	var recursiveGetField func(js map[string]interface{}) interface{}
+	depth := 0
 	recursiveGetField = func(js map[string]interface{}) interface{} {
 		for k, v := range js {
+			depth++
 			if k == key {
 				return v
 			}
@@ -45,7 +47,9 @@ func (req *VimbResponse) Convert(key string) (interface{}, error) {
 			if _, ok := v.([]interface{}); ok {
 				continue
 			}
-			return recursiveGetField(v.(map[string]interface{}))
+			if depth < 2 {
+				return recursiveGetField(v.(map[string]interface{}))
+			}
 		}
 		return nil
 	}
