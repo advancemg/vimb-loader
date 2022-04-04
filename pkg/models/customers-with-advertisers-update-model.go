@@ -111,6 +111,7 @@ func (request *CustomersWithAdvertisersUpdateRequest) Update() error {
 
 func (request *CustomersWithAdvertisersUpdateRequest) loadFromFile() error {
 	resp := utils.VimbResponse{FilePath: request.S3Key}
+	/*Advertisers*/
 	convertData, err := resp.Convert("Advertisers")
 	if err != nil {
 		return err
@@ -153,6 +154,7 @@ func (request *CustomersWithAdvertisersUpdateRequest) loadFromFile() error {
 			return err
 		}
 	}
+	/*Data*/
 	convertAdvData, err := resp.Convert("Data")
 	if err != nil {
 		return err

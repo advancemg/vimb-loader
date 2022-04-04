@@ -44,6 +44,10 @@ const (
 	DbCustomersWithAdvertisersData      = "db/customers-with-advertisers-data"
 	DbSpots                             = "db/spots"
 	DbProgramBreaksLightMode            = "db/program-breaks-light-mode"
+	DbProgramBreaks                     = "db/program-breaks"
+	DbProgramBreaksProMaster            = "db/program-breaks-pro-master"
+	DbProgramBreaksBlockForecast        = "db/program-breaks-block-forecast"
+	DbProgramBreaksBlockForecastTgr     = "db/program-breaks-block-forecast-tgr"
 	DbDeletedSpotInfo                   = "db/deleted-spot-info"
 	DbSpotsOrderBlock                   = "db/spots-order-block"
 	DbMediaplans                        = "db/mediaplans"
@@ -106,6 +110,18 @@ type internalItem struct {
 }
 type internalB struct {
 	B map[string]interface{} `json:"b"`
+}
+type internalBB struct {
+	B map[string]interface{} `json:"B"`
+}
+type internalTgr struct {
+	Tgr map[string]interface{} `json:"tgr"`
+}
+type internalAttributes struct {
+	Attributes map[string]interface{} `json:"attributes"`
+}
+type internalP struct {
+	P map[string]interface{} `json:"p"`
 }
 type internalRow struct {
 	Row map[string]interface{} `json:"row"`
