@@ -104,30 +104,35 @@ func (a *internalAttributes) Convert() (*BookedAttributes, error) {
 }
 
 type ProMaster struct {
-	ProID     *int    `json:"ProID"`
-	PropName  *string `json:"PropName"`
-	PropValue *string `json:"PropValue"`
+	ProID     *int      `json:"ProID"`
+	PropName  *string   `json:"PropName"`
+	PropValue *string   `json:"PropValue"`
+	Timestamp time.Time `json:"Timestamp"`
 }
 
 func (p *internalP) Convert() (*ProMaster, error) {
+	timestamp := time.Now()
 	pro := &ProMaster{
 		ProID:     utils.IntI(p.P["ProID"]),
 		PropName:  utils.StringI(p.P["PropName"]),
 		PropValue: utils.StringI(p.P["PropValue"]),
+		Timestamp: timestamp,
 	}
 	return pro, nil
 }
 
 type BlockForecast struct {
-	TgrID            *int     `json:"TgrID"`
-	BlockID          *int64   `json:"BlockID"`
-	Forecast         *float64 `json:"Forecast"`
-	InternetForecast *float64 `json:"InternetForecast"`
-	Fact             *float64 `json:"Fact"`
-	ForecastQuality  *string  `json:"ForecastQuality"`
+	TgrID            *int      `json:"TgrID"`
+	BlockID          *int64    `json:"BlockID"`
+	Forecast         *float64  `json:"Forecast"`
+	InternetForecast *float64  `json:"InternetForecast"`
+	Fact             *float64  `json:"Fact"`
+	ForecastQuality  *string   `json:"ForecastQuality"`
+	Timestamp        time.Time `json:"Timestamp"`
 }
 
 func (bb *internalBB) Convert() (*BlockForecast, error) {
+	timestamp := time.Now()
 	block := &BlockForecast{
 		TgrID:            utils.IntI(bb.B["TgrID"]),
 		BlockID:          utils.Int64I(bb.B["BlockID"]),
@@ -135,19 +140,23 @@ func (bb *internalBB) Convert() (*BlockForecast, error) {
 		InternetForecast: utils.FloatI(bb.B["InternetForecast"]),
 		Fact:             utils.FloatI(bb.B["Fact"]),
 		ForecastQuality:  utils.StringI(bb.B["ForecastQuality"]),
+		Timestamp:        timestamp,
 	}
 	return block, nil
 }
 
 type BlockForecastTgr struct {
-	ID   *int    `json:"ID"`
-	Name *string `json:"Name"`
+	ID        *int      `json:"ID"`
+	Name      *string   `json:"Name"`
+	Timestamp time.Time `json:"Timestamp"`
 }
 
 func (t *internalTgr) Convert() (*BlockForecastTgr, error) {
+	timestamp := time.Now()
 	block := &BlockForecastTgr{
-		ID:   utils.IntI(t.Tgr["ID"]),
-		Name: utils.StringI(t.Tgr["Name"]),
+		ID:        utils.IntI(t.Tgr["ID"]),
+		Name:      utils.StringI(t.Tgr["Name"]),
+		Timestamp: timestamp,
 	}
 	return block, nil
 }
@@ -156,7 +165,7 @@ func (program *ProgramBreaks) Key() string {
 	return fmt.Sprintf("%d", *program.BlockID)
 }
 func (pro *ProMaster) Key() string {
-	return fmt.Sprintf("%d", *pro.ProID)
+	return fmt.Sprintf("%d-%s-%s", *pro.ProID, *pro.PropName, *pro.PropValue)
 }
 func (block *BlockForecast) Key() string {
 	return fmt.Sprintf("%d", *block.BlockID)

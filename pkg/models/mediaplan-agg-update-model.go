@@ -111,7 +111,6 @@ func (request *MediaplanAggUpdateRequest) Update() error {
 	/*load from budgets*/
 	/*load from channels*/
 	/*load from spots*/
-	/*load from deleted spots*/
 	badgerAggMediaplans := storage.Open(DbAggMediaplans)
 	for _, mediaplan := range mediaplans {
 		aggMediaplan := &MediaplanAgg{
@@ -144,7 +143,7 @@ func (request *MediaplanAggUpdateRequest) Update() error {
 			SuperFix:                nil,
 			Timestamp:               &timestamp,
 			UserGrpPlan:             nil,
-			WeeksInfo:               nil,
+			WeeksInfo:               []WeekInfo{},
 			BcpCentralID:            nil,
 			BcpName:                 nil,
 		}
