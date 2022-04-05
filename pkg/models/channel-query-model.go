@@ -9,7 +9,7 @@ type ChannelBadgerQuery struct {
 }
 
 func (query *ChannelBadgerQuery) connect() *badgerhold.Store {
-	return storage.Open(DbMediaplans)
+	return storage.Open(DbChannels)
 }
 
 func (query *ChannelBadgerQuery) Find(result interface{}, filter *badgerhold.Query) error {

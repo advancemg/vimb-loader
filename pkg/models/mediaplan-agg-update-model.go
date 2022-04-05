@@ -5,7 +5,6 @@ import (
 	"fmt"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/storage"
-	"github.com/advancemg/vimb-loader/pkg/utils"
 	"github.com/timshannon/badgerhold"
 	"time"
 )
@@ -52,7 +51,7 @@ type MediaplanAgg struct {
 	Timestamp               *time.Time `json:"Timestamp"`
 	UserGrpPlan             *string    `json:"UserGrpPlan"`
 	WeeksInfo               []WeekInfo `json:"WeeksInfo"`
-	BcpCentralID            *string    `json:"bcpCentralID"`
+	BcpCentralID            *int       `json:"bcpCentralID"`
 	BcpName                 *string    `json:"bcpName"`
 }
 
@@ -109,47 +108,74 @@ func (request *MediaplanAggUpdateRequest) Update() error {
 		return err
 	}
 	/*load from budgets*/
+	budgetQuery := BudgetsBadgerQuery{}
+	var budgets []Budget
+	filterBudgets := badgerhold.Where("Month").Eq(request.Month)
+	err = budgetQuery.Find(&budgets, filterBudgets)
+	if err != nil {
+		return err
+	}
 	/*load from channels*/
+	channelQuery := ChannelBadgerQuery{}
+	var channels []Channel
+	filterChannels := badgerhold.Where("ID").Eq(request.ChannelId)
+	err = channelQuery.Find(&channels, filterChannels)
+	if err != nil {
+		return err
+	}
 	/*load from spots*/
+	spotQuery := ChannelBadgerQuery{}
+	var spots []Spot
+	filterSpots := badgerhold.Where("AgrID").Eq(request.AgreementId)
+	err = spotQuery.Find(&spots, filterSpots)
+	if err != nil {
+		return err
+	}
 	badgerAggMediaplans := storage.Open(DbAggMediaplans)
 	for _, mediaplan := range mediaplans {
-		aggMediaplan := &MediaplanAgg{
-			AdtID:                   mediaplan.AdtID,
-			AdtName:                 mediaplan.AdtName,
-			AgreementId:             mediaplan.AgreementId,
-			AllocationType:          mediaplan.AllocationType,
-			AmountFact:              nil,
-			AmountPlan:              nil,
-			BrandName:               nil,
-			Budget:                  nil,
-			ChannelId:               mediaplan.ChannelId,
-			ChannelName:             nil,
-			CppOffPrime:             nil,
-			CppOffPrimeWithDiscount: nil,
-			CppPrime:                nil,
-			CppPrimeWithDiscount:    nil,
-			DealChannelStatus:       mediaplan.DealChannelStatus,
-			FactOff:                 nil,
-			FactPrime:               nil,
-			FixPriority:             nil,
-			GrpPlan:                 utils.FloatI(0),
-			GrpTotal:                nil,
-			InventoryUnitDuration:   mediaplan.InventoryUnitDuration,
-			MediaplanState:          mediaplan.MplState,
-			MplID:                   &request.MediaplanId,
-			MplMonth:                &request.Month,
-			MplName:                 mediaplan.MplName,
-			SpotsPrimePercent:       nil,
-			SuperFix:                nil,
-			Timestamp:               &timestamp,
-			UserGrpPlan:             nil,
-			WeeksInfo:               []WeekInfo{},
-			BcpCentralID:            nil,
-			BcpName:                 nil,
-		}
-		err = badgerAggMediaplans.Upsert(aggMediaplan.Key(), aggMediaplan)
-		if err != nil {
-			return err
+		for _, budget := range budgets {
+			for _, channel := range channels {
+				if *budget.Month == *mediaplan.Month && *mediaplan.MplCnlID == *channel.ID {
+					aggMediaplan := &MediaplanAgg{
+						AdtID:                   mediaplan.AdtID,
+						AdtName:                 mediaplan.AdtName,
+						AgreementId:             mediaplan.AgreementId,
+						AllocationType:          mediaplan.AllocationType,
+						AmountFact:              mediaplan.AmountFact,
+						AmountPlan:              mediaplan.AmountPlan,
+						BrandName:               mediaplan.BrandName,
+						Budget:                  budget.Budget,
+						ChannelId:               mediaplan.ChannelId,
+						ChannelName:             budget.CnlName,
+						CppOffPrime:             mediaplan.CPPoffprime,
+						CppOffPrimeWithDiscount: nil,
+						CppPrime:                mediaplan.CPPprime,
+						CppPrimeWithDiscount:    nil,
+						DealChannelStatus:       mediaplan.DealChannelStatus,
+						FactOff:                 nil,
+						FactPrime:               nil,
+						FixPriority:             mediaplan.FixPriority,
+						GrpPlan:                 mediaplan.GrpPlan,
+						GrpTotal:                mediaplan.GrpTotal,
+						InventoryUnitDuration:   mediaplan.InventoryUnitDuration,
+						MediaplanState:          mediaplan.MplState,
+						MplID:                   &request.MediaplanId,
+						MplMonth:                &request.Month,
+						MplName:                 mediaplan.MplName,
+						SpotsPrimePercent:       nil,
+						SuperFix:                nil,
+						Timestamp:               &timestamp,
+						UserGrpPlan:             nil,
+						WeeksInfo:               []WeekInfo{},
+						BcpCentralID:            channel.BcpCentralID,
+						BcpName:                 channel.BcpName,
+					}
+					err = badgerAggMediaplans.Upsert(aggMediaplan.Key(), aggMediaplan)
+					if err != nil {
+						return err
+					}
+				}
+			}
 		}
 	}
 	return nil
