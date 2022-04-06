@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	_ "github.com/advancemg/vimb-loader/docs"
+	cfg "github.com/advancemg/vimb-loader/internal/config"
 	"github.com/advancemg/vimb-loader/pkg/models"
 	mq "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/routes"
@@ -24,6 +25,7 @@ import (
 // @description Документация
 // @BasePath /
 func main() {
+	cfg.EditConfig()
 	config, err := models.LoadConfiguration()
 	if err != nil {
 		panic(err.Error())
