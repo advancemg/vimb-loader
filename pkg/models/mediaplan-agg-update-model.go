@@ -100,17 +100,20 @@ func (request *MediaplanAggUpdateRequest) Update() error {
 	timestamp := time.Now()
 	/*create week info*/
 	/*load from mediaplans*/
-	query := MediaplanBadgerQuery{}
+	mediaplanQuery := MediaplanBadgerQuery{}
 	var mediaplans []Mediaplan
 	filter := badgerhold.Where("MediaplanId").Eq(request.MediaplanId)
-	err := query.Find(&mediaplans, filter)
+	err := mediaplanQuery.Find(&mediaplans, filter)
 	if err != nil {
 		return err
 	}
 	/*load from budgets*/
 	budgetQuery := BudgetsBadgerQuery{}
 	var budgets []Budget
-	filterBudgets := badgerhold.Where("Month").Eq(request.Month)
+	filterBudgets := badgerhold.Where("Month").Eq(request.Month).
+		And("CnlID").Eq(request.ChannelId).
+		And("AdtID").Eq(request.AdvertiserId).
+		And("AgrID").Eq(request.AgreementId)
 	err = budgetQuery.Find(&budgets, filterBudgets)
 	if err != nil {
 		return err
@@ -126,56 +129,84 @@ func (request *MediaplanAggUpdateRequest) Update() error {
 	/*load from spots*/
 	spotQuery := ChannelBadgerQuery{}
 	var spots []Spot
-	filterSpots := badgerhold.Where("AgrID").Eq(request.AgreementId)
+	filterSpots := badgerhold.Where("MplID").Eq(request.MediaplanId)
 	err = spotQuery.Find(&spots, filterSpots)
 	if err != nil {
 		return err
 	}
+	var budget Budget
+	var channel Channel
+	var spot Spot
+	if len(spots) == 1 {
+		spot = spots[0]
+	}
+	if len(budgets) == 1 {
+		budget = budgets[0]
+	}
+	if len(channels) == 1 {
+		channel = channels[0]
+	}
 	badgerAggMediaplans := storage.Open(DbAggMediaplans)
 	for _, mediaplan := range mediaplans {
-		for _, budget := range budgets {
-			for _, channel := range channels {
-				if *budget.Month == *mediaplan.Month && *mediaplan.MplCnlID == *channel.ID {
-					aggMediaplan := &MediaplanAgg{
-						AdtID:                   mediaplan.AdtID,
-						AdtName:                 mediaplan.AdtName,
-						AgreementId:             mediaplan.AgreementId,
-						AllocationType:          mediaplan.AllocationType,
-						AmountFact:              mediaplan.AmountFact,
-						AmountPlan:              mediaplan.AmountPlan,
-						BrandName:               mediaplan.BrandName,
-						Budget:                  budget.Budget,
-						ChannelId:               mediaplan.ChannelId,
-						ChannelName:             budget.CnlName,
-						CppOffPrime:             mediaplan.CPPoffprime,
-						CppOffPrimeWithDiscount: nil,
-						CppPrime:                mediaplan.CPPprime,
-						CppPrimeWithDiscount:    nil,
-						DealChannelStatus:       mediaplan.DealChannelStatus,
-						FactOff:                 nil,
-						FactPrime:               nil,
-						FixPriority:             mediaplan.FixPriority,
-						GrpPlan:                 mediaplan.GrpPlan,
-						GrpTotal:                mediaplan.GrpTotal,
-						InventoryUnitDuration:   mediaplan.InventoryUnitDuration,
-						MediaplanState:          mediaplan.MplState,
-						MplID:                   &request.MediaplanId,
-						MplMonth:                &request.Month,
-						MplName:                 mediaplan.MplName,
-						SpotsPrimePercent:       nil,
-						SuperFix:                nil,
-						Timestamp:               &timestamp,
-						UserGrpPlan:             nil,
-						WeeksInfo:               []WeekInfo{},
-						BcpCentralID:            channel.BcpCentralID,
-						BcpName:                 channel.BcpName,
-					}
-					err = badgerAggMediaplans.Upsert(aggMediaplan.Key(), aggMediaplan)
-					if err != nil {
-						return err
+		var cppOffPrimeWithDiscount float64
+		var cppPrimeWithDiscount float64
+		var discountFactor float64
+		if len(mediaplan.Discounts) > 0 {
+			if len(mediaplan.Discounts) == 1 {
+				discountFactor = *mediaplan.Discounts[0].DiscountFactor
+				if discountFactor != 0 && *mediaplan.CPPprime != 0 {
+					cppOffPrimeWithDiscount = *mediaplan.CPPprime * discountFactor
+					if *mediaplan.CPPoffprime != 0 {
+						cppOffPrimeWithDiscount = *mediaplan.CPPoffprime * discountFactor
 					}
 				}
 			}
+			if len(mediaplan.Discounts) > 1 {
+				discountFactor = 1.0000000000000
+				for _, item := range mediaplan.Discounts {
+					discountFactor *= *item.DiscountFactor
+				}
+				cppPrimeWithDiscount = discountFactor * *mediaplan.CPPprime
+				cppOffPrimeWithDiscount = discountFactor * *mediaplan.CPPoffprime
+			}
+		}
+		aggMediaplan := &MediaplanAgg{
+			AdtID:                   &request.AdvertiserId,
+			AdtName:                 mediaplan.AdtName,
+			AgreementId:             &request.AgreementId,
+			AllocationType:          mediaplan.AllocationType,
+			AmountFact:              mediaplan.AmountFact,
+			AmountPlan:              mediaplan.AmountPlan,
+			BrandName:               mediaplan.BrandName,
+			Budget:                  budget.Budget,
+			ChannelId:               &request.ChannelId,
+			ChannelName:             channel.ShortName,
+			CppOffPrime:             mediaplan.CPPoffprime,
+			CppOffPrimeWithDiscount: &cppOffPrimeWithDiscount,
+			CppPrimeWithDiscount:    &cppPrimeWithDiscount,
+			CppPrime:                mediaplan.CPPprime,
+			DealChannelStatus:       budget.DealChannelStatus,
+			FactOff:                 spot.BaseRating, //
+			FactPrime:               nil,
+			FixPriority:             mediaplan.FixPriority,
+			GrpPlan:                 mediaplan.GrpPlan,
+			GrpTotal:                mediaplan.GrpTotal,
+			InventoryUnitDuration:   mediaplan.InventoryUnitDuration,
+			MediaplanState:          mediaplan.MplState,
+			MplID:                   &request.MediaplanId,
+			MplMonth:                &request.Month,
+			MplName:                 mediaplan.MplName,
+			SpotsPrimePercent:       nil,
+			SuperFix:                nil,
+			Timestamp:               &timestamp,
+			UserGrpPlan:             nil,
+			WeeksInfo:               []WeekInfo{},
+			BcpCentralID:            channel.BcpCentralID,
+			BcpName:                 channel.BcpName,
+		}
+		err = badgerAggMediaplans.Upsert(aggMediaplan.Key(), aggMediaplan)
+		if err != nil {
+			return err
 		}
 	}
 	return nil

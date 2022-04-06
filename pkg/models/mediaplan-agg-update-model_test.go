@@ -25,7 +25,7 @@ func TestMediaplanAggUpdateRequest_Update(t *testing.T) {
 				ChannelId:    1020269,
 				MediaplanId:  14832106,
 				AdvertiserId: 700068653,
-				AgreementId:  8124,
+				AgreementId:  81024,
 			},
 			wantErr: false,
 		},
