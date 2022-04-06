@@ -44,7 +44,16 @@ func EditConfig() {
 func enterConfig() {
 	cfg := &configuration{}
 	open, err := ioutil.ReadFile("config.json")
-	checkErr(err)
+	if err != nil {
+		if os.IsNotExist(err) {
+			marshal, err := json.MarshalIndent(cfg, "", "  ")
+			checkErr(err)
+			err = os.WriteFile("config.json", marshal, 0666)
+			checkErr(err)
+		} else {
+			checkErr(err)
+		}
+	}
 	fmt.Println("Default Config:")
 	fmt.Println(string(open))
 	fmt.Printf("%s", "Edit config? (Y/n):")
