@@ -98,10 +98,14 @@ func (cfg *SpotsConfiguration) InitJob() func() {
 			return
 		}
 		type Cnl struct {
-			Cnl  int
-			Main int
+			Cnl  string `json:"Cnl"`
+			Main string `json:"Main"`
+		}
+		type Adv struct {
+			AdtID string `json:"AdtID"`
 		}
 		var allChannels []Cnl
+		var allAdvertisers []Adv
 		var budgets []Budget
 		var channels []Channel
 		channelList := map[int]Cnl{}
@@ -118,8 +122,8 @@ func (cfg *SpotsConfiguration) InitJob() func() {
 		for _, budget := range budgets {
 			advertisers[*budget.AdtID] = *budget.AdtID
 			channelList[*budget.CnlID] = Cnl{
-				Cnl:  *budget.CnlID,
-				Main: 0,
+				Cnl:  fmt.Sprintf("%d", *budget.CnlID),
+				Main: "",
 			}
 			days, err := utils.GetDaysFromYearMonthInt(*budget.Month)
 			if err != nil {
@@ -129,20 +133,34 @@ func (cfg *SpotsConfiguration) InitJob() func() {
 		}
 		for _, channel := range channels {
 			if channelItem, ok := channelList[*channel.ID]; ok {
-				channelItem.Main = *channel.MainChnl
+				channelItem.Main = fmt.Sprintf("%d", *channel.MainChnl)
 				allChannels = append(allChannels, channelItem)
 			}
 		}
+		for _, adv := range advertisers {
+			allAdvertisers = append(allAdvertisers, Adv{
+				AdtID: fmt.Sprintf("%v", adv),
+			})
+		}
 		for month, days := range months {
 			request := goConvert.New()
-			startDay := fmt.Sprintf("%d%d", month, days[0].Day())
-			endDay := fmt.Sprintf("%d%d", month, days[len(days)-1].Day())
+			var startDay, endDay string
+			if days[0].Day() <= 9 {
+				startDay = fmt.Sprintf("%d0%d", month, days[0].Day())
+			} else {
+				startDay = fmt.Sprintf("%d%d", month, days[0].Day())
+			}
+			if days[len(days)-1].Day() <= 9 {
+				endDay = fmt.Sprintf("%d0%d", month, days[len(days)-1].Day())
+			} else {
+				endDay = fmt.Sprintf("%d%d", month, days[len(days)-1].Day())
+			}
 			request.Set("SellingDirectionID", cfg.SellingDirection)
 			request.Set("StartDate", startDay)
 			request.Set("EndDate", endDay)
 			request.Set("InclOrdBlocks", "1")
-			request.Set("ChannelList", channelList)
-			request.Set("AdtList", advertisers)
+			request.Set("ChannelList", allChannels)
+			request.Set("AdtList", allAdvertisers)
 			err := amqpConfig.PublishJson(qName, request)
 			if err != nil {
 				fmt.Printf("Q:%s - err:%s", qName, err.Error())
@@ -205,7 +223,8 @@ func (request *GetSpots) UploadToS3() (*MqUpdateMessage, error) {
 			return nil, err
 		}
 		return &MqUpdateMessage{
-			Key: newS3Key,
+			Key:   newS3Key,
+			Month: month.(string),
 		}, nil
 	}
 }

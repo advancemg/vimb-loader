@@ -59,7 +59,7 @@ type Mediaplan struct {
 	MplCbrID              *int                    `json:"MplCbrID"`
 	MplCbrName            *string                 `json:"MplCbrName"`
 	MplCnlID              *int                    `json:"MplCnlID"`
-	MplID                 *string                 `json:"MplID"`
+	MplID                 *int                    `json:"MplID"`
 	MplMonth              *string                 `json:"MplMonth"`
 	MplName               *string                 `json:"MplName"`
 	MplState              *int                    `json:"MplState"`
@@ -220,7 +220,7 @@ func (m *internalM) ConvertMediaplan() (*Mediaplan, error) {
 		MplCbrID:              utils.IntI(m.M["MplCbrID"]),
 		MplCbrName:            utils.StringI(m.M["MplCbrName"]),
 		MplCnlID:              utils.IntI(m.M["MplCnlID"]),
-		MplID:                 utils.StringI(m.M["MplID"]),
+		MplID:                 utils.IntI(m.M["MplID"]),
 		MplMonth:              utils.StringI(m.M["MplMonth"]),
 		MplName:               utils.StringI(m.M["MplName"]),
 		MplState:              utils.IntI(m.M["MplState"]),

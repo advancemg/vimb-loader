@@ -147,6 +147,7 @@ type WeekInfo struct {
 type MqUpdateMessage struct {
 	Bucket string `json:"bucket"`
 	Key    string `json:"key"`
+	Month  string `json:"month"`
 }
 
 type CommonResponse map[string]interface{}

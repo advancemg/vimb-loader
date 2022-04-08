@@ -151,13 +151,16 @@ func (request *MediaplanAggUpdateRequest) Update() error {
 		var cppOffPrimeWithDiscount float64
 		var cppPrimeWithDiscount float64
 		var discountFactor float64
+		var cPPoffprime float64
+		/*update plans*/
 		if len(mediaplan.Discounts) > 0 {
 			if len(mediaplan.Discounts) == 1 {
 				discountFactor = *mediaplan.Discounts[0].DiscountFactor
-				if discountFactor != 0 && *mediaplan.CPPprime != 0 {
-					cppOffPrimeWithDiscount = *mediaplan.CPPprime * discountFactor
+				cPPoffprime = *mediaplan.CPPoffprime
+				if discountFactor != 0 && cPPoffprime != 0 {
+					cppPrimeWithDiscount = cPPoffprime * discountFactor
 					if *mediaplan.CPPoffprime != 0 {
-						cppOffPrimeWithDiscount = *mediaplan.CPPoffprime * discountFactor
+						cppOffPrimeWithDiscount = cPPoffprime * discountFactor
 					}
 				}
 			}
@@ -169,6 +172,36 @@ func (request *MediaplanAggUpdateRequest) Update() error {
 				cppPrimeWithDiscount = discountFactor * *mediaplan.CPPprime
 				cppOffPrimeWithDiscount = discountFactor * *mediaplan.CPPoffprime
 			}
+		}
+		/*Spot facts*/
+		nowPlusTime := time.Now()
+		if (spot.DLDate == nil) || (nowPlusTime.Unix() < spot.DLDate.Unix()) {
+			spots = []Spot{}
+		}
+		var primeFactRating *float64
+		var offFactRating *float64
+		var primePercent float64
+		var totalSpotsRatingSum float64
+		var primeTimeRatingSum float64
+		if spots != nil {
+			for _, spot := range spots {
+				totalSpotsRatingSum += *spot.Rating30
+				if spot.IsPrime == nil {
+					continue
+				}
+				if *spot.IsPrime == 1 {
+					/*prime*/
+					primeTimeRatingSum += *spot.Rating30
+					primeFactRating = spot.Rating30
+				}
+				if *spot.IsPrime == 0 {
+					/*off*/
+					offFactRating = spot.Rating30
+				}
+			}
+		}
+		if totalSpotsRatingSum > 0 {
+			primePercent = primeTimeRatingSum / totalSpotsRatingSum
 		}
 		aggMediaplan := &MediaplanAgg{
 			AdtID:                   &request.AdvertiserId,
@@ -182,12 +215,12 @@ func (request *MediaplanAggUpdateRequest) Update() error {
 			ChannelId:               &request.ChannelId,
 			ChannelName:             channel.ShortName,
 			CppOffPrime:             mediaplan.CPPoffprime,
-			CppOffPrimeWithDiscount: &cppOffPrimeWithDiscount,
+			CppOffPrimeWithDiscount: &cppOffPrimeWithDiscount, /**/
 			CppPrimeWithDiscount:    &cppPrimeWithDiscount,
 			CppPrime:                mediaplan.CPPprime,
 			DealChannelStatus:       budget.DealChannelStatus,
-			FactOff:                 spot.BaseRating, //
-			FactPrime:               nil,
+			FactOff:                 offFactRating,
+			FactPrime:               primeFactRating,
 			FixPriority:             mediaplan.FixPriority,
 			GrpPlan:                 mediaplan.GrpPlan,
 			GrpTotal:                mediaplan.GrpTotal,
@@ -196,7 +229,7 @@ func (request *MediaplanAggUpdateRequest) Update() error {
 			MplID:                   &request.MediaplanId,
 			MplMonth:                &request.Month,
 			MplName:                 mediaplan.MplName,
-			SpotsPrimePercent:       nil,
+			SpotsPrimePercent:       &primePercent,
 			SuperFix:                nil,
 			Timestamp:               &timestamp,
 			UserGrpPlan:             nil,
@@ -204,6 +237,8 @@ func (request *MediaplanAggUpdateRequest) Update() error {
 			BcpCentralID:            channel.BcpCentralID,
 			BcpName:                 channel.BcpName,
 		}
+		marshal, _ := json.MarshalIndent(aggMediaplan, "", "  ")
+		fmt.Println(string(marshal))
 		err = badgerAggMediaplans.Upsert(aggMediaplan.Key(), aggMediaplan)
 		if err != nil {
 			return err

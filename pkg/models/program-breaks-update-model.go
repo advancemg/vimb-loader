@@ -8,14 +8,17 @@ import (
 	"github.com/advancemg/vimb-loader/pkg/storage"
 	"github.com/advancemg/vimb-loader/pkg/utils"
 	"reflect"
+	"strconv"
 	"time"
 )
 
 type ProgramBreaksUpdateRequest struct {
 	S3Key string
+	Month string
 }
 
 type ProgramBreaks struct {
+	Month                  *int               `json:"Moth"`
 	CnlID                  *int               `json:"CnlID"`
 	ProgID                 *int               `json:"ProgID"`
 	RCID                   *int               `json:"RCID"`
@@ -57,7 +60,7 @@ type ProgramBreaks struct {
 	PrgNameShort           *string            `json:"PrgNameShort"`
 	TgrID                  *string            `json:"TgrID"`
 	TgrName                *string            `json:"TgrName"`
-	BlockDate              *string            `json:"BlockDate"`
+	BlockDate              *int               `json:"BlockDate"`
 	Booked                 []BookedAttributes `json:"Booked"`
 	BlockID                *int64             `json:"BlockID"`
 	VM                     *int               `json:"VM"`
@@ -275,7 +278,7 @@ func (b *internalB) ConvertProgramBreaks() (*ProgramBreaks, error) {
 		PrgNameShort:           utils.StringI(b.B["PrgNameShort"]),
 		TgrID:                  utils.StringI(b.B["TgrID"]),
 		TgrName:                utils.StringI(b.B["TgrName"]),
-		BlockDate:              utils.StringI(b.B["BlockDate"]),
+		BlockDate:              utils.IntI(b.B["BlockDate"]),
 		BlockID:                blockID,
 		VM:                     vm,
 		VR:                     vr,
@@ -316,6 +319,7 @@ func ProgramBreaksStartJob() chan error {
 			/*read from s3 by s3Key*/
 			req := ProgramBreaksUpdateRequest{
 				S3Key: bodyJson.Key,
+				Month: bodyJson.Month,
 			}
 			err = req.Update()
 			if err != nil {
@@ -358,11 +362,16 @@ func (request *ProgramBreaksUpdateRequest) loadFromFile() error {
 		return err
 	}
 	badgerProgramBreaks := storage.Open(DbProgramBreaks)
+	month, err := strconv.Atoi(request.Month)
+	if err != nil {
+		return err
+	}
 	for _, dataB := range internalData {
 		programBreaks, err := dataB.ConvertProgramBreaks()
 		if err != nil {
 			return err
 		}
+		programBreaks.Month = &month
 		err = badgerProgramBreaks.Upsert(programBreaks.Key(), programBreaks)
 		if err != nil {
 			return err

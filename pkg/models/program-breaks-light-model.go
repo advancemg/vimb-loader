@@ -84,12 +84,12 @@ func (cfg *ProgramBreaksLightConfiguration) InitJob() func() {
 		if qInfo.Messages > 0 {
 			return
 		}
-		type Cnl struct {
-			Cnl int
+		type Channels struct {
+			Cnl string `json:"Cnl"`
 		}
 		channels := map[int]struct{}{}
 		var budgets []Budget
-		var cnl []int
+		var cnl []Channels
 		months := map[int][]time.Time{}
 		badgerBudgets := storage.Open(DbBudgets)
 		err = badgerBudgets.Find(&budgets, badgerhold.Where("Month").Ge(-1))
@@ -106,7 +106,9 @@ func (cfg *ProgramBreaksLightConfiguration) InitJob() func() {
 			months[*budget.Month] = days
 		}
 		for channel, _ := range channels {
-			cnl = append(cnl, channel)
+			cnl = append(cnl, Channels{
+				Cnl: fmt.Sprintf("%d", channel),
+			})
 		}
 		for month, days := range months {
 			for _, day := range days {

@@ -7,44 +7,55 @@ import (
 	"github.com/advancemg/vimb-loader/pkg/s3"
 	"github.com/advancemg/vimb-loader/pkg/storage"
 	"github.com/advancemg/vimb-loader/pkg/utils"
+	"github.com/timshannon/badgerhold"
+	"strconv"
 	"time"
 )
 
 type SpotsUpdateRequest struct {
 	S3Key string
+	Month string
 }
 
 type Spot struct {
-	SptChnlPTR             *int      `json:"SptChnlPTR"`
-	CommInMplID            *int      `json:"CommInMplID"`
-	Positioning            *int      `json:"Positioning"`
-	AgrID                  *int      `json:"AgrID"`
-	MplID                  *int      `json:"MplID"`
-	OrdID                  *int      `json:"OrdID"`
-	AtpID                  *int      `json:"AtpID"`
-	DtpID                  *int      `json:"DtpID"`
-	TgrID                  *int      `json:"TgrID"`
-	SptDateL               *int      `json:"SptDateL"`
-	FloatPriority          *int      `json:"FloatPriority"`
-	CurrentAuctionBidValue *int      `json:"CurrentAuctionBidValue"`
-	SpotOrderNo            *int      `json:"SpotOrderNo"`
-	SpotBroadcastTime      *int      `json:"SpotBroadcastTime"`
-	SpotFactBroadcastTime  *int      `json:"SpotFactBroadcastTime"`
-	AllocationType         *int      `json:"AllocationType"`
-	FixPriority            *int      `json:"FixPriority"`
-	SpotReserve            *int      `json:"SpotReserve"`
-	RankID                 *int      `json:"RankID"`
-	SpotID                 *int64    `json:"SpotID"`
-	BlockID                *int64    `json:"BlockID"`
-	TNSSpotsID             *int64    `json:"TNSSpotsID"`
-	TNSBlockID             *int64    `json:"TNSBlockID"`
-	Rating                 *float64  `json:"Rating"`
-	BaseRating             *float64  `json:"BaseRating"`
-	OTS                    *float64  `json:"OTS"`
-	IRating                *float64  `json:"IRating"`
-	IBaseRating            *float64  `json:"IBaseRating"`
-	IsHumanBeing           *bool     `json:"IsHumanBeing"`
-	Timestamp              time.Time `json:"Timestamp"`
+	Rating30               *float64   `json:"Rating30"`
+	IsPrime                *int       `json:"IsPrime"`
+	FilmID                 *int       `json:"FilmID"`
+	FilmVersion            *string    `json:"FilmVersion"`
+	FilmName               *string    `json:"FilmName"`
+	FilmDur                *int       `json:"FilmDur"`
+	SpotPullRating         *float64   `json:"SpotPullRating"`
+	DLDate                 *time.Time `json:"DLDate"`
+	SptChnlPTR             *int       `json:"SptChnlPTR"`
+	CommInMplID            *int       `json:"CommInMplID"`
+	Positioning            *int       `json:"Positioning"`
+	AgrID                  *int       `json:"AgrID"`
+	MplID                  *int       `json:"MplID"`
+	OrdID                  *int       `json:"OrdID"`
+	AtpID                  *int       `json:"AtpID"`
+	DtpID                  *int       `json:"DtpID"`
+	TgrID                  *int       `json:"TgrID"`
+	SptDateL               *int       `json:"SptDateL"`
+	FloatPriority          *int       `json:"FloatPriority"`
+	CurrentAuctionBidValue *int       `json:"CurrentAuctionBidValue"`
+	SpotOrderNo            *int       `json:"SpotOrderNo"`
+	SpotBroadcastTime      *int       `json:"SpotBroadcastTime"`
+	SpotFactBroadcastTime  *int       `json:"SpotFactBroadcastTime"`
+	AllocationType         *int       `json:"AllocationType"`
+	FixPriority            *int       `json:"FixPriority"`
+	SpotReserve            *int       `json:"SpotReserve"`
+	RankID                 *int       `json:"RankID"`
+	SpotID                 *int64     `json:"SpotID"`
+	BlockID                *int64     `json:"BlockID"`
+	TNSSpotsID             *int64     `json:"TNSSpotsID"`
+	TNSBlockID             *int64     `json:"TNSBlockID"`
+	Rating                 *float64   `json:"Rating"`
+	BaseRating             *float64   `json:"BaseRating"`
+	OTS                    *float64   `json:"OTS"`
+	IRating                *float64   `json:"IRating"`
+	IBaseRating            *float64   `json:"IBaseRating"`
+	IsHumanBeing           *bool      `json:"IsHumanBeing"`
+	Timestamp              time.Time  `json:"Timestamp"`
 }
 
 type SpotOrderBlock struct {
@@ -66,7 +77,7 @@ func (spot *Spot) Key() string {
 func (s *internalS) ConvertSpot() (*Spot, error) {
 	timestamp := time.Now()
 	spot := &Spot{
-		SptChnlPTR:             utils.IntI(s.S["SptChnlPTR"]),
+		SptChnlPTR:             utils.IntI(s.S["sptChnlPTR"]),
 		CommInMplID:            utils.IntI(s.S["CommInMplID"]),
 		Positioning:            utils.IntI(s.S["Positioning"]),
 		AgrID:                  utils.IntI(s.S["AgrID"]),
@@ -141,6 +152,7 @@ func SpotStartJob() chan error {
 			/*read from s3 by s3Key*/
 			req := SpotsUpdateRequest{
 				S3Key: bodyJson.Key,
+				Month: bodyJson.Month,
 			}
 			err = req.Update()
 			if err != nil {
@@ -168,30 +180,7 @@ func (request *SpotsUpdateRequest) Update() error {
 
 func (request *SpotsUpdateRequest) loadFromFile() error {
 	resp := utils.VimbResponse{FilePath: request.S3Key}
-	convertData, err := resp.Convert("SpotList")
-	if err != nil {
-		return err
-	}
-	marshalData, err := json.Marshal(convertData)
-	if err != nil {
-		return err
-	}
-	var internalData []internalS
-	err = json.Unmarshal(marshalData, &internalData)
-	if err != nil {
-		return err
-	}
-	badgerSpots := storage.Open(DbSpots)
-	for _, dataM := range internalData {
-		spot, err := dataM.ConvertSpot()
-		if err != nil {
-			return err
-		}
-		err = badgerSpots.Upsert(spot.Key(), spot)
-		if err != nil {
-			return err
-		}
-	}
+	/*OrdBlocks*/
 	convertDataOrderBlock, err := resp.Convert("OrdBlocks")
 	if err != nil {
 		return err
@@ -200,20 +189,100 @@ func (request *SpotsUpdateRequest) loadFromFile() error {
 	if err != nil {
 		return err
 	}
-	var internalDataOrderBlock []internalObl
-	err = json.Unmarshal(marshalDataOrderBlock, &internalDataOrderBlock)
+	var orderBlocks []internalObl
+	err = json.Unmarshal(marshalDataOrderBlock, &orderBlocks)
 	if err != nil {
 		return err
 	}
 	badgerSpotsOrderBlock := storage.Open(DbSpotsOrderBlock)
-	for _, dataM := range internalDataOrderBlock {
-		spot, err := dataM.ConvertOrderBlock()
+	for _, dataO := range orderBlocks {
+		spot, err := dataO.ConvertOrderBlock()
 		if err != nil {
 			return err
 		}
 		err = badgerSpotsOrderBlock.Upsert(spot.Key(), spot)
 		if err != nil {
 			return err
+		}
+	}
+	/*Spots*/
+	convertData, err := resp.Convert("SpotList")
+	if err != nil {
+		return err
+	}
+	marshalData, err := json.Marshal(convertData)
+	if err != nil {
+		return err
+	}
+	var spots []internalS
+	err = json.Unmarshal(marshalData, &spots)
+	if err != nil {
+		return err
+	}
+	badgerSpots := storage.Open(DbSpots)
+	month, err := strconv.Atoi(request.Month)
+	if err != nil {
+		return err
+	}
+	for _, dataS := range spots {
+		spot, err := dataS.ConvertSpot()
+		if err != nil {
+			return err
+		}
+		if spot.SptChnlPTR == nil {
+			continue
+		}
+		if spot.BlockID == nil {
+			*spot.IsPrime = 0
+			continue
+		}
+		/*load from networks*/
+		networksQuery := ProgramBreaksBadgerQuery{}
+		var networks []ProgramBreaks
+		filterNetwork := badgerhold.Where("CnlID").In(*spot.SptChnlPTR).And("Month").Eq(month)
+		err = networksQuery.Find(&networks, filterNetwork)
+		if err != nil {
+			return err
+		}
+		for _, network := range networks {
+			spot.DLDate = network.DLDate
+			spot.IsPrime = network.IsPrime
+		}
+		/*load from mediaplans*/
+		mediaplanQuery := MediaplanBadgerQuery{}
+		var mediaplans []Mediaplan
+		filterMediplan := badgerhold.Where("ComplimentId").Eq(*spot.CommInMplID)
+		//filterMediplan := badgerhold.Where("ComplimentId").Eq(4475058)
+		err = mediaplanQuery.Find(&mediaplans, filterMediplan)
+		if err != nil {
+			return err
+		}
+		if len(mediaplans) == 1 {
+			var inventoryDur float64
+			if mediaplans[0].InventoryUnitDuration == nil {
+				inventoryDur = 30.0
+			} else {
+				inventoryDur = float64(*mediaplans[0].InventoryUnitDuration)
+			}
+			spot.FilmID = mediaplans[0].FilmID
+			spot.FilmName = mediaplans[0].FilmName
+			spot.FilmVersion = mediaplans[0].FilmVersion
+			spot.FilmDur = mediaplans[0].FilmDur
+			if mediaplans[0].FilmDur != nil {
+				if orderBlocks != nil {
+					for _, block := range orderBlocks {
+						orderBlock, _ := block.ConvertOrderBlock()
+						rate := *orderBlock.Rate
+						spotRating := float64(*mediaplans[0].FilmDur) * rate / inventoryDur
+						spot.Rating30 = &spotRating
+						spot.SpotPullRating = &rate
+					}
+				}
+			}
+			err = badgerSpots.Upsert(spot.Key(), spot)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil

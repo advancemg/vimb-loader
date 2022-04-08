@@ -140,7 +140,10 @@ func (act *Action) RequestJson(input []byte) ([]byte, error) {
 }
 
 func vimbRequest(inputXml string) string {
-	return fmt.Sprintf(`<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:vim="VIMBWebApplication2"><soapenv:Header/><soapenv:Body><vim:GetVimbInfoStream><vim:InputXML><![CDATA[%s]]></vim:InputXML></vim:GetVimbInfoStream></soapenv:Body></soapenv:Envelope>`, inputXml)
+	input := strings.ReplaceAll(inputXml, "<", "&lt;")
+	input = strings.ReplaceAll(input, ">", "&gt;")
+	//fmt.Sprintf(`<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:vim="VIMBWebApplication2"><soapenv:Header/><soapenv:Body><vim:GetVimbInfoStream><vim:InputXML><![CDATA[%s]]></vim:InputXML></vim:GetVimbInfoStream></soapenv:Body></soapenv:Envelope>`, inputXml)
+	return fmt.Sprintf(`<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:vim="VIMBWebApplication2"><soapenv:Header/><soapenv:Body><vim:GetVimbInfoStream><vim:InputXML>%s</vim:InputXML></vim:GetVimbInfoStream></soapenv:Body></soapenv:Envelope>`, input)
 }
 
 func catchError(resp []byte) (*VimbError, error) {

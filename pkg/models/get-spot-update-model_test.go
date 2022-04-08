@@ -8,6 +8,7 @@ func TestSpotsUpdateRequest_loadFromFile(t *testing.T) {
 	}
 	type fields struct {
 		S3Key string
+		Month string
 	}
 	tests := []struct {
 		name    string
@@ -16,7 +17,7 @@ func TestSpotsUpdateRequest_loadFromFile(t *testing.T) {
 	}{
 		{
 			name:    "loadFromFile-Spots",
-			fields:  fields{"../../dev-test-data/spots.gz"},
+			fields:  fields{"../../dev-test-data/spots.gz", "201902"},
 			wantErr: false,
 		},
 	}
@@ -24,6 +25,7 @@ func TestSpotsUpdateRequest_loadFromFile(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			request := &SpotsUpdateRequest{
 				S3Key: tt.fields.S3Key,
+				Month: tt.fields.Month,
 			}
 			if err := request.loadFromFile(); (err != nil) != tt.wantErr {
 				t.Errorf("loadFromFile() error = %v, wantErr %v", err, tt.wantErr)
