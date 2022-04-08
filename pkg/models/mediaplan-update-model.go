@@ -82,14 +82,14 @@ type Mediaplan struct {
 	AdvertiserId          *int                    `json:"AdvertiserId"`
 	AgreementId           *int                    `json:"AgreementId"`
 	ChannelId             *int                    `json:"ChannelId"`
-	FfoaAllocated         *int                    `json:"FfoaAllocated"`
-	FfoaLawAcc            *int                    `json:"FfoaLawAcc"`
+	FfoaAllocated         *int                    `json:"ffoaAllocated"`
+	FfoaLawAcc            *int                    `json:"ffoaLawAcc"`
 	FilmId                *int                    `json:"FilmId"`
 	MediaplanId           *int                    `json:"MediaplanId"`
 	Month                 *int                    `json:"Month"`
-	OrdBegDate            *int                    `json:"OrdBegDate"`
-	OrdEndDate            *int                    `json:"OrdEndDate"`
-	OrdManager            *string                 `json:"OrdManager"`
+	OrdBegDate            *int                    `json:"ordBegDate"`
+	OrdEndDate            *int                    `json:"ordEndDate"`
+	OrdManager            *string                 `json:"ordManager"`
 }
 type MediaplanDiscountItem struct {
 	DiscountFactor          *float64   `json:"DiscountFactor"`
@@ -243,14 +243,14 @@ func (m *internalM) ConvertMediaplan() (*Mediaplan, error) {
 		AdvertiserId:          advertiserId,
 		AgreementId:           agreementId,
 		ChannelId:             channelId,
-		FfoaAllocated:         utils.IntI(m.M["FfoaAllocated"]),
-		FfoaLawAcc:            utils.IntI(m.M["FfoaLawAcc"]),
+		FfoaAllocated:         utils.IntI(m.M["ffoaAllocated"]),
+		FfoaLawAcc:            utils.IntI(m.M["ffoaLawAcc"]),
 		FilmId:                filmId,
 		MediaplanId:           mediaplanId,
 		Month:                 month,
-		OrdBegDate:            utils.IntI(m.M["OrdBegDate"]),
-		OrdEndDate:            utils.IntI(m.M["OrdEndDate"]),
-		OrdManager:            utils.StringI(m.M["OrdManager"]),
+		OrdBegDate:            utils.IntI(m.M["ordBegDate"]),
+		OrdEndDate:            utils.IntI(m.M["ordEndDate"]),
+		OrdManager:            utils.StringI(m.M["ordManager"]),
 	}
 	return mediaplan, nil
 }

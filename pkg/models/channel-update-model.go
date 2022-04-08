@@ -28,11 +28,11 @@ type Channel struct {
 	MainChnl           *int           `json:"MainChnl"`
 	SellingDirectionID *int           `json:"SellingDirectionID"`
 	CnlOrderNo         *int           `json:"CnlOrderNo"`
-	CnlCentralID       *int           `json:"CnlCentralID"`
+	CnlCentralID       *int           `json:"cnlCentralID"`
 	IsDisabled         *int           `json:"IsDisabled"`
-	BcpCentralID       *int           `json:"BcpCentralID"`
+	BcpCentralID       *int           `json:"bcpCentralID"`
 	ShortName          *string        `json:"ShortName"`
-	BcpName            *string        `json:"BcpName"`
+	BcpName            *string        `json:"bcpName"`
 	StartTime          *string        `json:"StartTime"`
 	EndTime            *string        `json:"EndTime"`
 	TotalOffset        *string        `json:"TotalOffset"`
@@ -95,11 +95,11 @@ func (m *internalChannel) Convert() (*Channel, error) {
 		MainChnl:           utils.IntI(m.Channel["MainChnl"]),
 		SellingDirectionID: utils.IntI(m.Channel["SellingDirectionID"]),
 		CnlOrderNo:         utils.IntI(m.Channel["CnlOrderNo"]),
-		CnlCentralID:       utils.IntI(m.Channel["CnlCentralID"]),
+		CnlCentralID:       utils.IntI(m.Channel["cnlCentralID"]),
 		IsDisabled:         utils.IntI(m.Channel["IsDisabled"]),
-		BcpCentralID:       utils.IntI(m.Channel["BcpCentralID"]),
+		BcpCentralID:       utils.IntI(m.Channel["bcpCentralID"]),
 		ShortName:          utils.StringI(m.Channel["ShortName"]),
-		BcpName:            utils.StringI(m.Channel["BcpName"]),
+		BcpName:            utils.StringI(m.Channel["bcpName"]),
 		StartTime:          utils.StringI(m.Channel["StartTime"]),
 		EndTime:            utils.StringI(m.Channel["EndTime"]),
 		TotalOffset:        utils.StringI(m.Channel["TotalOffset"]),

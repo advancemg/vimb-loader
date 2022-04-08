@@ -26,7 +26,7 @@ type Spot struct {
 	FilmDur                *int       `json:"FilmDur"`
 	SpotPullRating         *float64   `json:"SpotPullRating"`
 	DLDate                 *time.Time `json:"DLDate"`
-	SptChnlPTR             *int       `json:"SptChnlPTR"`
+	SptChnlPTR             *int       `json:"sptChnlPTR"`
 	CommInMplID            *int       `json:"CommInMplID"`
 	Positioning            *int       `json:"Positioning"`
 	AgrID                  *int       `json:"AgrID"`

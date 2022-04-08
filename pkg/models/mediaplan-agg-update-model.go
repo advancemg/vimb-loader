@@ -48,7 +48,6 @@ type MediaplanAgg struct {
 	SpotsPrimePercent       *float64   `json:"SpotsPrimePercent"`
 	SuperFix                *string    `json:"SuperFix"`
 	UpdateDate              *time.Time `json:"UpdateDate"`
-	Timestamp               *time.Time `json:"Timestamp"`
 	UserGrpPlan             *string    `json:"UserGrpPlan"`
 	WeeksInfo               []WeekInfo `json:"WeeksInfo"`
 	BcpCentralID            *int       `json:"bcpCentralID"`
@@ -151,16 +150,18 @@ func (request *MediaplanAggUpdateRequest) Update() error {
 		var cppOffPrimeWithDiscount float64
 		var cppPrimeWithDiscount float64
 		var discountFactor float64
-		var cPPoffprime float64
+		var cppOffPrime float64
+		var cppPrime float64
 		/*update plans*/
 		if len(mediaplan.Discounts) > 0 {
 			if len(mediaplan.Discounts) == 1 {
 				discountFactor = *mediaplan.Discounts[0].DiscountFactor
-				cPPoffprime = *mediaplan.CPPoffprime
-				if discountFactor != 0 && cPPoffprime != 0 {
-					cppPrimeWithDiscount = cPPoffprime * discountFactor
+				cppOffPrime = *mediaplan.CPPoffprime
+				cppPrime = *mediaplan.CPPprime
+				if discountFactor != 0 && cppOffPrime != 0 {
+					cppPrimeWithDiscount = cppPrime * discountFactor
 					if *mediaplan.CPPoffprime != 0 {
-						cppOffPrimeWithDiscount = cPPoffprime * discountFactor
+						cppOffPrimeWithDiscount = cppOffPrime * discountFactor
 					}
 				}
 			}
@@ -215,12 +216,12 @@ func (request *MediaplanAggUpdateRequest) Update() error {
 			ChannelId:               &request.ChannelId,
 			ChannelName:             channel.ShortName,
 			CppOffPrime:             mediaplan.CPPoffprime,
-			CppOffPrimeWithDiscount: &cppOffPrimeWithDiscount, /**/
-			CppPrimeWithDiscount:    &cppPrimeWithDiscount,
+			CppOffPrimeWithDiscount: &cppOffPrimeWithDiscount, //+
+			CppPrimeWithDiscount:    &cppPrimeWithDiscount,    //+
 			CppPrime:                mediaplan.CPPprime,
 			DealChannelStatus:       budget.DealChannelStatus,
-			FactOff:                 offFactRating,
-			FactPrime:               primeFactRating,
+			FactOff:                 offFactRating,   //-
+			FactPrime:               primeFactRating, //-
 			FixPriority:             mediaplan.FixPriority,
 			GrpPlan:                 mediaplan.GrpPlan,
 			GrpTotal:                mediaplan.GrpTotal,
@@ -229,9 +230,9 @@ func (request *MediaplanAggUpdateRequest) Update() error {
 			MplID:                   &request.MediaplanId,
 			MplMonth:                &request.Month,
 			MplName:                 mediaplan.MplName,
-			SpotsPrimePercent:       &primePercent,
+			SpotsPrimePercent:       &primePercent, //-
 			SuperFix:                nil,
-			Timestamp:               &timestamp,
+			UpdateDate:              &timestamp,
 			UserGrpPlan:             nil,
 			WeeksInfo:               []WeekInfo{},
 			BcpCentralID:            channel.BcpCentralID,
