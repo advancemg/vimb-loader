@@ -15,7 +15,7 @@ type mplTest struct {
 	AdvID                 *int       `json:"AdvID"`
 	AgrID                 *int       `json:"AgrID"`
 	AgrName               *string    `json:"AgrName"`
-	AllocationType        *string    `json:"AllocationType"`
+	AllocationType        *int       `json:"AllocationType"`
 	AmountFact            *float64   `json:"AmountFact"`
 	AmountPlan            *float64   `json:"AmountPlan"`
 	BrandID               *int       `json:"BrandID"`

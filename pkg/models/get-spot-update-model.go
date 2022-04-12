@@ -232,57 +232,62 @@ func (request *SpotsUpdateRequest) loadFromFile() error {
 		if spot.SptChnlPTR == nil {
 			continue
 		}
-		if spot.BlockID == nil {
-			*spot.IsPrime = 0
-			continue
-		}
 		/*load from networks*/
 		networksQuery := ProgramBreaksBadgerQuery{}
 		var networks []ProgramBreaks
-		filterNetwork := badgerhold.Where("CnlID").In(*spot.SptChnlPTR).And("Month").Eq(month)
+		filterNetwork := badgerhold.Where("CnlID").Eq(*spot.SptChnlPTR).And("Month").Eq(month)
 		err = networksQuery.Find(&networks, filterNetwork)
 		if err != nil {
 			return err
 		}
-		for _, network := range networks {
-			spot.DLDate = network.DLDate
-			spot.IsPrime = network.IsPrime
+		if networks != nil {
+			for _, network := range networks {
+				if spot.BlockID == nil {
+					*spot.IsPrime = 0
+					continue
+				}
+				spot.DLDate = network.DLDate
+				spot.IsPrime = network.IsPrime
+			}
 		}
 		/*load from mediaplans*/
 		mediaplanQuery := MediaplanBadgerQuery{}
 		var mediaplans []Mediaplan
 		filterMediplan := badgerhold.Where("ComplimentId").Eq(*spot.CommInMplID)
-		//filterMediplan := badgerhold.Where("ComplimentId").Eq(4475058)
 		err = mediaplanQuery.Find(&mediaplans, filterMediplan)
 		if err != nil {
 			return err
 		}
-		if len(mediaplans) == 1 {
-			var inventoryDur float64
-			if mediaplans[0].InventoryUnitDuration == nil {
-				inventoryDur = 30.0
-			} else {
-				inventoryDur = float64(*mediaplans[0].InventoryUnitDuration)
-			}
-			spot.FilmID = mediaplans[0].FilmID
-			spot.FilmName = mediaplans[0].FilmName
-			spot.FilmVersion = mediaplans[0].FilmVersion
-			spot.FilmDur = mediaplans[0].FilmDur
-			if mediaplans[0].FilmDur != nil {
-				if orderBlocks != nil {
-					for _, block := range orderBlocks {
-						orderBlock, _ := block.ConvertOrderBlock()
-						rate := *orderBlock.Rate
-						spotRating := float64(*mediaplans[0].FilmDur) * rate / inventoryDur
-						spot.Rating30 = &spotRating
-						spot.SpotPullRating = &rate
-					}
+		if spot.CommInMplID == nil {
+			continue
+		}
+		if mediaplans == nil {
+			continue
+		}
+		var inventoryDur float64
+		if mediaplans[0].InventoryUnitDuration == nil {
+			inventoryDur = 30.0
+		} else {
+			inventoryDur = float64(*mediaplans[0].InventoryUnitDuration)
+		}
+		spot.FilmID = mediaplans[0].FilmID
+		spot.FilmName = mediaplans[0].FilmName
+		spot.FilmVersion = mediaplans[0].FilmVersion
+		spot.FilmDur = mediaplans[0].FilmDur
+		if mediaplans[0].FilmDur != nil {
+			if orderBlocks != nil {
+				for _, block := range orderBlocks {
+					orderBlock, _ := block.ConvertOrderBlock()
+					rate := *orderBlock.Rate
+					spotRating := float64(*mediaplans[0].FilmDur) * rate / inventoryDur
+					spot.Rating30 = &spotRating
+					spot.SpotPullRating = &rate
 				}
 			}
-			err = badgerSpots.Upsert(spot.Key(), spot)
-			if err != nil {
-				return err
-			}
+		}
+		err = badgerSpots.Upsert(spot.Key(), spot)
+		if err != nil {
+			return err
 		}
 	}
 	return nil

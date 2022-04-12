@@ -18,7 +18,7 @@ type ProgramBreaksUpdateRequest struct {
 }
 
 type ProgramBreaks struct {
-	Month                  *int               `json:"Moth"`
+	Month                  *int               `json:"Month"`
 	CnlID                  *int               `json:"CnlID"`
 	ProgID                 *int               `json:"ProgID"`
 	RCID                   *int               `json:"RCID"`

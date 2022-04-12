@@ -23,6 +23,7 @@ require (
 require (
 	github.com/minio/minio v0.0.0-20220323033659-fb9b53026d33
 	github.com/timshannon/badgerhold v1.0.0
+	golang.org/x/exp v0.0.0-20200224162631-6cc2880d07d6
 )
 
 require (

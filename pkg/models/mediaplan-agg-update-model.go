@@ -5,6 +5,7 @@ import (
 	"fmt"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/storage"
+	"github.com/advancemg/vimb-loader/pkg/utils"
 	"github.com/timshannon/badgerhold"
 	"time"
 )
@@ -23,7 +24,7 @@ type MediaplanAgg struct {
 	AdtID                   *int       `json:"AdtID"`
 	AdtName                 *string    `json:"AdtName"`
 	AgreementId             *int       `json:"AgreementId"`
-	AllocationType          *string    `json:"AllocationType"`
+	AllocationType          *int       `json:"AllocationType"`
 	AmountFact              *float64   `json:"AmountFact"`
 	AmountPlan              *float64   `json:"AmountPlan"`
 	BrandName               *string    `json:"BrandName"`
@@ -106,45 +107,6 @@ func (request *MediaplanAggUpdateRequest) Update() error {
 	if err != nil {
 		return err
 	}
-	/*load from budgets*/
-	budgetQuery := BudgetsBadgerQuery{}
-	var budgets []Budget
-	filterBudgets := badgerhold.Where("Month").Eq(request.Month).
-		And("CnlID").Eq(request.ChannelId).
-		And("AdtID").Eq(request.AdvertiserId).
-		And("AgrID").Eq(request.AgreementId)
-	err = budgetQuery.Find(&budgets, filterBudgets)
-	if err != nil {
-		return err
-	}
-	/*load from channels*/
-	channelQuery := ChannelBadgerQuery{}
-	var channels []Channel
-	filterChannels := badgerhold.Where("ID").Eq(request.ChannelId)
-	err = channelQuery.Find(&channels, filterChannels)
-	if err != nil {
-		return err
-	}
-	/*load from spots*/
-	spotQuery := ChannelBadgerQuery{}
-	var spots []Spot
-	filterSpots := badgerhold.Where("MplID").Eq(request.MediaplanId)
-	err = spotQuery.Find(&spots, filterSpots)
-	if err != nil {
-		return err
-	}
-	var budget Budget
-	var channel Channel
-	var spot Spot
-	if len(spots) == 1 {
-		spot = spots[0]
-	}
-	if len(budgets) == 1 {
-		budget = budgets[0]
-	}
-	if len(channels) == 1 {
-		channel = channels[0]
-	}
 	badgerAggMediaplans := storage.Open(DbAggMediaplans)
 	for _, mediaplan := range mediaplans {
 		var cppOffPrimeWithDiscount float64
@@ -152,6 +114,47 @@ func (request *MediaplanAggUpdateRequest) Update() error {
 		var discountFactor float64
 		var cppOffPrime float64
 		var cppPrime float64
+		/*load from budgets*/
+		var budget float64
+		var dealChannelStatus int
+		budgetQuery := BudgetsBadgerQuery{}
+		var budgets []Budget
+		filterBudgets := badgerhold.Where("Month").Eq(request.Month).
+			And("CnlID").Eq(*mediaplan.ChannelId).
+			And("AdtID").Eq(*mediaplan.AdtID).
+			And("AgrID").Eq(*mediaplan.AgreementId)
+		err = budgetQuery.Find(&budgets, filterBudgets)
+		if err != nil {
+			return err
+		}
+		if budgets != nil {
+			budget = *budgets[0].Budget
+			dealChannelStatus = *budgets[0].DealChannelStatus
+		}
+		/*load from channels*/
+		var channelName string
+		var bcpName string
+		var bcpCentralID int
+		channelQuery := ChannelBadgerQuery{}
+		var channels []Channel
+		filterChannels := badgerhold.Where("ID").Eq(*mediaplan.ChannelId)
+		err = channelQuery.Find(&channels, filterChannels)
+		if err != nil {
+			return err
+		}
+		if channels != nil {
+			channelName = *channels[0].ShortName
+			bcpName = *channels[0].BcpName
+			bcpCentralID = *channels[0].BcpCentralID
+		}
+		/*load from spots*/
+		spotQuery := SpotBadgerQuery{}
+		var spots []Spot
+		filterSpots := badgerhold.Where("MplID").Eq(*mediaplan.MplID)
+		err = spotQuery.Find(&spots, filterSpots)
+		if err != nil {
+			return err
+		}
 		/*update plans*/
 		if len(mediaplan.Discounts) > 0 {
 			if len(mediaplan.Discounts) == 1 {
@@ -175,34 +178,57 @@ func (request *MediaplanAggUpdateRequest) Update() error {
 			}
 		}
 		/*Spot facts*/
-		nowPlusTime := time.Now()
-		if (spot.DLDate == nil) || (nowPlusTime.Unix() < spot.DLDate.Unix()) {
-			spots = []Spot{}
-		}
-		var primeFactRating *float64
-		var offFactRating *float64
+		var primeFactRating float64
+		var offFactRating float64
 		var primePercent float64
 		var totalSpotsRatingSum float64
 		var primeTimeRatingSum float64
 		if spots != nil {
 			for _, spot := range spots {
+				isPrime := *spot.IsPrime
+				if (spot.DLDate == nil) || (time.Now().Unix() < spot.DLDate.Unix()) {
+					break
+				}
 				totalSpotsRatingSum += *spot.Rating30
-				if spot.IsPrime == nil {
+				if &isPrime == nil {
+					isPrime = 0
 					continue
 				}
-				if *spot.IsPrime == 1 {
+				if isPrime == 1 {
 					/*prime*/
 					primeTimeRatingSum += *spot.Rating30
-					primeFactRating = spot.Rating30
+					primeFactRating += *spot.Rating30
 				}
-				if *spot.IsPrime == 0 {
+				if isPrime == 0 {
 					/*off*/
-					offFactRating = spot.Rating30
+					offFactRating += *spot.Rating30
 				}
 			}
 		}
 		if totalSpotsRatingSum > 0 {
 			primePercent = primeTimeRatingSum / totalSpotsRatingSum
+		}
+		/*get open/close weeks*/
+		var resultWeekStatus []WeekInfo
+		mondays, err := utils.GetWeekDayByYearMonth(*mediaplan.Month)
+		if err != nil {
+			return err
+		}
+		nowInt := int(time.Now().Weekday())
+		for monday, dateTime := range mondays {
+			if nowInt > monday {
+				var weekItem WeekInfo
+				weekItem.Number = monday
+				weekItem.Date = dateTime
+				weekItem.Close = true
+				resultWeekStatus = append(resultWeekStatus, weekItem)
+			} else {
+				var weekItem WeekInfo
+				weekItem.Number = monday
+				weekItem.Date = dateTime
+				weekItem.Close = false
+				resultWeekStatus = append(resultWeekStatus, weekItem)
+			}
 		}
 		aggMediaplan := &MediaplanAgg{
 			AdtID:                   &request.AdvertiserId,
@@ -212,18 +238,18 @@ func (request *MediaplanAggUpdateRequest) Update() error {
 			AmountFact:              mediaplan.AmountFact,
 			AmountPlan:              mediaplan.AmountPlan,
 			BrandName:               mediaplan.BrandName,
-			Budget:                  budget.Budget,
+			Budget:                  &budget,
 			ChannelId:               &request.ChannelId,
-			ChannelName:             channel.ShortName,
+			ChannelName:             &channelName,
 			CppOffPrime:             mediaplan.CPPoffprime,
 			CppOffPrimeWithDiscount: &cppOffPrimeWithDiscount, //+
 			CppPrimeWithDiscount:    &cppPrimeWithDiscount,    //+
 			CppPrime:                mediaplan.CPPprime,
-			DealChannelStatus:       budget.DealChannelStatus,
-			FactOff:                 offFactRating,   //-
-			FactPrime:               primeFactRating, //-
+			DealChannelStatus:       &dealChannelStatus,
+			FactOff:                 &offFactRating,   //-
+			FactPrime:               &primeFactRating, //-
 			FixPriority:             mediaplan.FixPriority,
-			GrpPlan:                 mediaplan.GrpPlan,
+			GrpPlan:                 mediaplan.GRP,
 			GrpTotal:                mediaplan.GrpTotal,
 			InventoryUnitDuration:   mediaplan.InventoryUnitDuration,
 			MediaplanState:          mediaplan.MplState,
@@ -234,9 +260,9 @@ func (request *MediaplanAggUpdateRequest) Update() error {
 			SuperFix:                nil,
 			UpdateDate:              &timestamp,
 			UserGrpPlan:             nil,
-			WeeksInfo:               []WeekInfo{},
-			BcpCentralID:            channel.BcpCentralID,
-			BcpName:                 channel.BcpName,
+			WeeksInfo:               resultWeekStatus,
+			BcpCentralID:            &bcpCentralID,
+			BcpName:                 &bcpName,
 		}
 		marshal, _ := json.MarshalIndent(aggMediaplan, "", "  ")
 		fmt.Println(string(marshal))

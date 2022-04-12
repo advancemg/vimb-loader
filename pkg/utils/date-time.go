@@ -178,3 +178,16 @@ func GetActualStartEndDays(month int) (string, string) {
 	}
 	return startDay, endDay
 }
+
+func GetWeekDayByYearMonth(yearMonth int) (map[int]time.Time, error) {
+	weekDays := map[int]time.Time{}
+	monthInt, err := GetDaysFromYearMonthInt(yearMonth)
+	if err != nil {
+		return nil, err
+	}
+	for _, t := range monthInt {
+		_, weekDay := t.ISOWeek()
+		weekDays[weekDay] = t
+	}
+	return weekDays, nil
+}

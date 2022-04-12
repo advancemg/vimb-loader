@@ -23,7 +23,7 @@ type Mediaplan struct {
 	AdvID                 *int                    `json:"AdvID"`
 	AgrID                 *int                    `json:"AgrID"`
 	AgrName               *string                 `json:"AgrName"`
-	AllocationType        *string                 `json:"AllocationType"`
+	AllocationType        *int                    `json:"AllocationType"`
 	AmountFact            *float64                `json:"AmountFact"`
 	AmountPlan            *float64                `json:"AmountPlan"`
 	BrandID               *int                    `json:"BrandID"`
@@ -184,7 +184,7 @@ func (m *internalM) ConvertMediaplan() (*Mediaplan, error) {
 		AdvID:                 utils.IntI(m.M["AdvID"]),
 		AgrID:                 utils.IntI(m.M["AgrID"]),
 		AgrName:               utils.StringI(m.M["AgrName"]),
-		AllocationType:        utils.StringI(m.M["AllocationType"]),
+		AllocationType:        utils.IntI(m.M["AllocationType"]),
 		AmountFact:            utils.FloatI(m.M["AmountFact"]),
 		AmountPlan:            utils.FloatI(m.M["AmountPlan"]),
 		BrandID:               utils.IntI(m.M["BrandID"]),
