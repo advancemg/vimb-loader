@@ -185,9 +185,15 @@ func GetWeekDayByYearMonth(yearMonth int) (map[int]time.Time, error) {
 	if err != nil {
 		return nil, err
 	}
-	for _, t := range monthInt {
-		_, weekDay := t.ISOWeek()
-		weekDays[weekDay] = t
+	for _, date := range monthInt {
+		if date.Weekday() == time.Monday {
+			_, weekDay := date.ISOWeek()
+			weekDays[weekDay] = date
+		}
+	}
+	if len(weekDays) < 5 {
+		_, week := monthInt[0].ISOWeek()
+		weekDays[week] = monthInt[0]
 	}
 	return weekDays, nil
 }

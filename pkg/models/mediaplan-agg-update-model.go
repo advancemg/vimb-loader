@@ -242,12 +242,12 @@ func (request *MediaplanAggUpdateRequest) Update() error {
 			ChannelId:               &request.ChannelId,
 			ChannelName:             &channelName,
 			CppOffPrime:             mediaplan.CPPoffprime,
-			CppOffPrimeWithDiscount: &cppOffPrimeWithDiscount, //+
-			CppPrimeWithDiscount:    &cppPrimeWithDiscount,    //+
+			CppOffPrimeWithDiscount: &cppOffPrimeWithDiscount,
+			CppPrimeWithDiscount:    &cppPrimeWithDiscount,
 			CppPrime:                mediaplan.CPPprime,
 			DealChannelStatus:       &dealChannelStatus,
-			FactOff:                 &offFactRating,   //-
-			FactPrime:               &primeFactRating, //-
+			FactOff:                 &offFactRating,
+			FactPrime:               &primeFactRating,
 			FixPriority:             mediaplan.FixPriority,
 			GrpPlan:                 mediaplan.GRP,
 			GrpTotal:                mediaplan.GrpTotal,
@@ -256,7 +256,7 @@ func (request *MediaplanAggUpdateRequest) Update() error {
 			MplID:                   &request.MediaplanId,
 			MplMonth:                &request.Month,
 			MplName:                 mediaplan.MplName,
-			SpotsPrimePercent:       &primePercent, //-
+			SpotsPrimePercent:       &primePercent,
 			SuperFix:                nil,
 			UpdateDate:              &timestamp,
 			UserGrpPlan:             nil,
@@ -264,8 +264,6 @@ func (request *MediaplanAggUpdateRequest) Update() error {
 			BcpCentralID:            &bcpCentralID,
 			BcpName:                 &bcpName,
 		}
-		marshal, _ := json.MarshalIndent(aggMediaplan, "", "  ")
-		fmt.Println(string(marshal))
 		err = badgerAggMediaplans.Upsert(aggMediaplan.Key(), aggMediaplan)
 		if err != nil {
 			return err
