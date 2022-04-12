@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/json"
 	"fmt"
 	goConvert "github.com/advancemg/go-convert"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
@@ -43,4 +44,19 @@ func (request *BudgetLoadRequest) InitTasks() (CommonResponse, error) {
 
 func (request *BudgetLoadRequest) getMonths() ([]utils.YearMonth, error) {
 	return utils.GetPeriodFromYearMonths(request.StartMonth, request.EndMonth)
+}
+
+type BudgetLoadBadgerRequest struct {
+	Month int `json:"Month" example:"201902"`
+}
+
+func (request *BudgetLoadBadgerRequest) LoadBudgets() ([]Budget, error) {
+	var result []Budget
+	query := BudgetsBadgerQuery{}
+	marshal, err := json.Marshal(request)
+	if err != nil {
+		return nil, err
+	}
+	query.FindJson(&result, marshal)
+	return result, nil
 }

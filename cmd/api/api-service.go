@@ -49,6 +49,7 @@ func main() {
 	/*deals*/
 	route.HandleFunc("/api/v1/budgets", routes.PostGetBudgets).Methods("POST", "OPTIONS")
 	route.HandleFunc("/api/v1/budgets/load", routes.PostLoadBudgets).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/budgets/badger/load", routes.PostLoadBadgerBudgets).Methods("POST", "OPTIONS")
 	route.HandleFunc("/api/v1/customers-with-advertisers", routes.PostGetCustomersWithAdvertisers).Methods("POST", "OPTIONS")
 	route.HandleFunc("/api/v1/customers-with-advertisers/load", routes.PostLoadCustomersWithAdvertisers).Methods("POST", "OPTIONS")
 	/*mediaPlans*/

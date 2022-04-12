@@ -72,3 +72,13 @@ func TestGetDaysFromYearMonth(t *testing.T) {
 		})
 	}
 }
+
+func TestGetWeekDayByYearMonth(t *testing.T) {
+	for i := 0; i < 12; i++ {
+		yearMonth := 201901 + i
+		month, _ := GetWeekDayByYearMonth(yearMonth)
+		for i, t := range month {
+			fmt.Println(i, t)
+		}
+	}
+}

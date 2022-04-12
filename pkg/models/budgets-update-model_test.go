@@ -53,7 +53,6 @@ func TestQueryBudgets(t *testing.T) {
 	channelList := map[int]Cnl{}
 	badgerBudgets := storage.Open(DbBudgets)
 	_ = badgerBudgets.Find(&budgets, badgerhold.Where("Month").Ge(-1))
-	//_ = badgerBudgets.Find(&budgets, badgerhold.Where("CnlID").Ge(-1))
 	badgerChannels := storage.Open(DbChannels)
 	_ = badgerChannels.Find(&channels, badgerhold.Where("ID").Ge(-1))
 	for _, budget := range budgets {

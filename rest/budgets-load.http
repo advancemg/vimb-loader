@@ -1,0 +1,8 @@
+POST {{base-url}}/api/v1/budgets/badger/load
+Content-Type: application/json
+
+{
+  "Month": 201902
+}
+
+###
