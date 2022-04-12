@@ -38,6 +38,7 @@ func main() {
 	/*dictionaries*/
 	route.HandleFunc("/api/v1/channels", routes.PostGetChannels).Methods("POST", "OPTIONS")
 	route.HandleFunc("/api/v1/channels/load", routes.PostLoadChannels).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/channels/badger/load", routes.PostLoadBadgerChannels).Methods("POST", "OPTIONS")
 	route.HandleFunc("/api/v1/adv-messages", routes.PostGetAdvMessages).Methods("POST", "OPTIONS")
 	route.HandleFunc("/api/v1/adv-messages/load", routes.PostLoadAdvMessages).Methods("POST", "OPTIONS")
 	route.HandleFunc("/api/v1/ranks", routes.PostGetRanks).Methods("POST", "OPTIONS")

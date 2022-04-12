@@ -141,13 +141,15 @@ func (request *GetChannels) UploadToS3() (*MqUpdateMessage, error) {
 			}
 			return nil, err
 		}
+		sellingDirectionID, _ := request.Get("SellingDirectionID")
 		var newS3Key = fmt.Sprintf("vimb/%s/%s/%s-%s.gz", utils.Actions.Client, typeName, utils.DateTimeNowInt(), typeName)
 		_, err = s3.UploadBytesWithBucket(newS3Key, data.Body)
 		if err != nil {
 			return nil, err
 		}
 		return &MqUpdateMessage{
-			Key: newS3Key,
+			Key:                newS3Key,
+			SellingDirectionID: sellingDirectionID.(string),
 		}, nil
 	}
 }

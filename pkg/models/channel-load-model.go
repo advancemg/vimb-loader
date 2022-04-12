@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/json"
 	"fmt"
 	goConvert "github.com/advancemg/go-convert"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
@@ -26,5 +27,16 @@ func (request *ChannelLoadRequest) InitTasks() (CommonResponse, error) {
 		return nil, err
 	}
 	result["status"] = "ok"
+	return result, nil
+}
+
+func (request *ChannelLoadRequest) LoadChannels() ([]Channel, error) {
+	var result []Channel
+	query := ChannelBadgerQuery{}
+	marshal, err := json.Marshal(request)
+	if err != nil {
+		return nil, err
+	}
+	query.FindJson(&result, marshal)
 	return result, nil
 }

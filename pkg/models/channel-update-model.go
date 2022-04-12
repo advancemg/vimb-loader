@@ -8,11 +8,13 @@ import (
 	"github.com/advancemg/vimb-loader/pkg/storage"
 	"github.com/advancemg/vimb-loader/pkg/utils"
 	"reflect"
+	"strconv"
 	"time"
 )
 
 type ChannelsUpdateRequest struct {
-	S3Key string
+	S3Key              string
+	SellingDirectionID string
 }
 
 func (channel *Channel) Key() string {
@@ -137,7 +139,8 @@ func ChannelsStartJob() chan error {
 			}
 			/*read from s3 by s3Key*/
 			req := ChannelsUpdateRequest{
-				S3Key: bodyJson.Key,
+				S3Key:              bodyJson.Key,
+				SellingDirectionID: bodyJson.SellingDirectionID,
 			}
 			err = req.Update()
 			if err != nil {
@@ -178,12 +181,17 @@ func (request *ChannelsUpdateRequest) loadFromFile() error {
 	if err != nil {
 		return err
 	}
+	badgerChannels := storage.Open(DbChannels)
+	sellingDirectionID, err := strconv.Atoi(request.SellingDirectionID)
+	if err != nil {
+		return err
+	}
 	for _, dataM := range internalData {
 		channel, err := dataM.Convert()
 		if err != nil {
 			return err
 		}
-		badgerChannels := storage.Open(DbChannels)
+		channel.SellingDirectionID = &sellingDirectionID
 		err = badgerChannels.Upsert(channel.Key(), channel)
 		if err != nil {
 			return err
