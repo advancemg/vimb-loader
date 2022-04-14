@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/json"
 	"fmt"
 	goConvert "github.com/advancemg/go-convert"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
@@ -20,6 +21,15 @@ type SpotsLoadRequest struct {
 	AdtList []struct {
 		AdtID string `json:"AdtID"`
 	} `json:"AdtList"`
+}
+
+type SpotsQuery struct {
+	Rating struct {
+		Eq float64 `json:"eq" example:"0.58321"`
+	} `json:"Rating"`
+	SpotID struct {
+		Eq int64 `json:"eq" example:"451118797"`
+	} `json:"SpotID"`
 }
 
 func (request *SpotsLoadRequest) InitTasks() (CommonResponse, error) {
@@ -55,4 +65,18 @@ func (request *SpotsLoadRequest) InitTasks() (CommonResponse, error) {
 
 func (request *SpotsLoadRequest) getDays() ([]time.Time, error) {
 	return utils.GetDaysByPeriod(request.StartDate, request.EndDate)
+}
+
+func (request *Any) QuerySpots() ([]Spot, error) {
+	var result []Spot
+	query := SpotBadgerQuery{}
+	marshal, err := json.Marshal(request.Body)
+	if err != nil {
+		return nil, err
+	}
+	err = query.FindJson(&result, marshal)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
 }

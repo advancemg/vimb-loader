@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/json"
 	"fmt"
 	goConvert "github.com/advancemg/go-convert"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
@@ -21,6 +22,15 @@ type AdvMessagesLoadRequest struct {
 	AdvertisingMessageIDs []struct {
 		Id string `json:"ID"`
 	} `json:"AdvertisingMessageIDs"`
+}
+
+type AdvMessageQuery struct {
+	AdtID struct {
+		Eq int `json:"eq" example:"700061957"`
+	} `json:"AdtID"`
+	BrandID struct {
+		Eq int `json:"eq" example:"44362"`
+	} `json:"BrandID"`
 }
 
 func (request *AdvMessagesLoadRequest) InitTasks() (CommonResponse, error) {
@@ -60,4 +70,18 @@ func (request *AdvMessagesLoadRequest) InitTasks() (CommonResponse, error) {
 
 func (request *AdvMessagesLoadRequest) getDays() ([]time.Time, error) {
 	return utils.GetDaysByPeriod(request.CreationDateStart, request.CreationDateEnd)
+}
+
+func (request *Any) QueryAdvMessages() ([]Advertiser, error) {
+	var result []Advertiser
+	query := AdvertiserBadgerQuery{}
+	marshal, err := json.Marshal(request.Body)
+	if err != nil {
+		return nil, err
+	}
+	err = query.FindJson(&result, marshal)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
 }

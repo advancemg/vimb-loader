@@ -46,14 +46,22 @@ func (request *MediaplanLoadRequest) getMonths() ([]utils.YearMonth, error) {
 	return utils.GetPeriodFromYearMonths(request.StartMonth, request.EndMonth)
 }
 
-type MediaplanLoadBadgerRequest struct {
-	Month int `json:"Month" example:"201902"`
+type MediaplanQuery struct {
+	AdtID struct {
+		Eq int `json:"eq" example:"700068653"`
+	} `json:"AdtID"`
+	AgrID struct {
+		Eq int `json:"eq" example:"81024"`
+	} `json:"AgrID"`
+	MplID struct {
+		Eq int `json:"eq" example:"14824608"`
+	} `json:"MplID"`
 }
 
-func (request *MediaplanLoadBadgerRequest) LoadMediaplan() ([]Mediaplan, error) {
+func (request *Any) QueryMediaplans() ([]Mediaplan, error) {
 	var result []Mediaplan
 	query := MediaplanBadgerQuery{}
-	marshal, err := json.Marshal(request)
+	marshal, err := json.Marshal(request.Body)
 	if err != nil {
 		return nil, err
 	}

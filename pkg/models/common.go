@@ -2,9 +2,9 @@ package models
 
 import (
 	"encoding/json"
-	"github.com/advancemg/vimb-loader/pkg/utils"
 	"github.com/timshannon/badgerhold"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -185,24 +185,24 @@ func LoadConfiguration() (*Configuration, error) {
 	return &config, nil
 }
 
-func HandleBadgerRequest(request map[string]interface{}) *badgerhold.Query {
+func HandleBadgerRequest(request map[string]interface{}, intVal bool) *badgerhold.Query {
 	var query *badgerhold.Query
 	once := true
 	for field, value := range request {
 		for key, val := range value.(map[string]interface{}) {
 			if once {
-				query = switchBadgerFilterWhere(query, key, field, val)
+				query = switchBadgerFilterWhere(query, key, field, val, intVal)
 				once = false
 			} else {
-				query = switchBadgerFilterAnd(query, key, field, val)
+				query = switchBadgerFilterAnd(query, key, field, val, intVal)
 			}
 		}
 	}
 	return query
 }
 
-func switchBadgerFilterAnd(filter *badgerhold.Query, key, filed string, value interface{}) *badgerhold.Query {
-	value = utils.JsonNumber(value)
+func switchBadgerFilterAnd(filter *badgerhold.Query, key, filed string, value interface{}, intVal bool) *badgerhold.Query {
+	value = jsonNumber(value, intVal)
 	switch key {
 	case "eq":
 		filter = filter.And(filed).Eq(value)
@@ -224,8 +224,8 @@ func switchBadgerFilterAnd(filter *badgerhold.Query, key, filed string, value in
 	return filter
 }
 
-func switchBadgerFilterWhere(filter *badgerhold.Query, key, filed string, value interface{}) *badgerhold.Query {
-	value = utils.JsonNumber(value)
+func switchBadgerFilterWhere(filter *badgerhold.Query, key, filed string, value interface{}, intVal bool) *badgerhold.Query {
+	value = jsonNumber(value, intVal)
 	switch key {
 	case "eq":
 		filter = badgerhold.Where(filed).Eq(value)
@@ -245,4 +245,28 @@ func switchBadgerFilterWhere(filter *badgerhold.Query, key, filed string, value 
 		filter = badgerhold.Where(filed).IsNil()
 	}
 	return filter
+}
+
+func jsonNumber(value interface{}, intVal bool) interface{} {
+	if number, ok := value.(json.Number); ok {
+		dot := strings.Contains(number.String(), ".")
+		if dot {
+			i, err := number.Float64()
+			if err != nil {
+				panic(err)
+			}
+			value = i
+		} else {
+			i, err := number.Int64()
+			if err != nil {
+				panic(err)
+			}
+			if intVal {
+				value = int(i)
+			} else {
+				value = i
+			}
+		}
+	}
+	return value
 }

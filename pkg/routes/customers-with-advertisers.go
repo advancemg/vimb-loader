@@ -89,3 +89,44 @@ func PostLoadCustomersWithAdvertisers(w http.ResponseWriter, r *http.Request) {
 	(w).WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(response)
 }
+
+// PostCustomersWithAdvertisersQuery godoc
+// @Summary Загрузка сохраненных заказчиков с рекламодеталями для заданного направления продаж.
+// @Description Динамический запрос на загрузку сохраненных данных. Логические операторы: eq ==, ne !=, gt >, lt <, ge >=, le <=, in in, isnil is nil.
+// @ID routes-customers-with-advertisers-query
+// @Tags Сделки
+// @Param body body models.CustomersWithAdvertiserQuery true  "Запрос"
+// @Accept json
+// @Produce json
+// @Success 200 {object} models.StreamResponse
+// @Router /api/v1/customers-with-advertisers/query [post]
+func PostCustomersWithAdvertisersQuery(w http.ResponseWriter, r *http.Request) {
+	setupResponse(&w, r)
+	if (*r).Method == "OPTIONS" {
+		(w).WriteHeader(http.StatusOK)
+		return
+	}
+	var request models.Any
+	err := json.NewDecoder(r.Body).Decode(&request.Body)
+	if err != nil {
+		(w).WriteHeader(http.StatusBadRequest)
+		var response = utils.FieldValidateErrorType{
+			Field:   "id",
+			Message: fmt.Sprintf(`Ошибка %s`, err.Error()),
+		}
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+	response, err := request.QueryCustomersWithAdvertisers()
+	if err != nil {
+		(w).WriteHeader(http.StatusBadRequest)
+		var response = utils.FieldValidateErrorType{
+			Field:   "request",
+			Message: fmt.Sprintf(`Ошибка %s`, err.Error()),
+		}
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+	(w).WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(response)
+}

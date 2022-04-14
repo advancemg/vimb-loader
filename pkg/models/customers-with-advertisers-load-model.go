@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/json"
 	"fmt"
 	goConvert "github.com/advancemg/go-convert"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
@@ -8,6 +9,12 @@ import (
 
 type CustomersWithAdvertisersLoadRequest struct {
 	SellingDirectionID string `json:"SellingDirectionID"`
+}
+
+type CustomersWithAdvertiserQuery struct {
+	ID struct {
+		Eq int `json:"eq" example:"1"`
+	} `json:"ID"`
 }
 
 func (request *CustomersWithAdvertisersLoadRequest) InitTasks() (CommonResponse, error) {
@@ -26,5 +33,19 @@ func (request *CustomersWithAdvertisersLoadRequest) InitTasks() (CommonResponse,
 		return nil, err
 	}
 	result["status"] = "ok"
+	return result, nil
+}
+
+func (request *Any) QueryCustomersWithAdvertisers() ([]CustomersWithAdvertisers, error) {
+	var result []CustomersWithAdvertisers
+	query := CustomersWithAdvertisersBadgerQuery{}
+	marshal, err := json.Marshal(request.Body)
+	if err != nil {
+		return nil, err
+	}
+	err = query.FindJson(&result, marshal)
+	if err != nil {
+		return nil, err
+	}
 	return result, nil
 }

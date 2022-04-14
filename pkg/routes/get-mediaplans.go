@@ -90,24 +90,24 @@ func PostLoadMPLans(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
-// PostLoadBadgerMPLans godoc
+// PostMPLansQuery godoc
 // @Summary Загрузка сохраненных медиапланов.
-// @Description Загрузка сохраненных медиапланов.
-// @ID routes-load-badger-mediaplans
+// @Description Динамический запрос на загрузку сохраненных данных. Логические операторы: eq ==, ne !=, gt >, lt <, ge >=, le <=, in in, isnil is nil.
+// @ID routes-query-mediaplans
 // @Tags Медиапланы
-// @Param body body models.MediaplanLoadBadgerRequest true  "Запрос"
+// @Param body body models.MediaplanQuery true  "Запрос"
 // @Accept json
 // @Produce json
 // @Success 200 {object} models.CommonResponse
-// @Router /api/v1/mediaplan/badger/load [post]
-func PostLoadBadgerMPLans(w http.ResponseWriter, r *http.Request) {
+// @Router /api/v1/mediaplan/query [post]
+func PostMPLansQuery(w http.ResponseWriter, r *http.Request) {
 	setupResponse(&w, r)
 	if (*r).Method == "OPTIONS" {
 		(w).WriteHeader(http.StatusOK)
 		return
 	}
-	var request models.MediaplanLoadBadgerRequest
-	err := json.NewDecoder(r.Body).Decode(&request)
+	var request models.Any
+	err := json.NewDecoder(r.Body).Decode(&request.Body)
 	if err != nil {
 		(w).WriteHeader(http.StatusBadRequest)
 		var response = utils.FieldValidateErrorType{
@@ -117,7 +117,7 @@ func PostLoadBadgerMPLans(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(response)
 		return
 	}
-	response, err := request.LoadMediaplan()
+	response, err := request.QueryMediaplans()
 	if err != nil {
 		(w).WriteHeader(http.StatusBadRequest)
 		var response = utils.FieldValidateErrorType{

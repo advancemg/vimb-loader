@@ -49,6 +49,9 @@ func (request *Any) QueryChannels() ([]Channel, error) {
 	if err != nil {
 		return nil, err
 	}
-	query.FindJson(&result, marshal)
+	err = query.FindJson(&result, marshal)
+	if err != nil {
+		return nil, err
+	}
 	return result, nil
 }
