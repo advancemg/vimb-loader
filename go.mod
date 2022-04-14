@@ -247,6 +247,7 @@ require (
 )
 
 require (
+	github.com/Jeffail/gabs/v2 v2.6.1 // indirect
 	github.com/armon/go-metrics v0.3.10 // indirect
 	github.com/hashicorp/go-hclog v1.2.0 // indirect
 	github.com/hashicorp/go-immutable-radix v1.3.1 // indirect

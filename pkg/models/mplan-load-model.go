@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/json"
 	"fmt"
 	goConvert "github.com/advancemg/go-convert"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
@@ -43,4 +44,22 @@ func (request *MediaplanLoadRequest) InitTasks() (CommonResponse, error) {
 
 func (request *MediaplanLoadRequest) getMonths() ([]utils.YearMonth, error) {
 	return utils.GetPeriodFromYearMonths(request.StartMonth, request.EndMonth)
+}
+
+type MediaplanLoadBadgerRequest struct {
+	Month int `json:"Month" example:"201902"`
+}
+
+func (request *MediaplanLoadBadgerRequest) LoadMediaplan() ([]Mediaplan, error) {
+	var result []Mediaplan
+	query := MediaplanBadgerQuery{}
+	marshal, err := json.Marshal(request)
+	if err != nil {
+		return nil, err
+	}
+	err = query.FindJson(&result, marshal)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
 }

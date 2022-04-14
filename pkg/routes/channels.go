@@ -92,10 +92,10 @@ func PostLoadChannels(w http.ResponseWriter, r *http.Request) {
 
 // PostLoadBadgerChannels godoc
 // @Summary Загрузку сохраненных каналов.
-// @Description Загрузку сохраненных каналов, по ID направлению продаж.
+// @Description Динамический запрос на загрузку сохраненных данных. Логические операторы: eq ==, ne !=, gt >, lt <, ge >=, le <=, in in, isnil is nil.
 // @ID routes-load-badger-channels
 // @Tags Справочники
-// @Param body body models.ChannelLoadRequest true  "Запрос"
+// @Param body body models.ChannelLoadBadgerRequest true  "Запрос"
 // @Accept json
 // @Produce json
 // @Success 200 {object} models.CommonResponse
@@ -106,8 +106,8 @@ func PostLoadBadgerChannels(w http.ResponseWriter, r *http.Request) {
 		(w).WriteHeader(http.StatusOK)
 		return
 	}
-	var request models.ChannelLoadRequest
-	err := json.NewDecoder(r.Body).Decode(&request)
+	var request models.Any
+	err := json.NewDecoder(r.Body).Decode(&request.Body)
 	if err != nil {
 		(w).WriteHeader(http.StatusBadRequest)
 		var response = utils.FieldValidateErrorType{

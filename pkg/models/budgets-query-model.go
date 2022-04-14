@@ -1,6 +1,7 @@
 package models
 
 import (
+	"bytes"
 	"encoding/json"
 	"github.com/advancemg/vimb-loader/pkg/storage"
 	"github.com/timshannon/badgerhold"
@@ -18,16 +19,13 @@ func (query *BudgetsBadgerQuery) Find(result interface{}, filter *badgerhold.Que
 	return store.Find(result, filter)
 }
 
-type months struct {
-	Month int `json:"Month"`
-}
-
 func (query *BudgetsBadgerQuery) FindJson(result interface{}, filter []byte) error {
-	var m months
-	err := json.Unmarshal(filter, &m)
-	if err != nil {
-		return err
+	var request map[string]interface{}
+	decoder := json.NewDecoder(bytes.NewReader(filter))
+	decoder.UseNumber()
+	if err := decoder.Decode(&request); err != nil {
+		println(err)
 	}
-	filterBudgets := badgerhold.Where("Month").Eq(m.Month)
-	return query.Find(result, filterBudgets)
+	filterNetworks := HandleBadgerRequest(request)
+	return query.Find(result, filterNetworks)
 }

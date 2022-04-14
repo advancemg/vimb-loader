@@ -46,6 +46,7 @@ func main() {
 	/*networks*/
 	route.HandleFunc("/api/v1/program-breaks", routes.PostGetProgramBreaks).Methods("POST", "OPTIONS")
 	route.HandleFunc("/api/v1/program-breaks/load", routes.PostLoadProgramBreaks).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/program-breaks/badger/load", routes.PostLoadBadgerProgramBreaks).Methods("POST", "OPTIONS")
 	route.HandleFunc("/api/v1/program-breaks-light/load", routes.PostLoadProgramLightModeBreaks).Methods("POST", "OPTIONS")
 	/*deals*/
 	route.HandleFunc("/api/v1/budgets", routes.PostGetBudgets).Methods("POST", "OPTIONS")
@@ -57,6 +58,7 @@ func main() {
 	route.HandleFunc("/api/v1/mediaplan", routes.PutAddMPlan).Methods("PUT", "OPTIONS")
 	route.HandleFunc("/api/v1/mediaplan", routes.PostGetMPLans).Methods("POST", "OPTIONS")
 	route.HandleFunc("/api/v1/mediaplan/load", routes.PostLoadMPLans).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/mediaplan/badger/load", routes.PostLoadBadgerMPLans).Methods("POST", "OPTIONS")
 	route.HandleFunc("/api/v1/mediaplan/film ", routes.PostAddMPlanFilm).Methods("POST", "OPTIONS")
 	route.HandleFunc("/api/v1/mediaplan/film", routes.DeleteMPlanFilm).Methods("DELETE", "OPTIONS")
 	route.HandleFunc("/api/v1/mediaplan/change-film-planned-inventory", routes.PostChangeMPlanFilmPlannedInventory).Methods("POST", "OPTIONS")

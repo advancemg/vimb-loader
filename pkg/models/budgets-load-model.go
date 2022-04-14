@@ -14,6 +14,18 @@ type BudgetLoadRequest struct {
 	SellingDirectionID string `json:"SellingDirectionID" example:"23"`
 }
 
+type BudgetLoadBadgerRequest struct {
+	Month struct {
+		Eq int `json:"eq" example:"201902"`
+	} `json:"Month"`
+	CnlID struct {
+		Eq int `json:"eq" example:"1020335"`
+	} `json:"CnlID"`
+	AdtID struct {
+		Ee int `json:"eq" example:"700068653"`
+	} `json:"AdtID"`
+}
+
 func (request *BudgetLoadRequest) InitTasks() (CommonResponse, error) {
 	qName := GetBudgetsType
 	amqpConfig := mq_broker.InitConfig()
@@ -46,14 +58,10 @@ func (request *BudgetLoadRequest) getMonths() ([]utils.YearMonth, error) {
 	return utils.GetPeriodFromYearMonths(request.StartMonth, request.EndMonth)
 }
 
-type BudgetLoadBadgerRequest struct {
-	Month int `json:"Month" example:"201902"`
-}
-
-func (request *BudgetLoadBadgerRequest) LoadBudgets() ([]Budget, error) {
+func (request *Any) LoadBudgets() ([]Budget, error) {
 	var result []Budget
 	query := BudgetsBadgerQuery{}
-	marshal, err := json.Marshal(request)
+	marshal, err := json.Marshal(request.Body)
 	if err != nil {
 		return nil, err
 	}

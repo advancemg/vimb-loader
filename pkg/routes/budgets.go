@@ -92,7 +92,7 @@ func PostLoadBudgets(w http.ResponseWriter, r *http.Request) {
 
 // PostLoadBadgerBudgets godoc
 // @Summary Эагрузка сохраненных бюджетов.
-// @Description Эагрузка сохраненных бюджетов, за выбранный месяц.
+// @Description Динамический запрос на загрузку сохраненных данных. Логические операторы: eq ==, ne !=, gt >, lt <, ge >=, le <=, in in, isnil is nil.
 // @ID routes-load-badger-budgets
 // @Tags Сделки
 // @Param body body models.BudgetLoadBadgerRequest true  "Запрос"
@@ -106,8 +106,8 @@ func PostLoadBadgerBudgets(w http.ResponseWriter, r *http.Request) {
 		(w).WriteHeader(http.StatusOK)
 		return
 	}
-	var request models.BudgetLoadBadgerRequest
-	err := json.NewDecoder(r.Body).Decode(&request)
+	var request models.Any
+	err := json.NewDecoder(r.Body).Decode(&request.Body)
 	if err != nil {
 		(w).WriteHeader(http.StatusBadRequest)
 		var response = utils.FieldValidateErrorType{

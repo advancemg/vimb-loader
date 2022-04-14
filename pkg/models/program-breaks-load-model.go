@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/json"
 	"fmt"
 	goConvert "github.com/advancemg/go-convert"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
@@ -18,6 +19,18 @@ type ProgramBreaksLoadRequest struct {
 		Cnl string `json:"Cnl" example:"1018566"` //ID канала (int, not nillable)
 	} `json:"CnlList"`
 	ProtocolVersion string `json:"ProtocolVersion" example:"2"`
+}
+
+type ProgramBreaksLoadBadgerRequest struct {
+	Month struct {
+		Eq int `json:"eq" example:"201902"`
+	} `json:"Month"`
+	CnlID struct {
+		Eq int `json:"eq" example:"1020232"`
+	} `json:"CnlID"`
+	WeekDay struct {
+		Ee int `json:"ge" example:"1"`
+	} `json:"WeekDay"`
 }
 
 func (request *ProgramBreaksLoadRequest) InitTasks() (CommonResponse, error) {
@@ -67,4 +80,15 @@ func (request *ProgramBreaksLoadRequest) InitTasks() (CommonResponse, error) {
 
 func (request *ProgramBreaksLoadRequest) getDays() ([]time.Time, error) {
 	return utils.GetDaysByPeriod(request.StartDate, request.EndDate)
+}
+
+func (request *Any) LoadProgramBreaks() ([]ProgramBreaks, error) {
+	var result []ProgramBreaks
+	query := ProgramBreaksBadgerQuery{}
+	marshal, err := json.Marshal(request.Body)
+	if err != nil {
+		return nil, err
+	}
+	query.FindJson(&result, marshal)
+	return result, nil
 }

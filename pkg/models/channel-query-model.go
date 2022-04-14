@@ -1,10 +1,10 @@
 package models
 
 import (
+	"bytes"
 	"encoding/json"
 	"github.com/advancemg/vimb-loader/pkg/storage"
 	"github.com/timshannon/badgerhold"
-	"strconv"
 )
 
 type ChannelBadgerQuery struct {
@@ -19,20 +19,13 @@ func (query *ChannelBadgerQuery) Find(result interface{}, filter *badgerhold.Que
 	return store.Find(result, filter)
 }
 
-type sellingDirectionID struct {
-	SellingDirectionID string `json:"SellingDirectionID"`
-}
-
 func (query *ChannelBadgerQuery) FindJson(result interface{}, filter []byte) error {
-	var s sellingDirectionID
-	err := json.Unmarshal(filter, &s)
-	if err != nil {
-		return err
+	var request map[string]interface{}
+	decoder := json.NewDecoder(bytes.NewReader(filter))
+	decoder.UseNumber()
+	if err := decoder.Decode(&request); err != nil {
+		println(err)
 	}
-	intSellingDirectionID, err := strconv.Atoi(s.SellingDirectionID)
-	if err != nil {
-		return err
-	}
-	filterBudgets := badgerhold.Where("SellingDirectionID").Eq(intSellingDirectionID)
-	return query.Find(result, filterBudgets)
+	filterNetworks := HandleBadgerRequest(request)
+	return query.Find(result, filterNetworks)
 }

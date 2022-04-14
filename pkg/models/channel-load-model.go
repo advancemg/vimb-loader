@@ -11,6 +11,18 @@ type ChannelLoadRequest struct {
 	SellingDirectionID string `json:"SellingDirectionID" example:"23"`
 }
 
+type ChannelLoadBadgerRequest struct {
+	ID struct {
+		Eq int `json:"eq" example:"1018583"`
+	} `json:"ID"`
+	MainChnl struct {
+		Eq int `json:"eq" example:"1018568"`
+	} `json:"MainChnl"`
+	SellingDirectionID struct {
+		Ee int `json:"eq" example:"23"`
+	} `json:"SellingDirectionID"`
+}
+
 func (request *ChannelLoadRequest) InitTasks() (CommonResponse, error) {
 	qName := GetChannelsType
 	amqpConfig := mq_broker.InitConfig()
@@ -30,10 +42,10 @@ func (request *ChannelLoadRequest) InitTasks() (CommonResponse, error) {
 	return result, nil
 }
 
-func (request *ChannelLoadRequest) LoadChannels() ([]Channel, error) {
+func (request *Any) LoadChannels() ([]Channel, error) {
 	var result []Channel
 	query := ChannelBadgerQuery{}
-	marshal, err := json.Marshal(request)
+	marshal, err := json.Marshal(request.Body)
 	if err != nil {
 		return nil, err
 	}

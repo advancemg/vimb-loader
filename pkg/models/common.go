@@ -2,6 +2,8 @@ package models
 
 import (
 	"encoding/json"
+	"github.com/advancemg/vimb-loader/pkg/utils"
+	"github.com/timshannon/badgerhold"
 	"os"
 	"time"
 )
@@ -138,6 +140,10 @@ type internalChannel struct {
 	Channel map[string]interface{} `json:"Channel"`
 }
 
+type Any struct {
+	Body map[string]interface{}
+}
+
 type WeekInfo struct {
 	Number int       `json:"Number"`
 	Close  bool      `json:"Close"`
@@ -177,4 +183,66 @@ func LoadConfiguration() (*Configuration, error) {
 	jsonParser := json.NewDecoder(configFile)
 	jsonParser.Decode(&config)
 	return &config, nil
+}
+
+func HandleBadgerRequest(request map[string]interface{}) *badgerhold.Query {
+	var query *badgerhold.Query
+	once := true
+	for field, value := range request {
+		for key, val := range value.(map[string]interface{}) {
+			if once {
+				query = switchBadgerFilterWhere(query, key, field, val)
+				once = false
+			} else {
+				query = switchBadgerFilterAnd(query, key, field, val)
+			}
+		}
+	}
+	return query
+}
+
+func switchBadgerFilterAnd(filter *badgerhold.Query, key, filed string, value interface{}) *badgerhold.Query {
+	value = utils.JsonNumber(value)
+	switch key {
+	case "eq":
+		filter = filter.And(filed).Eq(value)
+	case "ne":
+		filter = filter.And(filed).Ne(value)
+	case "gt":
+		filter = filter.And(filed).Gt(value)
+	case "lt":
+		filter = filter.And(filed).Lt(value)
+	case "ge":
+		filter = filter.And(filed).Ge(value)
+	case "le":
+		filter = filter.And(filed).Le(value)
+	case "in":
+		filter = filter.And(filed).In(value)
+	case "isnil":
+		filter = filter.And(filed).IsNil()
+	}
+	return filter
+}
+
+func switchBadgerFilterWhere(filter *badgerhold.Query, key, filed string, value interface{}) *badgerhold.Query {
+	value = utils.JsonNumber(value)
+	switch key {
+	case "eq":
+		filter = badgerhold.Where(filed).Eq(value)
+	case "ne":
+		filter = badgerhold.Where(filed).Ne(value)
+	case "gt":
+		filter = badgerhold.Where(filed).Gt(value)
+	case "lt":
+		filter = badgerhold.Where(filed).Lt(value)
+	case "ge":
+		filter = badgerhold.Where(filed).Ge(value)
+	case "le":
+		filter = badgerhold.Where(filed).Le(value)
+	case "in":
+		filter = badgerhold.Where(filed).In(value)
+	case "isnil":
+		filter = badgerhold.Where(filed).IsNil()
+	}
+	return filter
 }
