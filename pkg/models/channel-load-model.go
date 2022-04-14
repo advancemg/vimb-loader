@@ -11,7 +11,7 @@ type ChannelLoadRequest struct {
 	SellingDirectionID string `json:"SellingDirectionID" example:"23"`
 }
 
-type ChannelLoadBadgerRequest struct {
+type ChannelQuery struct {
 	ID struct {
 		Eq int `json:"eq" example:"1018583"`
 	} `json:"ID"`
@@ -42,7 +42,7 @@ func (request *ChannelLoadRequest) InitTasks() (CommonResponse, error) {
 	return result, nil
 }
 
-func (request *Any) LoadChannels() ([]Channel, error) {
+func (request *Any) QueryChannels() ([]Channel, error) {
 	var result []Channel
 	query := ChannelBadgerQuery{}
 	marshal, err := json.Marshal(request.Body)

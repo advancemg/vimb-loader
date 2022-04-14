@@ -21,7 +21,7 @@ type ProgramBreaksLoadRequest struct {
 	ProtocolVersion string `json:"ProtocolVersion" example:"2"`
 }
 
-type ProgramBreaksLoadBadgerRequest struct {
+type ProgramBreaksQuery struct {
 	Month struct {
 		Eq int `json:"eq" example:"201902"`
 	} `json:"Month"`
@@ -82,7 +82,7 @@ func (request *ProgramBreaksLoadRequest) getDays() ([]time.Time, error) {
 	return utils.GetDaysByPeriod(request.StartDate, request.EndDate)
 }
 
-func (request *Any) LoadProgramBreaks() ([]ProgramBreaks, error) {
+func (request *Any) QueryProgramBreaks() ([]ProgramBreaks, error) {
 	var result []ProgramBreaks
 	query := ProgramBreaksBadgerQuery{}
 	marshal, err := json.Marshal(request.Body)

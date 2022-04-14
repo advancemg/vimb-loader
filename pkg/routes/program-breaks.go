@@ -90,17 +90,17 @@ func PostLoadProgramBreaks(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
-// PostLoadBadgerProgramBreaks godoc
+// PostProgramBreaksQuery godoc
 // @Summary Загрузка сохраненных сеток.
 // @Description Динамический запрос на загрузку сохраненных данных. Логические операторы: eq ==, ne !=, gt >, lt <, ge >=, le <=, in in, isnil is nil.
-// @ID routes-load-badger-program-breaks
+// @ID routes-query-program-breaks
 // @Tags Блоки
-// @Param body body models.ProgramBreaksLoadBadgerRequest true  "Запрос"
+// @Param body body models.ProgramBreaksQuery true  "Запрос"
 // @Accept json
 // @Produce json
 // @Success 200 {object} models.CommonResponse
-// @Router /api/v1/program-breaks/badger/load [post]
-func PostLoadBadgerProgramBreaks(w http.ResponseWriter, r *http.Request) {
+// @Router /api/v1/program-breaks/query [post]
+func PostProgramBreaksQuery(w http.ResponseWriter, r *http.Request) {
 	setupResponse(&w, r)
 	if (*r).Method == "OPTIONS" {
 		(w).WriteHeader(http.StatusOK)
@@ -117,7 +117,7 @@ func PostLoadBadgerProgramBreaks(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(response)
 		return
 	}
-	response, err := request.LoadProgramBreaks()
+	response, err := request.QueryProgramBreaks()
 	if err != nil {
 		(w).WriteHeader(http.StatusBadRequest)
 		var response = utils.FieldValidateErrorType{

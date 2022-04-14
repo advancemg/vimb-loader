@@ -14,7 +14,7 @@ type BudgetLoadRequest struct {
 	SellingDirectionID string `json:"SellingDirectionID" example:"23"`
 }
 
-type BudgetLoadBadgerRequest struct {
+type BudgetQuery struct {
 	Month struct {
 		Eq int `json:"eq" example:"201902"`
 	} `json:"Month"`
@@ -58,7 +58,7 @@ func (request *BudgetLoadRequest) getMonths() ([]utils.YearMonth, error) {
 	return utils.GetPeriodFromYearMonths(request.StartMonth, request.EndMonth)
 }
 
-func (request *Any) LoadBudgets() ([]Budget, error) {
+func (request *Any) QueryBudgets() ([]Budget, error) {
 	var result []Budget
 	query := BudgetsBadgerQuery{}
 	marshal, err := json.Marshal(request.Body)

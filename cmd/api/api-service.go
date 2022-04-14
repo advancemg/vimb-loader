@@ -38,7 +38,7 @@ func main() {
 	/*dictionaries*/
 	route.HandleFunc("/api/v1/channels", routes.PostGetChannels).Methods("POST", "OPTIONS")
 	route.HandleFunc("/api/v1/channels/load", routes.PostLoadChannels).Methods("POST", "OPTIONS")
-	route.HandleFunc("/api/v1/channels/badger/load", routes.PostLoadBadgerChannels).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/channels/query", routes.PostChannelsQuery).Methods("POST", "OPTIONS")
 	route.HandleFunc("/api/v1/adv-messages", routes.PostGetAdvMessages).Methods("POST", "OPTIONS")
 	route.HandleFunc("/api/v1/adv-messages/load", routes.PostLoadAdvMessages).Methods("POST", "OPTIONS")
 	route.HandleFunc("/api/v1/ranks", routes.PostGetRanks).Methods("POST", "OPTIONS")
@@ -46,12 +46,12 @@ func main() {
 	/*networks*/
 	route.HandleFunc("/api/v1/program-breaks", routes.PostGetProgramBreaks).Methods("POST", "OPTIONS")
 	route.HandleFunc("/api/v1/program-breaks/load", routes.PostLoadProgramBreaks).Methods("POST", "OPTIONS")
-	route.HandleFunc("/api/v1/program-breaks/badger/load", routes.PostLoadBadgerProgramBreaks).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/program-breaks/query", routes.PostProgramBreaksQuery).Methods("POST", "OPTIONS")
 	route.HandleFunc("/api/v1/program-breaks-light/load", routes.PostLoadProgramLightModeBreaks).Methods("POST", "OPTIONS")
 	/*deals*/
 	route.HandleFunc("/api/v1/budgets", routes.PostGetBudgets).Methods("POST", "OPTIONS")
 	route.HandleFunc("/api/v1/budgets/load", routes.PostLoadBudgets).Methods("POST", "OPTIONS")
-	route.HandleFunc("/api/v1/budgets/badger/load", routes.PostLoadBadgerBudgets).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/budgets/query", routes.PostBudgetsQuery).Methods("POST", "OPTIONS")
 	route.HandleFunc("/api/v1/customers-with-advertisers", routes.PostGetCustomersWithAdvertisers).Methods("POST", "OPTIONS")
 	route.HandleFunc("/api/v1/customers-with-advertisers/load", routes.PostLoadCustomersWithAdvertisers).Methods("POST", "OPTIONS")
 	/*mediaPlans*/
