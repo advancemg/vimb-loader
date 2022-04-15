@@ -7,11 +7,11 @@ func TestMediaplanAggUpdateRequest_Update(t *testing.T) {
 		t.SkipNow()
 	}
 	type fields struct {
-		Month        int
-		ChannelId    int
-		MediaplanId  int
-		AdvertiserId int
-		AgreementId  int
+		Month        int64
+		ChannelId    int64
+		MediaplanId  int64
+		AdvertiserId int64
+		AgreementId  int64
 	}
 	tests := []struct {
 		name    string

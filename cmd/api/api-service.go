@@ -44,6 +44,7 @@ func main() {
 	route.HandleFunc("/api/v1/adv-messages/query", routes.PostAdvMessagesQuery).Methods("POST", "OPTIONS")
 	route.HandleFunc("/api/v1/ranks", routes.PostGetRanks).Methods("POST", "OPTIONS")
 	route.HandleFunc("/api/v1/ranks/load", routes.PostLoadRanks).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/ranks/query", routes.PostRanksQuery).Methods("POST", "OPTIONS")
 	/*networks*/
 	route.HandleFunc("/api/v1/program-breaks", routes.PostGetProgramBreaks).Methods("POST", "OPTIONS")
 	route.HandleFunc("/api/v1/program-breaks/load", routes.PostLoadProgramBreaks).Methods("POST", "OPTIONS")

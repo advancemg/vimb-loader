@@ -43,14 +43,14 @@ func TestBudgetsUpdateRequest_loadFromFile(t *testing.T) {
 
 func TestQueryBudgets(t *testing.T) {
 	type Cnl struct {
-		Cnl  int
-		Main int
+		Cnl  int64
+		Main int64
 	}
 	var budgets []Budget
 	var channels []Channel
 	var allChannels []Cnl
-	advertisers := map[int]int{}
-	channelList := map[int]Cnl{}
+	advertisers := map[int64]int64{}
+	channelList := map[int64]Cnl{}
 	badgerBudgets := storage.Open(DbBudgets)
 	_ = badgerBudgets.Find(&budgets, badgerhold.Where("Month").Ge(-1))
 	badgerChannels := storage.Open(DbChannels)
@@ -74,9 +74,9 @@ func TestBudgetsUpdateRequest_readBudgets(t *testing.T) {
 	if testing.Short() {
 		t.SkipNow()
 	}
-	var cnl []int
+	var cnl []int64
 	var result []Budget
-	months := map[int][]string{}
+	months := map[int64][]string{}
 	badgerBudgets := storage.NewBadger(DbBudgets)
 	badgerBudgets.Iterate(func(key []byte, value []byte) {
 		var budget Budget
@@ -101,7 +101,7 @@ func TestBudgetsUpdateRequest_readBudgets(t *testing.T) {
 		if err != nil {
 			panic(err)
 		}
-		months[month] = days
+		months[int64(month)] = days
 	}
 	fmt.Println(cnl)
 	fmt.Println(months)
@@ -112,15 +112,15 @@ func TestBudgetsUpdateRequest_readBudgetsAndChannels(t *testing.T) {
 		t.SkipNow()
 	}
 	type Cnl struct {
-		Cnl  int
-		Main int
+		Cnl  int64
+		Main int64
 	}
-	var cnl []int
-	var advertisers []int
+	var cnl []int64
+	var advertisers []int64
 	var allchannels []Cnl
 	var budgets []Budget
 	var channels []Channel
-	channelList := map[int]Cnl{}
+	channelList := map[int64]Cnl{}
 	months := map[int][]string{}
 	badgerBudgets := storage.NewBadger(DbBudgets)
 	badgerBudgets.Iterate(func(key []byte, value []byte) {
