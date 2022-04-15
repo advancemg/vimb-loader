@@ -59,6 +59,7 @@ func main() {
 	route.HandleFunc("/api/v1/customers-with-advertisers", routes.PostGetCustomersWithAdvertisers).Methods("POST", "OPTIONS")
 	route.HandleFunc("/api/v1/customers-with-advertisers/load", routes.PostLoadCustomersWithAdvertisers).Methods("POST", "OPTIONS")
 	route.HandleFunc("/api/v1/customers-with-advertisers/query", routes.PostCustomersWithAdvertisersQuery).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/customers-with-advertisers-data/query", routes.PostCustomersWithAdvertisersDataQuery).Methods("POST", "OPTIONS")
 	/*mediaPlans*/
 	route.HandleFunc("/api/v1/mediaplan", routes.PutAddMPlan).Methods("PUT", "OPTIONS")
 	route.HandleFunc("/api/v1/mediaplan", routes.PostGetMPLans).Methods("POST", "OPTIONS")

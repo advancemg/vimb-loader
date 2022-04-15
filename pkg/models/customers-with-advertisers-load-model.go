@@ -17,6 +17,12 @@ type CustomersWithAdvertiserQuery struct {
 	} `json:"ID"`
 }
 
+type CustomersWithAdvertiserDataQuery struct {
+	CustID struct {
+		Eq int `json:"eq" example:"1"`
+	} `json:"CustID"`
+}
+
 func (request *CustomersWithAdvertisersLoadRequest) InitTasks() (CommonResponse, error) {
 	qName := GetCustomersWithAdvertisersType
 	amqpConfig := mq_broker.InitConfig()
@@ -39,6 +45,20 @@ func (request *CustomersWithAdvertisersLoadRequest) InitTasks() (CommonResponse,
 func (request *Any) QueryCustomersWithAdvertisers() ([]CustomersWithAdvertisers, error) {
 	var result []CustomersWithAdvertisers
 	query := CustomersWithAdvertisersBadgerQuery{}
+	marshal, err := json.Marshal(request.Body)
+	if err != nil {
+		return nil, err
+	}
+	err = query.FindJson(&result, marshal)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func (request *Any) QueryCustomersWithAdvertisersData() ([]CustomersWithAdvertisersData, error) {
+	var result []CustomersWithAdvertisersData
+	query := CustomersWithAdvertisersDataBadgerQuery{}
 	marshal, err := json.Marshal(request.Body)
 	if err != nil {
 		return nil, err
