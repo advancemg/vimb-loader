@@ -8,7 +8,6 @@ import (
 	"github.com/advancemg/vimb-loader/pkg/storage"
 	"github.com/advancemg/vimb-loader/pkg/utils"
 	"reflect"
-	"strconv"
 	"time"
 )
 
@@ -18,36 +17,36 @@ type ProgramBreaksUpdateRequest struct {
 }
 
 type ProgramBreaks struct {
-	Month                  *int               `json:"Month"`
-	CnlID                  *int               `json:"CnlID"`
-	ProgID                 *int               `json:"ProgID"`
-	RCID                   *int               `json:"RCID"`
-	RPID                   *int               `json:"RPID"`
-	IssTime                *int               `json:"IssTime"`
-	IssDuration            *int               `json:"IssDuration"`
-	BlockTime              *int               `json:"BlockTime"`
-	BlockNumber            *int               `json:"BlockNumber"`
-	IsPrime                *int               `json:"IsPrime"`
-	ProID                  *int               `json:"ProID"`
-	ProOriginalPTR         *int               `json:"ProOriginalPTR"`
-	BlockDistr             *int               `json:"BlockDistr"`
-	SptOptions             *int               `json:"SptOptions"`
-	TNSBlockFactTime       *int               `json:"TNSBlockFactTime"`
-	TNSBlockFactDur        *int               `json:"TNSBlockFactDur"`
-	Pro2                   *int               `json:"Pro2"`
-	BlkAdvertTypePTR       *int               `json:"BlkAdvertTypePTR"`
-	WeekDay                *int               `json:"WeekDay"`
-	PrgBegTimeL            *int               `json:"PrgBegTimeL"`
-	PrgEndMonthL           *int               `json:"PrgEndMonthL"`
-	PrgBegMonthL           *int               `json:"PrgBegMonthL"`
-	BlkAuc                 *int               `json:"BlkAuc"`
-	AucRate                *int               `json:"AucRate"`
-	NoRating               *int               `json:"NoRating"`
-	AvailableAuctionVolume *int               `json:"AvailableAuctionVolume"`
-	IsLocal                *int               `json:"IsLocal"`
-	RootRCID               *int               `json:"RootRCID"`
-	RootRPID               *int               `json:"RootRPID"`
-	IsSpecialProject       *int               `json:"IsSpecialProject"`
+	Month                  *int64             `json:"Month"`
+	CnlID                  *int64             `json:"CnlID"`
+	ProgID                 *int64             `json:"ProgID"`
+	RCID                   *int64             `json:"RCID"`
+	RPID                   *int64             `json:"RPID"`
+	IssTime                *int64             `json:"IssTime"`
+	IssDuration            *int64             `json:"IssDuration"`
+	BlockTime              *int64             `json:"BlockTime"`
+	BlockNumber            *int64             `json:"BlockNumber"`
+	IsPrime                *int64             `json:"IsPrime"`
+	ProID                  *int64             `json:"ProID"`
+	ProOriginalPTR         *int64             `json:"ProOriginalPTR"`
+	BlockDistr             *int64             `json:"BlockDistr"`
+	SptOptions             *int64             `json:"SptOptions"`
+	TNSBlockFactTime       *int64             `json:"TNSBlockFactTime"`
+	TNSBlockFactDur        *int64             `json:"TNSBlockFactDur"`
+	Pro2                   *int64             `json:"Pro2"`
+	BlkAdvertTypePTR       *int64             `json:"BlkAdvertTypePTR"`
+	WeekDay                *int64             `json:"WeekDay"`
+	PrgBegTimeL            *int64             `json:"PrgBegTimeL"`
+	PrgEndMonthL           *int64             `json:"PrgEndMonthL"`
+	PrgBegMonthL           *int64             `json:"PrgBegMonthL"`
+	BlkAuc                 *int64             `json:"BlkAuc"`
+	AucRate                *int64             `json:"AucRate"`
+	NoRating               *int64             `json:"NoRating"`
+	AvailableAuctionVolume *int64             `json:"AvailableAuctionVolume"`
+	IsLocal                *int64             `json:"IsLocal"`
+	RootRCID               *int64             `json:"RootRCID"`
+	RootRPID               *int64             `json:"RootRPID"`
+	IsSpecialProject       *int64             `json:"IsSpecialProject"`
 	RankID                 *int64             `json:"RankID"`
 	IssID                  *int64             `json:"IssID"`
 	TNSBlockFactID         *int64             `json:"TNSBlockFactID"`
@@ -60,11 +59,11 @@ type ProgramBreaks struct {
 	PrgNameShort           *string            `json:"PrgNameShort"`
 	TgrID                  *string            `json:"TgrID"`
 	TgrName                *string            `json:"TgrName"`
-	BlockDate              *int               `json:"BlockDate"`
+	BlockDate              *int64             `json:"BlockDate"`
 	Booked                 []BookedAttributes `json:"Booked"`
 	BlockID                *int64             `json:"BlockID"`
-	VM                     *int               `json:"VM"`
-	VR                     *int               `json:"VR"`
+	VM                     *int64             `json:"VM"`
+	VR                     *int64             `json:"VR"`
 	DLDate                 *time.Time         `json:"DLDate"`
 	DLTrDate               *time.Time         `json:"DLTrDate"`
 	Timestamp              time.Time          `json:"Timestamp"`
@@ -78,36 +77,36 @@ type internalAttr struct {
 
 type Attributes struct {
 	BlockID *int64 `json:"BlockID"`
-	VM      *int   `json:"VM"`
-	VR      *int   `json:"VR"`
+	VM      *int64 `json:"VM"`
+	VR      *int64 `json:"VR"`
 }
 
 func (a *internalAttr) Convert() (*Attributes, error) {
 	attributes := &Attributes{
 		BlockID: utils.Int64I(a.BlockID),
-		VM:      utils.IntI(a.VM),
-		VR:      utils.IntI(a.VR),
+		VM:      utils.Int64I(a.VM),
+		VR:      utils.Int64I(a.VR),
 	}
 	return attributes, nil
 }
 
 type BookedAttributes struct {
 	RankID *int64 `json:"RankID"`
-	VM     *int   `json:"VM"`
-	VR     *int   `json:"VR"`
+	VM     *int64 `json:"VM"`
+	VR     *int64 `json:"VR"`
 }
 
 func (a *internalAttributes) Convert() (*BookedAttributes, error) {
 	attributes := &BookedAttributes{
 		RankID: utils.Int64I(a.Attributes["RankID"]),
-		VM:     utils.IntI(a.Attributes["VM"]),
-		VR:     utils.IntI(a.Attributes["VR"]),
+		VM:     utils.Int64I(a.Attributes["VM"]),
+		VR:     utils.Int64I(a.Attributes["VR"]),
 	}
 	return attributes, nil
 }
 
 type ProMaster struct {
-	ProID     *int      `json:"ProID"`
+	ProID     *int64    `json:"ProID"`
 	PropName  *string   `json:"PropName"`
 	PropValue *string   `json:"PropValue"`
 	Timestamp time.Time `json:"Timestamp"`
@@ -116,7 +115,7 @@ type ProMaster struct {
 func (p *internalP) Convert() (*ProMaster, error) {
 	timestamp := time.Now()
 	pro := &ProMaster{
-		ProID:     utils.IntI(p.P["ProID"]),
+		ProID:     utils.Int64I(p.P["ProID"]),
 		PropName:  utils.StringI(p.P["PropName"]),
 		PropValue: utils.StringI(p.P["PropValue"]),
 		Timestamp: timestamp,
@@ -125,7 +124,7 @@ func (p *internalP) Convert() (*ProMaster, error) {
 }
 
 type BlockForecast struct {
-	TgrID            *int      `json:"TgrID"`
+	TgrID            *int64    `json:"TgrID"`
 	BlockID          *int64    `json:"BlockID"`
 	Forecast         *float64  `json:"Forecast"`
 	InternetForecast *float64  `json:"InternetForecast"`
@@ -137,7 +136,7 @@ type BlockForecast struct {
 func (bb *internalBB) Convert() (*BlockForecast, error) {
 	timestamp := time.Now()
 	block := &BlockForecast{
-		TgrID:            utils.IntI(bb.B["TgrID"]),
+		TgrID:            utils.Int64I(bb.B["TgrID"]),
 		BlockID:          utils.Int64I(bb.B["BlockID"]),
 		Forecast:         utils.FloatI(bb.B["Forecast"]),
 		InternetForecast: utils.FloatI(bb.B["InternetForecast"]),
@@ -149,7 +148,7 @@ func (bb *internalBB) Convert() (*BlockForecast, error) {
 }
 
 type BlockForecastTgr struct {
-	ID        *int      `json:"ID"`
+	ID        *int64    `json:"ID"`
 	Name      *string   `json:"Name"`
 	Timestamp time.Time `json:"Timestamp"`
 }
@@ -157,7 +156,7 @@ type BlockForecastTgr struct {
 func (t *internalTgr) Convert() (*BlockForecastTgr, error) {
 	timestamp := time.Now()
 	block := &BlockForecastTgr{
-		ID:        utils.IntI(t.Tgr["ID"]),
+		ID:        utils.Int64I(t.Tgr["ID"]),
 		Name:      utils.StringI(t.Tgr["Name"]),
 		Timestamp: timestamp,
 	}
@@ -180,8 +179,8 @@ func (trg *BlockForecastTgr) Key() string {
 func (b *internalB) ConvertProgramBreaks() (*ProgramBreaks, error) {
 	timestamp := time.Now()
 	var blockID *int64
-	var vm *int
-	var vr *int
+	var vm *int64
+	var vr *int64
 	var attribute internalAttr
 	var attributes []BookedAttributes
 	if _, ok := b.B["Booked"]; ok {
@@ -228,44 +227,44 @@ func (b *internalB) ConvertProgramBreaks() (*ProgramBreaks, error) {
 				return nil, err
 			}
 			blockID = utils.Int64I(attribute.BlockID)
-			vm = utils.IntI(attribute.VM)
-			vr = utils.IntI(attribute.VR)
+			vm = utils.Int64I(attribute.VM)
+			vr = utils.Int64I(attribute.VR)
 		}
 	} else {
 		blockID = utils.Int64I(b.B["BlockID"])
-		vm = utils.IntI(b.B["VM"])
-		vr = utils.IntI(b.B["VR"])
+		vm = utils.Int64I(b.B["VM"])
+		vr = utils.Int64I(b.B["VR"])
 	}
 	items := &ProgramBreaks{
-		CnlID:                  utils.IntI(b.B["CnlID"]),
-		ProgID:                 utils.IntI(b.B["ProgID"]),
-		RCID:                   utils.IntI(b.B["RCID"]),
-		RPID:                   utils.IntI(b.B["RPID"]),
-		IssTime:                utils.IntI(b.B["IssTime"]),
-		IssDuration:            utils.IntI(b.B["IssDuration"]),
-		BlockTime:              utils.IntI(b.B["BlockTime"]),
-		BlockNumber:            utils.IntI(b.B["BlockNumber"]),
-		IsPrime:                utils.IntI(b.B["IsPrime"]),
-		ProID:                  utils.IntI(b.B["ProID"]),
-		ProOriginalPTR:         utils.IntI(b.B["ProOriginalPTR"]),
-		BlockDistr:             utils.IntI(b.B["BlockDistr"]),
-		SptOptions:             utils.IntI(b.B["SptOptions"]),
-		TNSBlockFactTime:       utils.IntI(b.B["TNSBlockFactTime"]),
-		TNSBlockFactDur:        utils.IntI(b.B["TNSBlockFactDur"]),
-		Pro2:                   utils.IntI(b.B["Pro2"]),
-		BlkAdvertTypePTR:       utils.IntI(b.B["BlkAdvertTypePTR"]),
-		WeekDay:                utils.IntI(b.B["WeekDay"]),
-		PrgBegTimeL:            utils.IntI(b.B["PrgBegTimeL"]),
-		PrgEndMonthL:           utils.IntI(b.B["PrgEndMonthL"]),
-		PrgBegMonthL:           utils.IntI(b.B["PrgBegMonthL"]),
-		BlkAuc:                 utils.IntI(b.B["BlkAuc"]),
-		AucRate:                utils.IntI(b.B["AucRate"]),
-		NoRating:               utils.IntI(b.B["NoRating"]),
-		AvailableAuctionVolume: utils.IntI(b.B["AvailableAuctionVolume"]),
-		IsLocal:                utils.IntI(b.B["IsLocal"]),
-		RootRCID:               utils.IntI(b.B["RootRCID"]),
-		RootRPID:               utils.IntI(b.B["RootRPID"]),
-		IsSpecialProject:       utils.IntI(b.B["IsSpecialProject"]),
+		CnlID:                  utils.Int64I(b.B["CnlID"]),
+		ProgID:                 utils.Int64I(b.B["ProgID"]),
+		RCID:                   utils.Int64I(b.B["RCID"]),
+		RPID:                   utils.Int64I(b.B["RPID"]),
+		IssTime:                utils.Int64I(b.B["IssTime"]),
+		IssDuration:            utils.Int64I(b.B["IssDuration"]),
+		BlockTime:              utils.Int64I(b.B["BlockTime"]),
+		BlockNumber:            utils.Int64I(b.B["BlockNumber"]),
+		IsPrime:                utils.Int64I(b.B["IsPrime"]),
+		ProID:                  utils.Int64I(b.B["ProID"]),
+		ProOriginalPTR:         utils.Int64I(b.B["ProOriginalPTR"]),
+		BlockDistr:             utils.Int64I(b.B["BlockDistr"]),
+		SptOptions:             utils.Int64I(b.B["SptOptions"]),
+		TNSBlockFactTime:       utils.Int64I(b.B["TNSBlockFactTime"]),
+		TNSBlockFactDur:        utils.Int64I(b.B["TNSBlockFactDur"]),
+		Pro2:                   utils.Int64I(b.B["Pro2"]),
+		BlkAdvertTypePTR:       utils.Int64I(b.B["BlkAdvertTypePTR"]),
+		WeekDay:                utils.Int64I(b.B["WeekDay"]),
+		PrgBegTimeL:            utils.Int64I(b.B["PrgBegTimeL"]),
+		PrgEndMonthL:           utils.Int64I(b.B["PrgEndMonthL"]),
+		PrgBegMonthL:           utils.Int64I(b.B["PrgBegMonthL"]),
+		BlkAuc:                 utils.Int64I(b.B["BlkAuc"]),
+		AucRate:                utils.Int64I(b.B["AucRate"]),
+		NoRating:               utils.Int64I(b.B["NoRating"]),
+		AvailableAuctionVolume: utils.Int64I(b.B["AvailableAuctionVolume"]),
+		IsLocal:                utils.Int64I(b.B["IsLocal"]),
+		RootRCID:               utils.Int64I(b.B["RootRCID"]),
+		RootRPID:               utils.Int64I(b.B["RootRPID"]),
+		IsSpecialProject:       utils.Int64I(b.B["IsSpecialProject"]),
 		RankID:                 utils.Int64I(b.B["RankID"]),
 		IssID:                  utils.Int64I(b.B["IssID"]),
 		TNSBlockFactID:         utils.Int64I(b.B["TNSBlockFactID"]),
@@ -278,7 +277,7 @@ func (b *internalB) ConvertProgramBreaks() (*ProgramBreaks, error) {
 		PrgNameShort:           utils.StringI(b.B["PrgNameShort"]),
 		TgrID:                  utils.StringI(b.B["TgrID"]),
 		TgrName:                utils.StringI(b.B["TgrName"]),
-		BlockDate:              utils.IntI(b.B["BlockDate"]),
+		BlockDate:              utils.Int64I(b.B["BlockDate"]),
 		BlockID:                blockID,
 		VM:                     vm,
 		VR:                     vr,
@@ -362,10 +361,7 @@ func (request *ProgramBreaksUpdateRequest) loadFromFile() error {
 		return err
 	}
 	badgerProgramBreaks := storage.Open(DbProgramBreaks)
-	month, err := strconv.Atoi(request.Month)
-	if err != nil {
-		return err
-	}
+	month := utils.Int64(request.Month)
 	for _, dataB := range internalData {
 		programBreaks, err := dataB.ConvertProgramBreaks()
 		if err != nil {

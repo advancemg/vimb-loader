@@ -8,7 +8,6 @@ import (
 	"github.com/advancemg/vimb-loader/pkg/storage"
 	"github.com/advancemg/vimb-loader/pkg/utils"
 	"reflect"
-	"strconv"
 	"time"
 )
 
@@ -26,13 +25,13 @@ type internalChanelAspect struct {
 }
 
 type Channel struct {
-	ID                 *int           `json:"ID"`
-	MainChnl           *int           `json:"MainChnl"`
-	SellingDirectionID *int           `json:"SellingDirectionID"`
-	CnlOrderNo         *int           `json:"CnlOrderNo"`
-	CnlCentralID       *int           `json:"cnlCentralID"`
-	IsDisabled         *int           `json:"IsDisabled"`
-	BcpCentralID       *int           `json:"bcpCentralID"`
+	ID                 *int64         `json:"ID"`
+	MainChnl           *int64         `json:"MainChnl"`
+	SellingDirectionID *int64         `json:"SellingDirectionID"`
+	CnlOrderNo         *int64         `json:"CnlOrderNo"`
+	CnlCentralID       *int64         `json:"cnlCentralID"`
+	IsDisabled         *int64         `json:"IsDisabled"`
+	BcpCentralID       *int64         `json:"bcpCentralID"`
 	ShortName          *string        `json:"ShortName"`
 	BcpName            *string        `json:"bcpName"`
 	StartTime          *string        `json:"StartTime"`
@@ -45,14 +44,14 @@ type Channel struct {
 type ChanelAspect struct {
 	StartDate *time.Time `json:"StartDate"`
 	EndDate   *time.Time `json:"EndDate"`
-	ID        *int       `json:"ID"`
+	ID        *int64     `json:"ID"`
 }
 
 func (m *internalChanelAspect) Convert() (*ChanelAspect, error) {
 	aspect := &ChanelAspect{
 		StartDate: utils.TimeI(m.Aspect["StartDate"], `2006-01-02T15:04:05`),
 		EndDate:   utils.TimeI(m.Aspect["EndDate"], `2006-01-02T15:04:05`),
-		ID:        utils.IntI(m.Aspect["ID"]),
+		ID:        utils.Int64I(m.Aspect["ID"]),
 	}
 	return aspect, nil
 }
@@ -93,13 +92,13 @@ func (m *internalChannel) Convert() (*Channel, error) {
 		}
 	}
 	channel := &Channel{
-		ID:                 utils.IntI(m.Channel["ID"]),
-		MainChnl:           utils.IntI(m.Channel["MainChnl"]),
-		SellingDirectionID: utils.IntI(m.Channel["SellingDirectionID"]),
-		CnlOrderNo:         utils.IntI(m.Channel["CnlOrderNo"]),
-		CnlCentralID:       utils.IntI(m.Channel["cnlCentralID"]),
-		IsDisabled:         utils.IntI(m.Channel["IsDisabled"]),
-		BcpCentralID:       utils.IntI(m.Channel["bcpCentralID"]),
+		ID:                 utils.Int64I(m.Channel["ID"]),
+		MainChnl:           utils.Int64I(m.Channel["MainChnl"]),
+		SellingDirectionID: utils.Int64I(m.Channel["SellingDirectionID"]),
+		CnlOrderNo:         utils.Int64I(m.Channel["CnlOrderNo"]),
+		CnlCentralID:       utils.Int64I(m.Channel["cnlCentralID"]),
+		IsDisabled:         utils.Int64I(m.Channel["IsDisabled"]),
+		BcpCentralID:       utils.Int64I(m.Channel["bcpCentralID"]),
 		ShortName:          utils.StringI(m.Channel["ShortName"]),
 		BcpName:            utils.StringI(m.Channel["bcpName"]),
 		StartTime:          utils.StringI(m.Channel["StartTime"]),
@@ -182,10 +181,7 @@ func (request *ChannelsUpdateRequest) loadFromFile() error {
 		return err
 	}
 	badgerChannels := storage.Open(DbChannels)
-	sellingDirectionID, err := strconv.Atoi(request.SellingDirectionID)
-	if err != nil {
-		return err
-	}
+	sellingDirectionID := utils.Int64(request.SellingDirectionID)
 	for _, dataM := range internalData {
 		channel, err := dataM.Convert()
 		if err != nil {

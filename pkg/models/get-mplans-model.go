@@ -95,7 +95,7 @@ func (cfg *MediaplanConfiguration) InitJob() func() {
 		if qInfo.Messages > 0 {
 			return
 		}
-		months := map[int]struct{}{}
+		months := map[int64]struct{}{}
 		var budgets []Budget
 		badgerBudgets := storage.Open(DbBudgets)
 		err = badgerBudgets.Find(&budgets, badgerhold.Where("Month").Ge(-1))

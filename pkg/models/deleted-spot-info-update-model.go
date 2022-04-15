@@ -15,17 +15,17 @@ type DeletedSpotInfoUpdateRequest struct {
 }
 
 type DeletedSpotInfo struct {
-	AgrID                  *int       `json:"AgrID"`
-	OrdID                  *int       `json:"OrdID"`
-	FilmID                 *int       `json:"FilmID"`
-	FilmDur                *int       `json:"FilmDur"`
-	BlockDate              *int       `json:"BlockDate"`
-	BlockTime              *int       `json:"BlockTime"`
-	Position               *int       `json:"Position"`
-	BlockNumber            *int       `json:"BlockNumber"`
-	Reason                 *int       `json:"Reason"`
-	AffiliationType        *int       `json:"AffiliationType"`
-	CurrentAuctionBidValue *int       `json:"CurrentAuctionBidValue"`
+	AgrID                  *int64     `json:"AgrID"`
+	OrdID                  *int64     `json:"OrdID"`
+	FilmID                 *int64     `json:"FilmID"`
+	FilmDur                *int64     `json:"FilmDur"`
+	BlockDate              *int64     `json:"BlockDate"`
+	BlockTime              *int64     `json:"BlockTime"`
+	Position               *int64     `json:"Position"`
+	BlockNumber            *int64     `json:"BlockNumber"`
+	Reason                 *int64     `json:"Reason"`
+	AffiliationType        *int64     `json:"AffiliationType"`
+	CurrentAuctionBidValue *int64     `json:"CurrentAuctionBidValue"`
 	BlockID                *int64     `json:"BlockID"`
 	SpotID                 *int64     `json:"SpotID"`
 	AgrName                *string    `json:"AgrName"`
@@ -45,17 +45,17 @@ func (deletedSpotInfo *DeletedSpotInfo) Key() string {
 func (i *internalI) ConvertDeletedSpotInfo() (*DeletedSpotInfo, error) {
 	timestamp := time.Now()
 	items := &DeletedSpotInfo{
-		AgrID:                  utils.IntI(i.I["AgrID"]),
-		OrdID:                  utils.IntI(i.I["OrdID"]),
-		FilmID:                 utils.IntI(i.I["FilmID"]),
-		FilmDur:                utils.IntI(i.I["FilmDur"]),
-		BlockDate:              utils.IntI(i.I["BlockDate"]),
-		BlockTime:              utils.IntI(i.I["BlockTime"]),
-		Position:               utils.IntI(i.I["Position"]),
-		BlockNumber:            utils.IntI(i.I["BlockNumber"]),
-		Reason:                 utils.IntI(i.I["Reason"]),
-		AffiliationType:        utils.IntI(i.I["AffiliationType"]),
-		CurrentAuctionBidValue: utils.IntI(i.I["CurrentAuctionBidValue"]),
+		AgrID:                  utils.Int64I(i.I["AgrID"]),
+		OrdID:                  utils.Int64I(i.I["OrdID"]),
+		FilmID:                 utils.Int64I(i.I["FilmID"]),
+		FilmDur:                utils.Int64I(i.I["FilmDur"]),
+		BlockDate:              utils.Int64I(i.I["BlockDate"]),
+		BlockTime:              utils.Int64I(i.I["BlockTime"]),
+		Position:               utils.Int64I(i.I["Position"]),
+		BlockNumber:            utils.Int64I(i.I["BlockNumber"]),
+		Reason:                 utils.Int64I(i.I["Reason"]),
+		AffiliationType:        utils.Int64I(i.I["AffiliationType"]),
+		CurrentAuctionBidValue: utils.Int64I(i.I["CurrentAuctionBidValue"]),
 		BlockID:                utils.Int64I(i.I["BlockID"]),
 		SpotID:                 utils.Int64I(i.I["SpotID"]),
 		AgrName:                utils.StringI(i.I["AgrName"]),

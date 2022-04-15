@@ -23,15 +23,15 @@ type internalDetail struct {
 }
 
 type Ranks struct {
-	ID        *int      `json:"ID"`
+	ID        *int64    `json:"ID"`
 	Name      *string   `json:"Name"`
 	Timestamp time.Time `json:"Timestamp"`
 	Details   []Detail  `json:"Details"`
 }
 
 type Detail struct {
-	SellingDirectionID *int       `json:"SellingDirectionID"`
-	OrderNo            *int       `json:"OrderNo"`
+	SellingDirectionID *int64     `json:"SellingDirectionID"`
+	OrderNo            *int64     `json:"OrderNo"`
 	UsesAuction        *bool      `json:"UsesAuction"`
 	StartDate          *time.Time `json:"StartDate"`
 	EndDate            *time.Time `json:"EndDate"`
@@ -43,8 +43,8 @@ func (r *Ranks) Key() string {
 
 func (d *internalDetail) Convert() (*Detail, error) {
 	detail := &Detail{
-		SellingDirectionID: utils.IntI(d.Detail["SellingDirectionID"]),
-		OrderNo:            utils.IntI(d.Detail["OrderNo"]),
+		SellingDirectionID: utils.Int64I(d.Detail["SellingDirectionID"]),
+		OrderNo:            utils.Int64I(d.Detail["OrderNo"]),
 		UsesAuction:        utils.BoolI(d.Detail["UsesAuction"]),
 		StartDate:          utils.TimeI(d.Detail["StartDate"], `2006-01-02T15:04:05`),
 		EndDate:            utils.TimeI(d.Detail["EndDate"], `2006-01-02T15:04:05`),
@@ -88,7 +88,7 @@ func (r *internalRank) Convert() (*Ranks, error) {
 		}
 	}
 	budget := &Ranks{
-		ID:        utils.IntI(r.Rank["ID"]),
+		ID:        utils.Int64I(r.Rank["ID"]),
 		Name:      utils.StringI(r.Rank["Name"]),
 		Timestamp: timestamp,
 		Details:   details,

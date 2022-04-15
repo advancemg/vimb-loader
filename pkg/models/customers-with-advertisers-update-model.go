@@ -17,14 +17,14 @@ type CustomersWithAdvertisersUpdateRequest struct {
 
 type CustomersWithAdvertisers struct {
 	Timestamp time.Time `json:"Timestamp"`
-	ID        *int      `json:"ID"`
+	ID        *int64    `json:"ID"`
 	Name      *string   `json:"Name"`
 }
 
 type CustomersWithAdvertisersData struct {
 	Timestamp time.Time `json:"Timestamp"`
-	CustID    *int      `json:"CustID"`
-	AdvID     *int      `json:"AdvID"`
+	CustID    *int64    `json:"CustID"`
+	AdvID     *int64    `json:"AdvID"`
 }
 
 func (c *CustomersWithAdvertisers) Key() string {
@@ -39,7 +39,7 @@ func (item *internalItem) ConvertCustomerAdvertiser() (*CustomersWithAdvertisers
 	timestamp := time.Now()
 	items := &CustomersWithAdvertisers{
 		Timestamp: timestamp,
-		ID:        utils.IntI(item.Item["ID"]),
+		ID:        utils.Int64I(item.Item["ID"]),
 		Name:      utils.StringI(item.Item["Name"]),
 	}
 	return items, nil
@@ -49,8 +49,8 @@ func (item *internalItem) ConvertCustomerAdvertiserData() (*CustomersWithAdverti
 	timestamp := time.Now()
 	items := &CustomersWithAdvertisersData{
 		Timestamp: timestamp,
-		CustID:    utils.IntI(item.Item["CustID"]),
-		AdvID:     utils.IntI(item.Item["AdvID"]),
+		CustID:    utils.Int64I(item.Item["CustID"]),
+		AdvID:     utils.Int64I(item.Item["AdvID"]),
 	}
 	return items, nil
 }

@@ -14,14 +14,14 @@ import (
 const BudgetTable = "budgets"
 
 type Budget struct {
-	Month                 *int         `json:"Month"`
-	CnlID                 *int         `json:"CnlID"`
-	AdtID                 *int         `json:"AdtID"`
-	AgrID                 *int         `json:"AgrID"`
-	InventoryUnitDuration *int         `json:"InventoryUnitDuration"`
-	DealChannelStatus     *int         `json:"DealChannelStatus"`
-	FixPercent            *int         `json:"FixPercent"`
-	GRPFix                *int         `json:"GRPFix"`
+	Month                 *int64       `json:"Month"`
+	CnlID                 *int64       `json:"CnlID"`
+	AdtID                 *int64       `json:"AdtID"`
+	AgrID                 *int64       `json:"AgrID"`
+	InventoryUnitDuration *int64       `json:"InventoryUnitDuration"`
+	DealChannelStatus     *int64       `json:"DealChannelStatus"`
+	FixPercent            *int64       `json:"FixPercent"`
+	GRPFix                *int64       `json:"GRPFix"`
 	AdtName               *string      `json:"AdtName"`
 	AgrName               *string      `json:"AgrName"`
 	CmpName               *string      `json:"CmpName"`
@@ -40,7 +40,7 @@ type Budget struct {
 }
 
 type BudgetItem struct {
-	RankID            *int     `json:"RankID"`
+	RankID            *int64   `json:"RankID"`
 	Percent           *float64 `json:"Percent"`
 	BudgetOffprime    *float64 `json:"BudgetOffprime"`
 	BudgetPrime       *float64 `json:"BudgetPrime"`
@@ -59,7 +59,7 @@ func (budget *Budget) Key() string {
 
 func (item *internalItem) Convert() (*BudgetItem, error) {
 	items := &BudgetItem{
-		RankID:            utils.IntI(item.Item["RankID"]),
+		RankID:            utils.Int64I(item.Item["RankID"]),
 		Percent:           utils.FloatI(item.Item["Percent"]),
 		BudgetOffprime:    utils.FloatI(item.Item["BudgetOffprime"]),
 		BudgetPrime:       utils.FloatI(item.Item["BudgetPrime"]),
@@ -106,14 +106,14 @@ func (m *internalM) ConvertBudget() (*Budget, error) {
 		}
 	}
 	budget := &Budget{
-		Month:                 utils.IntI(m.M["Month"]),
-		CnlID:                 utils.IntI(m.M["CnlID"]),
-		AdtID:                 utils.IntI(m.M["AdtID"]),
-		AgrID:                 utils.IntI(m.M["AgrID"]),
-		InventoryUnitDuration: utils.IntI(m.M["InventoryUnitDuration"]),
-		DealChannelStatus:     utils.IntI(m.M["DealChannelStatus"]),
-		FixPercent:            utils.IntI(m.M["FixPercent"]),
-		GRPFix:                utils.IntI(m.M["GRPFix"]),
+		Month:                 utils.Int64I(m.M["Month"]),
+		CnlID:                 utils.Int64I(m.M["CnlID"]),
+		AdtID:                 utils.Int64I(m.M["AdtID"]),
+		AgrID:                 utils.Int64I(m.M["AgrID"]),
+		InventoryUnitDuration: utils.Int64I(m.M["InventoryUnitDuration"]),
+		DealChannelStatus:     utils.Int64I(m.M["DealChannelStatus"]),
+		FixPercent:            utils.Int64I(m.M["FixPercent"]),
+		GRPFix:                utils.Int64I(m.M["GRPFix"]),
 		AdtName:               utils.StringI(m.M["AdtName"]),
 		AgrName:               utils.StringI(m.M["AgrName"]),
 		CmpName:               utils.StringI(m.M["CmpName"]),

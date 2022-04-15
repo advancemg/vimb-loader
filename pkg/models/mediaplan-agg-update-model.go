@@ -13,45 +13,45 @@ import (
 const MediaplanAggTable = "mediaplans-agg"
 
 type MediaplanAggUpdateRequest struct {
-	Month        int `json:"month"`
-	ChannelId    int `json:"channelId"`
-	MediaplanId  int `json:"mediaplanId"`
-	AdvertiserId int `json:"advertiserId"`
-	AgreementId  int `json:"agreementId"`
+	Month        int64 `json:"month"`
+	ChannelId    int64 `json:"channelId"`
+	MediaplanId  int64 `json:"mediaplanId"`
+	AdvertiserId int64 `json:"advertiserId"`
+	AgreementId  int64 `json:"agreementId"`
 }
 
 type MediaplanAgg struct {
-	AdtID                   *int       `json:"AdtID"`
+	AdtID                   *int64     `json:"AdtID"`
 	AdtName                 *string    `json:"AdtName"`
-	AgreementId             *int       `json:"AgreementId"`
-	AllocationType          *int       `json:"AllocationType"`
+	AgreementId             *int64     `json:"AgreementId"`
+	AllocationType          *int64     `json:"AllocationType"`
 	AmountFact              *float64   `json:"AmountFact"`
 	AmountPlan              *float64   `json:"AmountPlan"`
 	BrandName               *string    `json:"BrandName"`
 	Budget                  *float64   `json:"Budget"`
-	ChannelId               *int       `json:"ChannelId"`
+	ChannelId               *int64     `json:"ChannelId"`
 	ChannelName             *string    `json:"ChannelName"`
 	CppOffPrime             *float64   `json:"CppOffPrime"`
 	CppOffPrimeWithDiscount *float64   `json:"CppOffPrimeWithDiscount"`
 	CppPrime                *float64   `json:"CppPrime"`
 	CppPrimeWithDiscount    *float64   `json:"CppPrimeWithDiscount"`
-	DealChannelStatus       *int       `json:"DealChannelStatus"`
+	DealChannelStatus       *int64     `json:"DealChannelStatus"`
 	FactOff                 *float64   `json:"FactOff"`
 	FactPrime               *float64   `json:"FactPrime"`
-	FixPriority             *int       `json:"FixPriority"`
+	FixPriority             *int64     `json:"FixPriority"`
 	GrpPlan                 *float64   `json:"GrpPlan"`
 	GrpTotal                *float64   `json:"GrpTotal"`
-	InventoryUnitDuration   *int       `json:"InventoryUnitDuration"`
-	MediaplanState          *int       `json:"MediaplanState"`
-	MplID                   *int       `json:"MplID"`
-	MplMonth                *int       `json:"MplMonth"`
+	InventoryUnitDuration   *int64     `json:"InventoryUnitDuration"`
+	MediaplanState          *int64     `json:"MediaplanState"`
+	MplID                   *int64     `json:"MplID"`
+	MplMonth                *int64     `json:"MplMonth"`
 	MplName                 *string    `json:"MplName"`
 	SpotsPrimePercent       *float64   `json:"SpotsPrimePercent"`
 	SuperFix                *string    `json:"SuperFix"`
 	UpdateDate              *time.Time `json:"UpdateDate"`
 	UserGrpPlan             *string    `json:"UserGrpPlan"`
 	WeeksInfo               []WeekInfo `json:"WeeksInfo"`
-	BcpCentralID            *int       `json:"bcpCentralID"`
+	BcpCentralID            *int64     `json:"bcpCentralID"`
 	BcpName                 *string    `json:"bcpName"`
 }
 
@@ -116,7 +116,7 @@ func (request *MediaplanAggUpdateRequest) Update() error {
 		var cppPrime float64
 		/*load from budgets*/
 		var budget float64
-		var dealChannelStatus int
+		var dealChannelStatus int64
 		budgetQuery := BudgetsBadgerQuery{}
 		var budgets []Budget
 		filterBudgets := badgerhold.Where("Month").Eq(request.Month).
@@ -134,7 +134,7 @@ func (request *MediaplanAggUpdateRequest) Update() error {
 		/*load from channels*/
 		var channelName string
 		var bcpName string
-		var bcpCentralID int
+		var bcpCentralID int64
 		channelQuery := ChannelBadgerQuery{}
 		var channels []Channel
 		filterChannels := badgerhold.Where("ID").Eq(*mediaplan.ChannelId)

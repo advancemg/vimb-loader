@@ -18,13 +18,13 @@ type ProgramBreaksLight struct {
 	Booked              *float64  `json:"Booked"`
 	BlockID             *int64    `json:"BlockID"`
 	RankID              *int64    `json:"RankID"`
-	VM                  *int      `json:"VM"`
-	VR                  *int      `json:"VR"`
-	SimpleFixVolume     *int      `json:"SimpleFixVolume"`
-	ReserveVol          *int      `json:"ReserveVol"`
-	SimpleFixReserveVol *int      `json:"SimpleFixReserveVol"`
-	BlockDur            *int      `json:"BlockDur"`
-	BlkOpenReserv       *int      `json:"BlkOpenReserv"`
+	VM                  *int64    `json:"VM"`
+	VR                  *int64    `json:"VR"`
+	SimpleFixVolume     *int64    `json:"SimpleFixVolume"`
+	ReserveVol          *int64    `json:"ReserveVol"`
+	SimpleFixReserveVol *int64    `json:"SimpleFixReserveVol"`
+	BlockDur            *int64    `json:"BlockDur"`
+	BlkOpenReserv       *int64    `json:"BlkOpenReserv"`
 	HasAucSpots         *bool     `json:"HasAucSpots"`
 	Timestamp           time.Time `json:"Timestamp"`
 }
@@ -39,13 +39,13 @@ func (b *internalB) Convert() (*ProgramBreaksLight, error) {
 		Booked:              utils.FloatI(b.B["Booked"]),
 		BlockID:             utils.Int64I(b.B["BlockID"]),
 		RankID:              utils.Int64I(b.B["RankID"]),
-		VM:                  utils.IntI(b.B["VM"]),
-		VR:                  utils.IntI(b.B["VR"]),
-		SimpleFixVolume:     utils.IntI(b.B["SimpleFixVolume"]),
-		ReserveVol:          utils.IntI(b.B["ReserveVol"]),
-		SimpleFixReserveVol: utils.IntI(b.B["SimpleFixReserveVol"]),
-		BlockDur:            utils.IntI(b.B["BlockDur"]),
-		BlkOpenReserv:       utils.IntI(b.B["BlkOpenReserv"]),
+		VM:                  utils.Int64I(b.B["VM"]),
+		VR:                  utils.Int64I(b.B["VR"]),
+		SimpleFixVolume:     utils.Int64I(b.B["SimpleFixVolume"]),
+		ReserveVol:          utils.Int64I(b.B["ReserveVol"]),
+		SimpleFixReserveVol: utils.Int64I(b.B["SimpleFixReserveVol"]),
+		BlockDur:            utils.Int64I(b.B["BlockDur"]),
+		BlkOpenReserv:       utils.Int64I(b.B["BlkOpenReserv"]),
 		HasAucSpots:         utils.BoolI(b.B["HasAucSpots"]),
 		Timestamp:           timestamp,
 	}

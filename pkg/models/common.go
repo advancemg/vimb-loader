@@ -263,9 +263,8 @@ func jsonNumber(value interface{}) interface{} {
 			if err != nil {
 				panic(err)
 			}
-			return int(i)
+			return i
 		}
 	}
-	//badgerhold.ErrTypeMismatch
 	return value
 }

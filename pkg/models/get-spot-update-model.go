@@ -19,32 +19,32 @@ type SpotsUpdateRequest struct {
 
 type Spot struct {
 	Rating30               *float64   `json:"Rating30"`
-	IsPrime                *int       `json:"IsPrime"`
-	FilmID                 *int       `json:"FilmID"`
+	IsPrime                *int64     `json:"IsPrime"`
+	FilmID                 *int64     `json:"FilmID"`
 	FilmVersion            *string    `json:"FilmVersion"`
 	FilmName               *string    `json:"FilmName"`
-	FilmDur                *int       `json:"FilmDur"`
+	FilmDur                *int64     `json:"FilmDur"`
 	SpotPullRating         *float64   `json:"SpotPullRating"`
 	DLDate                 *time.Time `json:"DLDate"`
-	SptChnlPTR             *int       `json:"sptChnlPTR"`
-	CommInMplID            *int       `json:"CommInMplID"`
-	Positioning            *int       `json:"Positioning"`
-	AgrID                  *int       `json:"AgrID"`
-	MplID                  *int       `json:"MplID"`
-	OrdID                  *int       `json:"OrdID"`
-	AtpID                  *int       `json:"AtpID"`
-	DtpID                  *int       `json:"DtpID"`
-	TgrID                  *int       `json:"TgrID"`
-	SptDateL               *int       `json:"SptDateL"`
-	FloatPriority          *int       `json:"FloatPriority"`
-	CurrentAuctionBidValue *int       `json:"CurrentAuctionBidValue"`
-	SpotOrderNo            *int       `json:"SpotOrderNo"`
-	SpotBroadcastTime      *int       `json:"SpotBroadcastTime"`
-	SpotFactBroadcastTime  *int       `json:"SpotFactBroadcastTime"`
-	AllocationType         *int       `json:"AllocationType"`
-	FixPriority            *int       `json:"FixPriority"`
-	SpotReserve            *int       `json:"SpotReserve"`
-	RankID                 *int       `json:"RankID"`
+	SptChnlPTR             *int64     `json:"sptChnlPTR"`
+	CommInMplID            *int64     `json:"CommInMplID"`
+	Positioning            *int64     `json:"Positioning"`
+	AgrID                  *int64     `json:"AgrID"`
+	MplID                  *int64     `json:"MplID"`
+	OrdID                  *int64     `json:"OrdID"`
+	AtpID                  *int64     `json:"AtpID"`
+	DtpID                  *int64     `json:"DtpID"`
+	TgrID                  *int64     `json:"TgrID"`
+	SptDateL               *int64     `json:"SptDateL"`
+	FloatPriority          *int64     `json:"FloatPriority"`
+	CurrentAuctionBidValue *int64     `json:"CurrentAuctionBidValue"`
+	SpotOrderNo            *int64     `json:"SpotOrderNo"`
+	SpotBroadcastTime      *int64     `json:"SpotBroadcastTime"`
+	SpotFactBroadcastTime  *int64     `json:"SpotFactBroadcastTime"`
+	AllocationType         *int64     `json:"AllocationType"`
+	FixPriority            *int64     `json:"FixPriority"`
+	SpotReserve            *int64     `json:"SpotReserve"`
+	RankID                 *int64     `json:"RankID"`
 	SpotID                 *int64     `json:"SpotID"`
 	BlockID                *int64     `json:"BlockID"`
 	TNSSpotsID             *int64     `json:"TNSSpotsID"`
@@ -77,25 +77,25 @@ func (spot *Spot) Key() string {
 func (s *internalS) ConvertSpot() (*Spot, error) {
 	timestamp := time.Now()
 	spot := &Spot{
-		SptChnlPTR:             utils.IntI(s.S["sptChnlPTR"]),
-		CommInMplID:            utils.IntI(s.S["CommInMplID"]),
-		Positioning:            utils.IntI(s.S["Positioning"]),
-		AgrID:                  utils.IntI(s.S["AgrID"]),
-		MplID:                  utils.IntI(s.S["MplID"]),
-		OrdID:                  utils.IntI(s.S["OrdID"]),
-		AtpID:                  utils.IntI(s.S["AtpID"]),
-		DtpID:                  utils.IntI(s.S["DtpID"]),
-		TgrID:                  utils.IntI(s.S["TgrID"]),
-		SptDateL:               utils.IntI(s.S["SptDateL"]),
-		FloatPriority:          utils.IntI(s.S["FloatPriority"]),
-		CurrentAuctionBidValue: utils.IntI(s.S["CurrentAuctionBidValue"]),
-		SpotOrderNo:            utils.IntI(s.S["SpotOrderNo"]),
-		SpotBroadcastTime:      utils.IntI(s.S["SpotBroadcastTime"]),
-		SpotFactBroadcastTime:  utils.IntI(s.S["SpotFactBroadcastTime"]),
-		AllocationType:         utils.IntI(s.S["AllocationType"]),
-		FixPriority:            utils.IntI(s.S["FixPriority"]),
-		SpotReserve:            utils.IntI(s.S["SpotReserve"]),
-		RankID:                 utils.IntI(s.S["RankID"]),
+		SptChnlPTR:             utils.Int64I(s.S["sptChnlPTR"]),
+		CommInMplID:            utils.Int64I(s.S["CommInMplID"]),
+		Positioning:            utils.Int64I(s.S["Positioning"]),
+		AgrID:                  utils.Int64I(s.S["AgrID"]),
+		MplID:                  utils.Int64I(s.S["MplID"]),
+		OrdID:                  utils.Int64I(s.S["OrdID"]),
+		AtpID:                  utils.Int64I(s.S["AtpID"]),
+		DtpID:                  utils.Int64I(s.S["DtpID"]),
+		TgrID:                  utils.Int64I(s.S["TgrID"]),
+		SptDateL:               utils.Int64I(s.S["SptDateL"]),
+		FloatPriority:          utils.Int64I(s.S["FloatPriority"]),
+		CurrentAuctionBidValue: utils.Int64I(s.S["CurrentAuctionBidValue"]),
+		SpotOrderNo:            utils.Int64I(s.S["SpotOrderNo"]),
+		SpotBroadcastTime:      utils.Int64I(s.S["SpotBroadcastTime"]),
+		SpotFactBroadcastTime:  utils.Int64I(s.S["SpotFactBroadcastTime"]),
+		AllocationType:         utils.Int64I(s.S["AllocationType"]),
+		FixPriority:            utils.Int64I(s.S["FixPriority"]),
+		SpotReserve:            utils.Int64I(s.S["SpotReserve"]),
+		RankID:                 utils.Int64I(s.S["RankID"]),
 		SpotID:                 utils.Int64I(s.S["SpotID"]),
 		BlockID:                utils.Int64I(s.S["BlockID"]),
 		TNSSpotsID:             utils.Int64I(s.S["TNSSpotsID"]),

@@ -108,9 +108,9 @@ func (cfg *SpotsConfiguration) InitJob() func() {
 		var allAdvertisers []Adv
 		var budgets []Budget
 		var channels []Channel
-		channelList := map[int]Cnl{}
-		months := map[int][]time.Time{}
-		advertisers := map[int]int{}
+		channelList := map[int64]Cnl{}
+		months := map[int64][]time.Time{}
+		advertisers := map[int64]int64{}
 		badgerBudgets := storage.Open(DbBudgets)
 		err = badgerBudgets.Find(&budgets, badgerhold.Where("Month").Ge(-1))
 		if err != nil {

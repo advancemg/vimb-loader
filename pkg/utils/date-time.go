@@ -61,7 +61,7 @@ func GetDaysFromYearMonth(yearMonth string) ([]time.Time, error) {
 	return result, nil
 }
 
-func GetDaysFromYearMonthInt(yearMonth int) ([]time.Time, error) {
+func GetDaysFromYearMonthInt(yearMonth int64) ([]time.Time, error) {
 	return GetDaysFromYearMonth(fmt.Sprintf("%d", yearMonth))
 }
 
@@ -179,7 +179,7 @@ func GetActualStartEndDays(month int) (string, string) {
 	return startDay, endDay
 }
 
-func GetWeekDayByYearMonth(yearMonth int) (map[int]time.Time, error) {
+func GetWeekDayByYearMonth(yearMonth int64) (map[int]time.Time, error) {
 	weekDays := map[int]time.Time{}
 	monthInt, err := GetDaysFromYearMonthInt(yearMonth)
 	if err != nil {

@@ -22,13 +22,13 @@ type Advertiser struct {
 	FilmVersion           *string   `json:"FilmVersion"`
 	BrandName             *string   `json:"BrandName"`
 	AspectName            *string   `json:"AspectName"`
-	FilmID                *int      `json:"FilmID"`
-	FilmDur               *int      `json:"FilmDur"`
-	BrandID               *int      `json:"BrandID"`
-	ProdClassID           *int      `json:"ProdClassID"`
-	FfoaAllocated         *int      `json:"FfoaAllocated"`
-	FfoaLawAcc            *int      `json:"FfoaLawAcc"`
-	AspectID              *int      `json:"AspectID"`
+	FilmID                *int64    `json:"FilmID"`
+	FilmDur               *int64    `json:"FilmDur"`
+	BrandID               *int64    `json:"BrandID"`
+	ProdClassID           *int64    `json:"ProdClassID"`
+	FfoaAllocated         *int64    `json:"FfoaAllocated"`
+	FfoaLawAcc            *int64    `json:"FfoaLawAcc"`
+	AspectID              *int64    `json:"AspectID"`
 	DoubleAdvertiser      *bool     `json:"DoubleAdvertiser"`
 	HasSpots              *bool     `json:"HasSpots"`
 	HasBroadcastMaterials *bool     `json:"HasBroadcastMaterials"`
@@ -50,13 +50,13 @@ func (r *internalRow) ConvertAdvertiser() (*Advertiser, error) {
 		FilmVersion:           utils.StringI(r.Row["FilmVersion"]),
 		BrandName:             utils.StringI(r.Row["BrandName"]),
 		AspectName:            utils.StringI(r.Row["AspectName"]),
-		FilmID:                utils.IntI(r.Row["FilmID"]),
-		FilmDur:               utils.IntI(r.Row["FilmDur"]),
-		BrandID:               utils.IntI(r.Row["BrandID"]),
-		ProdClassID:           utils.IntI(r.Row["ProdClassID"]),
-		FfoaAllocated:         utils.IntI(r.Row["FfoaAllocated"]),
-		FfoaLawAcc:            utils.IntI(r.Row["FfoaLawAcc"]),
-		AspectID:              utils.IntI(r.Row["AspectID"]),
+		FilmID:                utils.Int64I(r.Row["FilmID"]),
+		FilmDur:               utils.Int64I(r.Row["FilmDur"]),
+		BrandID:               utils.Int64I(r.Row["BrandID"]),
+		ProdClassID:           utils.Int64I(r.Row["ProdClassID"]),
+		FfoaAllocated:         utils.Int64I(r.Row["FfoaAllocated"]),
+		FfoaLawAcc:            utils.Int64I(r.Row["FfoaLawAcc"]),
+		AspectID:              utils.Int64I(r.Row["AspectID"]),
 		DoubleAdvertiser:      utils.BoolI(r.Row["DoubleAdvertiser"]),
 		HasSpots:              utils.BoolI(r.Row["HasSpots"]),
 		HasBroadcastMaterials: utils.BoolI(r.Row["HasBroadcastMaterials"]),

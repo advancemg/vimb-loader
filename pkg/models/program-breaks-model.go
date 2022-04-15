@@ -101,10 +101,10 @@ func (cfg *ProgramBreaksConfiguration) InitJob() func() {
 		type Channels struct {
 			Cnl string `json:"Cnl"`
 		}
-		channels := map[int]struct{}{}
+		channels := map[int64]struct{}{}
 		var budgets []Budget
 		var cnl []Channels
-		months := map[int][]time.Time{}
+		months := map[int64][]time.Time{}
 		badgerBudgets := storage.Open(DbBudgets)
 		err = badgerBudgets.Find(&budgets, badgerhold.Where("Month").Ge(-1))
 		if err != nil {

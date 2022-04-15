@@ -13,11 +13,11 @@ type ProgramUpdateRequest struct {
 }
 
 type Program struct {
-	CnlID        *int      `json:"CnlID"`
-	ProgID       *int      `json:"ProgID"`
-	ProID        *int      `json:"ProID"`
-	Pro2         *int      `json:"Pro2"`
-	RPID         *int      `json:"RPID"`
+	CnlID        *int64    `json:"CnlID"`
+	ProgID       *int64    `json:"ProgID"`
+	ProID        *int64    `json:"ProID"`
+	Pro2         *int64    `json:"Pro2"`
+	RPID         *int64    `json:"RPID"`
 	PrgName      *string   `json:"PrgName"`
 	CnlName      *string   `json:"CnlName"`
 	PrgNameShort *string   `json:"PrgNameShort"`
