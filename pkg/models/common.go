@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/timshannon/badgerhold"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -46,6 +47,7 @@ const (
 	DbCustomersWithAdvertisers          = "db/customers-with-advertisers"
 	DbCustomersWithAdvertisersData      = "db/customers-with-advertisers-data"
 	DbSpots                             = "db/spots"
+	DbSpotsOrderBlock                   = "db/spots-order-block"
 	DbProgramBreaksLightMode            = "db/program-breaks-light-mode"
 	DbProgramBreaks                     = "db/program-breaks"
 	DbPrograms                          = "db/programs"
@@ -53,7 +55,6 @@ const (
 	DbProgramBreaksBlockForecast        = "db/program-breaks-block-forecast"
 	DbProgramBreaksBlockForecastTgr     = "db/program-breaks-block-forecast-tgr"
 	DbDeletedSpotInfo                   = "db/deleted-spot-info"
-	DbSpotsOrderBlock                   = "db/spots-order-block"
 	DbMediaplans                        = "db/mediaplans"
 	DbAggMediaplans                     = "db/agg-mediaplans"
 )
@@ -185,24 +186,24 @@ func LoadConfiguration() (*Configuration, error) {
 	return &config, nil
 }
 
-func HandleBadgerRequest(request map[string]interface{}, intVal bool) *badgerhold.Query {
+func HandleBadgerRequest(request map[string]interface{}) *badgerhold.Query {
 	var query *badgerhold.Query
 	once := true
 	for field, value := range request {
 		for key, val := range value.(map[string]interface{}) {
 			if once {
-				query = switchBadgerFilterWhere(query, key, field, val, intVal)
+				query = switchBadgerFilterWhere(query, key, field, val)
 				once = false
 			} else {
-				query = switchBadgerFilterAnd(query, key, field, val, intVal)
+				query = switchBadgerFilterAnd(query, key, field, val)
 			}
 		}
 	}
 	return query
 }
 
-func switchBadgerFilterAnd(filter *badgerhold.Query, key, filed string, value interface{}, intVal bool) *badgerhold.Query {
-	value = jsonNumber(value, intVal)
+func switchBadgerFilterAnd(filter *badgerhold.Query, key, filed string, value interface{}) *badgerhold.Query {
+	value = jsonNumber(value)
 	switch key {
 	case "eq":
 		filter = filter.And(filed).Eq(value)
@@ -224,8 +225,8 @@ func switchBadgerFilterAnd(filter *badgerhold.Query, key, filed string, value in
 	return filter
 }
 
-func switchBadgerFilterWhere(filter *badgerhold.Query, key, filed string, value interface{}, intVal bool) *badgerhold.Query {
-	value = jsonNumber(value, intVal)
+func switchBadgerFilterWhere(filter *badgerhold.Query, key, filed string, value interface{}) *badgerhold.Query {
+	value = jsonNumber(value)
 	switch key {
 	case "eq":
 		filter = badgerhold.Where(filed).Eq(value)
@@ -247,26 +248,24 @@ func switchBadgerFilterWhere(filter *badgerhold.Query, key, filed string, value 
 	return filter
 }
 
-func jsonNumber(value interface{}, intVal bool) interface{} {
+func jsonNumber(value interface{}) interface{} {
 	if number, ok := value.(json.Number); ok {
+		strconv.ParseInt(string(number), 10, 64)
 		dot := strings.Contains(number.String(), ".")
 		if dot {
 			i, err := number.Float64()
 			if err != nil {
 				panic(err)
 			}
-			value = i
+			return i
 		} else {
 			i, err := number.Int64()
 			if err != nil {
 				panic(err)
 			}
-			if intVal {
-				value = int(i)
-			} else {
-				value = i
-			}
+			return int(i)
 		}
 	}
+	//badgerhold.ErrTypeMismatch
 	return value
 }

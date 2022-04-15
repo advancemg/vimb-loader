@@ -21,6 +21,15 @@ type ProgramBreaksLoadRequest struct {
 	ProtocolVersion string `json:"ProtocolVersion" example:"2"`
 }
 
+type ProMasterQuery struct {
+	ProID struct {
+		Eq int `json:"eq" example:"355114"`
+	} `json:"ProID"`
+	PropName struct {
+		Eq string `json:"eq" example:"Ведущий"`
+	} `json:"PropName"`
+}
+
 type ProgramBreaksQuery struct {
 	Month struct {
 		Eq int `json:"eq" example:"201902"`
@@ -85,6 +94,20 @@ func (request *ProgramBreaksLoadRequest) getDays() ([]time.Time, error) {
 func (request *Any) QueryProgramBreaks() ([]ProgramBreaks, error) {
 	var result []ProgramBreaks
 	query := ProgramBreaksBadgerQuery{}
+	marshal, err := json.Marshal(request.Body)
+	if err != nil {
+		return nil, err
+	}
+	err = query.FindJson(&result, marshal)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func (request *Any) QueryProgramBreaksProMaster() ([]ProMaster, error) {
+	var result []ProMaster
+	query := ProgramBreaksProMasterBadgerQuery{}
 	marshal, err := json.Marshal(request.Body)
 	if err != nil {
 		return nil, err

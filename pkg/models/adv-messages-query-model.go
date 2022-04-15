@@ -3,7 +3,6 @@ package models
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"github.com/advancemg/vimb-loader/pkg/storage"
 	"github.com/timshannon/badgerhold"
 )
@@ -27,16 +26,6 @@ func (query *AdvertiserBadgerQuery) FindJson(result interface{}, filter []byte) 
 	if err := decoder.Decode(&request); err != nil {
 		return err
 	}
-	filterNetworks := HandleBadgerRequest(request, true)
-	err := query.Find(result, filterNetworks)
-	if err != nil {
-		var typeError *badgerhold.ErrTypeMismatch
-		if errors.As(err, &typeError) {
-			filterNetworks = HandleBadgerRequest(request, false)
-			return query.Find(result, filterNetworks)
-		} else {
-			return err
-		}
-	}
-	return err
+	filterNetworks := HandleBadgerRequest(request)
+	return query.Find(result, filterNetworks)
 }

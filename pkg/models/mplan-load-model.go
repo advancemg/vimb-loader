@@ -58,9 +58,35 @@ type MediaplanQuery struct {
 	} `json:"MplID"`
 }
 
+type AggMediaplanQuery struct {
+	MplMonth struct {
+		Eq int `json:"eq" example:"201902"`
+	} `json:"MplMonth"`
+	CppPrime struct {
+		Eq float64 `json:"eq" example:"2205.20143600803"`
+	} `json:"CppPrime"`
+	CppOffPrime struct {
+		Eq float64 `json:"ge" example:"100"`
+	} `json:"CppOffPrime"`
+}
+
 func (request *Any) QueryMediaplans() ([]Mediaplan, error) {
 	var result []Mediaplan
 	query := MediaplanBadgerQuery{}
+	marshal, err := json.Marshal(request.Body)
+	if err != nil {
+		return nil, err
+	}
+	err = query.FindJson(&result, marshal)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func (request *Any) QueryAggMediaplans() ([]MediaplanAgg, error) {
+	var result []MediaplanAgg
+	query := MediaplanAggBadgerQuery{}
 	marshal, err := json.Marshal(request.Body)
 	if err != nil {
 		return nil, err

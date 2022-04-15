@@ -7,19 +7,19 @@ import (
 	"github.com/timshannon/badgerhold"
 )
 
-type CustomersWithAdvertisersBadgerQuery struct {
+type MediaplanAggBadgerQuery struct {
 }
 
-func (query *CustomersWithAdvertisersBadgerQuery) connect() *badgerhold.Store {
-	return storage.Open(DbCustomersWithAdvertisers)
+func (query *MediaplanAggBadgerQuery) connect() *badgerhold.Store {
+	return storage.Open(DbAggMediaplans)
 }
 
-func (query *CustomersWithAdvertisersBadgerQuery) Find(result interface{}, filter *badgerhold.Query) error {
+func (query *MediaplanAggBadgerQuery) Find(result interface{}, filter *badgerhold.Query) error {
 	store := query.connect()
 	return store.Find(result, filter)
 }
 
-func (query *CustomersWithAdvertisersBadgerQuery) FindJson(result interface{}, filter []byte) error {
+func (query *MediaplanAggBadgerQuery) FindJson(result interface{}, filter []byte) error {
 	var request map[string]interface{}
 	decoder := json.NewDecoder(bytes.NewReader(filter))
 	decoder.UseNumber()

@@ -32,6 +32,15 @@ type SpotsQuery struct {
 	} `json:"SpotID"`
 }
 
+type QuerySpotsOrderBlockQuery struct {
+	OrdID struct {
+		Eq int `json:"eq" example:"319260"`
+	} `json:"OrdID"`
+	BlockID struct {
+		Eq int64 `json:"eq" example:"451118797"`
+	} `json:"BlockID"`
+}
+
 func (request *SpotsLoadRequest) InitTasks() (CommonResponse, error) {
 	qName := GetSpotsType
 	amqpConfig := mq_broker.InitConfig()
@@ -70,6 +79,20 @@ func (request *SpotsLoadRequest) getDays() ([]time.Time, error) {
 func (request *Any) QuerySpots() ([]Spot, error) {
 	var result []Spot
 	query := SpotBadgerQuery{}
+	marshal, err := json.Marshal(request.Body)
+	if err != nil {
+		return nil, err
+	}
+	err = query.FindJson(&result, marshal)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func (request *Any) QuerySpotsOrderBlock() ([]SpotOrderBlock, error) {
+	var result []SpotOrderBlock
+	query := SpotsOrderBlockQuery{}
 	marshal, err := json.Marshal(request.Body)
 	if err != nil {
 		return nil, err

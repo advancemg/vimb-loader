@@ -48,6 +48,7 @@ func main() {
 	route.HandleFunc("/api/v1/program-breaks", routes.PostGetProgramBreaks).Methods("POST", "OPTIONS")
 	route.HandleFunc("/api/v1/program-breaks/load", routes.PostLoadProgramBreaks).Methods("POST", "OPTIONS")
 	route.HandleFunc("/api/v1/program-breaks/query", routes.PostProgramBreaksQuery).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/program-breaks/pro-master/query", routes.PostProgramBreaksProMasterQuery).Methods("POST", "OPTIONS")
 	route.HandleFunc("/api/v1/program-breaks-light/load", routes.PostLoadProgramLightModeBreaks).Methods("POST", "OPTIONS")
 	route.HandleFunc("/api/v1/program-breaks-light/query", routes.PostProgramLightModeBreaksQuery).Methods("POST", "OPTIONS")
 	/*deals*/
@@ -62,6 +63,7 @@ func main() {
 	route.HandleFunc("/api/v1/mediaplan", routes.PostGetMPLans).Methods("POST", "OPTIONS")
 	route.HandleFunc("/api/v1/mediaplan/load", routes.PostLoadMPLans).Methods("POST", "OPTIONS")
 	route.HandleFunc("/api/v1/mediaplan/query", routes.PostMPLansQuery).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/agg-mediaplan/query", routes.PostAggMPLansQuery).Methods("POST", "OPTIONS")
 	route.HandleFunc("/api/v1/mediaplan/film ", routes.PostAddMPlanFilm).Methods("POST", "OPTIONS")
 	route.HandleFunc("/api/v1/mediaplan/film", routes.DeleteMPlanFilm).Methods("DELETE", "OPTIONS")
 	route.HandleFunc("/api/v1/mediaplan/change-film-planned-inventory", routes.PostChangeMPlanFilmPlannedInventory).Methods("POST", "OPTIONS")
@@ -69,6 +71,7 @@ func main() {
 	route.HandleFunc("/api/v1/spot", routes.PostGetSpots).Methods("POST", "OPTIONS")
 	route.HandleFunc("/api/v1/spot/load", routes.PostLoadSpots).Methods("POST", "OPTIONS")
 	route.HandleFunc("/api/v1/spot/query", routes.PostSpotsQuery).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/spot/order-block/query", routes.PostSpotsOrderBlockQuery).Methods("POST", "OPTIONS")
 	route.HandleFunc("/api/v1/spot", routes.PutAddSpot).Methods("PUT", "OPTIONS")
 	route.HandleFunc("/api/v1/spot", routes.DeleteSpot).Methods("DELETE", "OPTIONS")
 	route.HandleFunc("/api/v1/spot/change", routes.PostChangeSpot).Methods("POST", "OPTIONS")
