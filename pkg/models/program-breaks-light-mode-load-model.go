@@ -23,7 +23,7 @@ type ProgramBreaksLightModeLoadRequest struct {
 
 type ProgramBreaksLightModeQuery struct {
 	BlockID struct {
-		Eq int64 `json:"eq" example:"142480512"`
+		Eq int64 `json:"eq" example:"91827134"`
 	} `json:"BlockID"`
 }
 

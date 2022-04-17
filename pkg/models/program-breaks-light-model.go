@@ -44,7 +44,7 @@ func (cfg *ProgramBreaksLightConfiguration) StartJob() chan error {
 			false,
 			nil)
 		for msg := range messages {
-			var bodyJson GetProgramBreaks
+			var bodyJson GetProgramBreaksLight
 			err := json.Unmarshal(msg.Body, &bodyJson)
 			if err != nil {
 				errorCh <- err

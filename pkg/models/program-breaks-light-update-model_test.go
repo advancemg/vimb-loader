@@ -16,7 +16,7 @@ func TestProgramBreaksLightUpdateRequest_loadFromFile(t *testing.T) {
 	}{
 		{
 			name:    "loadFromFile-ProgramBreaksLight",
-			fields:  fields{"../../dev-test-data/networks_light.gz"},
+			fields:  fields{"../../dev-test-data/networks_light_new.gz"},
 			wantErr: false,
 		},
 	}

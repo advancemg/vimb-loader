@@ -7,6 +7,7 @@ import (
 	"github.com/advancemg/vimb-loader/pkg/s3"
 	"github.com/advancemg/vimb-loader/pkg/storage"
 	"github.com/advancemg/vimb-loader/pkg/utils"
+	"reflect"
 	"time"
 )
 
@@ -15,18 +16,11 @@ type ProgramBreaksLightUpdateRequest struct {
 }
 
 type ProgramBreaksLight struct {
-	Booked              *int64    `json:"Booked"`
-	BlockID             *int64    `json:"BlockID"`
-	RankID              *int64    `json:"RankID"`
-	VM                  *int64    `json:"VM"`
-	VR                  *int64    `json:"VR"`
-	SimpleFixVolume     *int64    `json:"SimpleFixVolume"`
-	ReserveVol          *int64    `json:"ReserveVol"`
-	SimpleFixReserveVol *int64    `json:"SimpleFixReserveVol"`
-	BlockDur            *int64    `json:"BlockDur"`
-	BlkOpenReserv       *int64    `json:"BlkOpenReserv"`
-	HasAucSpots         *bool     `json:"HasAucSpots"`
-	Timestamp           time.Time `json:"Timestamp"`
+	Booked    []BookedAttributes `json:"Booked"`
+	BlockID   *int64             `json:"BlockID"`
+	VM        *int64             `json:"VM"`
+	VR        *int64             `json:"VR"`
+	Timestamp time.Time          `json:"Timestamp"`
 }
 
 func (program *ProgramBreaksLight) Key() string {
@@ -35,19 +29,69 @@ func (program *ProgramBreaksLight) Key() string {
 
 func (b *internalB) Convert() (*ProgramBreaksLight, error) {
 	timestamp := time.Now()
+	var blockID *int64
+	var vm *int64
+	var vr *int64
+	var attribute internalAttr
+	var attributes []BookedAttributes
+	if _, ok := b.B["Booked"]; ok {
+		marshalData, err := json.Marshal(b.B["Booked"])
+		if err != nil {
+			return nil, err
+		}
+		switch reflect.TypeOf(b.B["Booked"]).Kind() {
+		case reflect.Array, reflect.Slice:
+			var internalAttributesData []internalAttributes
+			err = json.Unmarshal(marshalData, &internalAttributesData)
+			if err != nil {
+				return nil, err
+			}
+			for _, qualityItem := range internalAttributesData {
+				attr, err := qualityItem.Convert()
+				if err != nil {
+					return nil, err
+				}
+				attributes = append(attributes, *attr)
+			}
+		case reflect.Map, reflect.Struct:
+			var internalAttributesData internalAttributes
+			err = json.Unmarshal(marshalData, &internalAttributesData)
+			if err != nil {
+				return nil, err
+			}
+			attr, err := internalAttributesData.Convert()
+			if err != nil {
+				return nil, err
+			}
+			attributes = append(attributes, *attr)
+		}
+	}
+	if _, ok := b.B["attributes"]; ok {
+		marshalData, err := json.Marshal(b.B["attributes"])
+		if err != nil {
+			return nil, err
+		}
+		switch reflect.TypeOf(b.B["attributes"]).Kind() {
+		case reflect.Map, reflect.Struct:
+			err = json.Unmarshal(marshalData, &attribute)
+			if err != nil {
+				return nil, err
+			}
+			blockID = utils.Int64I(attribute.BlockID)
+			vm = utils.Int64I(attribute.VM)
+			vr = utils.Int64I(attribute.VR)
+		}
+	} else {
+		blockID = utils.Int64I(b.B["BlockID"])
+		vm = utils.Int64I(b.B["VM"])
+		vr = utils.Int64I(b.B["VR"])
+	}
 	items := &ProgramBreaksLight{
-		Booked:              utils.Int64I(b.B["Booked"]),
-		BlockID:             utils.Int64I(b.B["BlockID"]),
-		RankID:              utils.Int64I(b.B["RankID"]),
-		VM:                  utils.Int64I(b.B["VM"]),
-		VR:                  utils.Int64I(b.B["VR"]),
-		SimpleFixVolume:     utils.Int64I(b.B["SimpleFixVolume"]),
-		ReserveVol:          utils.Int64I(b.B["ReserveVol"]),
-		SimpleFixReserveVol: utils.Int64I(b.B["SimpleFixReserveVol"]),
-		BlockDur:            utils.Int64I(b.B["BlockDur"]),
-		BlkOpenReserv:       utils.Int64I(b.B["BlkOpenReserv"]),
-		HasAucSpots:         utils.BoolI(b.B["HasAucSpots"]),
-		Timestamp:           timestamp,
+		Booked:    attributes,
+		BlockID:   blockID,
+		VM:        vm,
+		VR:        vr,
+		Timestamp: timestamp,
 	}
 	return items, nil
 }
