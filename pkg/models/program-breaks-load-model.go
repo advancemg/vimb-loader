@@ -23,7 +23,7 @@ type ProgramBreaksLoadRequest struct {
 
 type ProMasterQuery struct {
 	ProID struct {
-		Eq int `json:"eq" example:"355114"`
+		Eq int64 `json:"eq" example:"355114"`
 	} `json:"ProID"`
 	PropName struct {
 		Eq string `json:"eq" example:"Ведущий"`
@@ -32,13 +32,13 @@ type ProMasterQuery struct {
 
 type ProgramBreaksQuery struct {
 	Month struct {
-		Eq int `json:"eq" example:"201902"`
+		Eq int64 `json:"eq" example:"201902"`
 	} `json:"Month"`
 	CnlID struct {
-		Eq int `json:"eq" example:"1020232"`
+		Eq int64 `json:"eq" example:"1020232"`
 	} `json:"CnlID"`
 	WeekDay struct {
-		Ee int `json:"ge" example:"1"`
+		Ee int64 `json:"ge" example:"1"`
 	} `json:"WeekDay"`
 }
 

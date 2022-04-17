@@ -26,10 +26,10 @@ type AdvMessagesLoadRequest struct {
 
 type AdvMessageQuery struct {
 	AdtID struct {
-		Eq int `json:"eq" example:"700061957"`
+		Eq int64 `json:"eq" example:"700061957"`
 	} `json:"AdtID"`
 	BrandID struct {
-		Eq int `json:"eq" example:"44362"`
+		Eq int64 `json:"eq" example:"44362"`
 	} `json:"BrandID"`
 }
 

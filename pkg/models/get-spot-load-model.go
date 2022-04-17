@@ -34,7 +34,7 @@ type SpotsQuery struct {
 
 type QuerySpotsOrderBlockQuery struct {
 	OrdID struct {
-		Eq int `json:"eq" example:"319260"`
+		Eq int64 `json:"eq" example:"319260"`
 	} `json:"OrdID"`
 	BlockID struct {
 		Eq int64 `json:"eq" example:"451118797"`

@@ -13,13 +13,13 @@ type ChannelLoadRequest struct {
 
 type ChannelQuery struct {
 	ID struct {
-		Eq int `json:"eq" example:"1018583"`
+		Eq int64 `json:"eq" example:"1018583"`
 	} `json:"ID"`
 	MainChnl struct {
-		Eq int `json:"eq" example:"1018568"`
+		Eq int64 `json:"eq" example:"1018568"`
 	} `json:"MainChnl"`
 	SellingDirectionID struct {
-		Ee int `json:"eq" example:"23"`
+		Ee int64 `json:"eq" example:"23"`
 	} `json:"SellingDirectionID"`
 }
 

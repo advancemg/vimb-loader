@@ -1776,7 +1776,7 @@ const docTemplate = `{
                 "EndDate": {
                     "description": "Дата окончания периода (включительно) в формате YYYYMMDD",
                     "type": "string",
-                    "example": "20170702"
+                    "example": "20190202"
                 },
                 "InclForecast": {
                     "description": "Признак \"Как заполнять секцию прогнозных рейтингов\". 0 - Не заполнять,  1 - Заполнять только ЦА программатика, 2 - Заполнять всеми возможными ЦА",
@@ -1795,12 +1795,12 @@ const docTemplate = `{
                 "SellingDirectionID": {
                     "description": "ID направления продаж",
                     "type": "string",
-                    "example": "21"
+                    "example": "23"
                 },
                 "StartDate": {
                     "description": "Дата начала периода в формате YYYYMMDD",
                     "type": "string",
-                    "example": "20170701"
+                    "example": "20190201"
                 }
             }
         },
@@ -1812,25 +1812,7 @@ const docTemplate = `{
                     "properties": {
                         "eq": {
                             "type": "integer",
-                            "example": 117952235
-                        }
-                    }
-                },
-                "VM": {
-                    "type": "object",
-                    "properties": {
-                        "eq": {
-                            "type": "integer",
-                            "example": 180
-                        }
-                    }
-                },
-                "VR": {
-                    "type": "object",
-                    "properties": {
-                        "qe": {
-                            "type": "integer",
-                            "example": 0
+                            "example": 142480512
                         }
                     }
                 }

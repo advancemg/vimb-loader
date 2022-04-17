@@ -98,7 +98,7 @@ func (cfg *MediaplanConfiguration) InitJob() func() {
 		months := map[int64]struct{}{}
 		var budgets []Budget
 		badgerBudgets := storage.Open(DbBudgets)
-		err = badgerBudgets.Find(&budgets, badgerhold.Where("Month").Ge(-1))
+		err = badgerBudgets.Find(&budgets, badgerhold.Where("Month").Ge(int64(-1)))
 		if err != nil {
 			fmt.Printf("Q:%s - err:%s", qName, err.Error())
 			return

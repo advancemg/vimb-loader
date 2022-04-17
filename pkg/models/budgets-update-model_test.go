@@ -52,9 +52,9 @@ func TestQueryBudgets(t *testing.T) {
 	advertisers := map[int64]int64{}
 	channelList := map[int64]Cnl{}
 	badgerBudgets := storage.Open(DbBudgets)
-	_ = badgerBudgets.Find(&budgets, badgerhold.Where("Month").Ge(-1))
+	_ = badgerBudgets.Find(&budgets, badgerhold.Where("Month").Ge(int64(-1)))
 	badgerChannels := storage.Open(DbChannels)
-	_ = badgerChannels.Find(&channels, badgerhold.Where("ID").Ge(-1))
+	_ = badgerChannels.Find(&channels, badgerhold.Where("ID").Ge(int64(-1)))
 	for _, budget := range budgets {
 		advertisers[*budget.AdtID] = *budget.AdtID
 		channelList[*budget.CnlID] = Cnl{

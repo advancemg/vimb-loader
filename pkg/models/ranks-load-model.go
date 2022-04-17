@@ -11,7 +11,7 @@ type RanksLoadRequest struct{}
 
 type RankQuery struct {
 	ID struct {
-		Eq int `json:"eq" example:"1"`
+		Eq int64 `json:"eq" example:"1"`
 	} `json:"ID"`
 }
 

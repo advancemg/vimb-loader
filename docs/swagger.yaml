@@ -211,7 +211,7 @@ definitions:
         type: array
       EndDate:
         description: Дата окончания периода (включительно) в формате YYYYMMDD
-        example: "20170702"
+        example: "20190202"
         type: string
       InclForecast:
         description: Признак "Как заполнять секцию прогнозных рейтингов". 0 - Не заполнять,  1
@@ -228,11 +228,11 @@ definitions:
         type: string
       SellingDirectionID:
         description: ID направления продаж
-        example: "21"
+        example: "23"
         type: string
       StartDate:
         description: Дата начала периода в формате YYYYMMDD
-        example: "20170701"
+        example: "20190201"
         type: string
     type: object
   models.ProgramBreaksLightModeQuery:
@@ -240,19 +240,7 @@ definitions:
       BlockID:
         properties:
           eq:
-            example: 117952235
-            type: integer
-        type: object
-      VM:
-        properties:
-          eq:
-            example: 180
-            type: integer
-        type: object
-      VR:
-        properties:
-          qe:
-            example: 0
+            example: 142480512
             type: integer
         type: object
     type: object

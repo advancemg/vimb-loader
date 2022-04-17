@@ -16,13 +16,13 @@ type BudgetLoadRequest struct {
 
 type BudgetQuery struct {
 	Month struct {
-		Eq int `json:"eq" example:"201902"`
+		Eq int64 `json:"eq" example:"201902"`
 	} `json:"Month"`
 	CnlID struct {
-		Eq int `json:"eq" example:"1020335"`
+		Eq int64 `json:"eq" example:"1020335"`
 	} `json:"CnlID"`
 	AdtID struct {
-		Ee int `json:"eq" example:"700068653"`
+		Ee int64 `json:"eq" example:"700068653"`
 	} `json:"AdtID"`
 }
 

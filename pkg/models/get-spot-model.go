@@ -112,13 +112,13 @@ func (cfg *SpotsConfiguration) InitJob() func() {
 		months := map[int64][]time.Time{}
 		advertisers := map[int64]int64{}
 		badgerBudgets := storage.Open(DbBudgets)
-		err = badgerBudgets.Find(&budgets, badgerhold.Where("Month").Ge(-1))
+		err = badgerBudgets.Find(&budgets, badgerhold.Where("Month").Ge(int64(-1)))
 		if err != nil {
 			fmt.Printf("Q:%s - err:%s", qName, err.Error())
 			return
 		}
 		badgerChannels := storage.Open(DbChannels)
-		err = badgerChannels.Find(&channels, badgerhold.Where("ID").Ge(-1))
+		err = badgerChannels.Find(&channels, badgerhold.Where("ID").Ge(int64(-1)))
 		for _, budget := range budgets {
 			advertisers[*budget.AdtID] = *budget.AdtID
 			channelList[*budget.CnlID] = Cnl{

@@ -69,7 +69,7 @@ func (request *ProgramUpdateRequest) Update() error {
 	timestamp := time.Now()
 	query := ProgramBreaksBadgerQuery{}
 	var programBreaks []ProgramBreaks
-	filter := badgerhold.Where("ProgID").Ge(-1)
+	filter := badgerhold.Where("ProgID").Ge(int64(-1))
 	err := query.Find(&programBreaks, filter)
 	if err != nil {
 		return err

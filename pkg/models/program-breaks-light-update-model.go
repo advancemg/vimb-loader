@@ -15,7 +15,7 @@ type ProgramBreaksLightUpdateRequest struct {
 }
 
 type ProgramBreaksLight struct {
-	Booked              *float64  `json:"Booked"`
+	Booked              *int64    `json:"Booked"`
 	BlockID             *int64    `json:"BlockID"`
 	RankID              *int64    `json:"RankID"`
 	VM                  *int64    `json:"VM"`
@@ -36,7 +36,7 @@ func (program *ProgramBreaksLight) Key() string {
 func (b *internalB) Convert() (*ProgramBreaksLight, error) {
 	timestamp := time.Now()
 	items := &ProgramBreaksLight{
-		Booked:              utils.FloatI(b.B["Booked"]),
+		Booked:              utils.Int64I(b.B["Booked"]),
 		BlockID:             utils.Int64I(b.B["BlockID"]),
 		RankID:              utils.Int64I(b.B["RankID"]),
 		VM:                  utils.Int64I(b.B["VM"]),

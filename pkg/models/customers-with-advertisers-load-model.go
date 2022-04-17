@@ -13,13 +13,13 @@ type CustomersWithAdvertisersLoadRequest struct {
 
 type CustomersWithAdvertiserQuery struct {
 	ID struct {
-		Eq int `json:"eq" example:"1"`
+		Eq int64 `json:"eq" example:"1"`
 	} `json:"ID"`
 }
 
 type CustomersWithAdvertiserDataQuery struct {
 	CustID struct {
-		Eq int `json:"eq" example:"1"`
+		Eq int64 `json:"eq" example:"1"`
 	} `json:"CustID"`
 }
 

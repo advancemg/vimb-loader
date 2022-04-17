@@ -107,7 +107,7 @@ func (cfg *AdvMessagesConfiguration) InitJob() func() {
 		var budgets []Budget
 		months := map[int64][]time.Time{}
 		badgerBudgets := storage.Open(DbBudgets)
-		err = badgerBudgets.Find(&budgets, badgerhold.Where("Month").Ge(-1))
+		err = badgerBudgets.Find(&budgets, badgerhold.Where("Month").Ge(int64(-1)))
 		if err != nil {
 			fmt.Printf("Q:%s - err:%s", qName, err.Error())
 			return

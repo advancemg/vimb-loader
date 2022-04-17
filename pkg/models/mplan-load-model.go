@@ -48,19 +48,19 @@ func (request *MediaplanLoadRequest) getMonths() ([]utils.YearMonth, error) {
 
 type MediaplanQuery struct {
 	AdtID struct {
-		Eq int `json:"eq" example:"700068653"`
+		Eq int64 `json:"eq" example:"700068653"`
 	} `json:"AdtID"`
 	AgrID struct {
-		Eq int `json:"eq" example:"81024"`
+		Eq int64 `json:"eq" example:"81024"`
 	} `json:"AgrID"`
 	MplID struct {
-		Eq int `json:"eq" example:"14824608"`
+		Eq int64 `json:"eq" example:"14824608"`
 	} `json:"MplID"`
 }
 
 type AggMediaplanQuery struct {
 	MplMonth struct {
-		Eq int `json:"eq" example:"201902"`
+		Eq int64 `json:"eq" example:"201902"`
 	} `json:"MplMonth"`
 	CppPrime struct {
 		Eq float64 `json:"eq" example:"2205.20143600803"`
