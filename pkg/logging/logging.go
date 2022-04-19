@@ -109,3 +109,22 @@ func getLogLevel(str string) log.Level {
 		return log.DebugLevel
 	}
 }
+
+type BadgerLog struct {
+}
+
+func (l *BadgerLog) Errorf(f string, v ...interface{}) {
+	PrintLog("", "", "BADGER ERROR: "+f, v)
+}
+
+func (l *BadgerLog) Warningf(f string, v ...interface{}) {
+	PrintLog("", "", "BADGER WARNING: "+f, v)
+}
+
+func (l *BadgerLog) Infof(f string, v ...interface{}) {
+	PrintLog("", "", "BADGER INFO: "+f, v)
+}
+
+func (l *BadgerLog) Debugf(f string, v ...interface{}) {
+	PrintLog("", "", "BADGER DEBUG: "+f, v)
+}

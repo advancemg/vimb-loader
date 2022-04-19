@@ -29,6 +29,8 @@ func NewBadger(storageDir string) *Badger {
 	opts.SyncWrites = true
 	opts.Dir = storageDir
 	opts.ValueDir = storageDir
+	opts.MaxTableSize = 128 << 20 //128 Mb
+	opts.Logger = badgerLogger
 	storage.db, err = badger.Open(opts)
 	if err != nil {
 		panic(err)

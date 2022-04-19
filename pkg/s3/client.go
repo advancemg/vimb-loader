@@ -58,7 +58,7 @@ func (c *Config) Ping() bool {
 		conn, err := net.DialTimeout("tcp", c.S3Endpoint, time.Second*1)
 		if err != nil {
 			time.Sleep(time.Second * 2)
-			fmt.Printf("ping s3 endpoint %s...\n", c.S3Endpoint)
+			log.PrintLog("vimb-loader", "s3", "info", "ping s3 endpoint", c.S3Endpoint, "...")
 			continue
 		}
 		if conn != nil {

@@ -52,7 +52,7 @@ func (cfg *RanksConfiguration) StartJob() chan error {
 			if err != nil {
 				errorCh <- err
 			}
-			err = amqpConfig.PublishJson(CustomersWithAdvertisersUpdateQueue, s3Message)
+			err = amqpConfig.PublishJson(RanksUpdateQueue, s3Message)
 			if err != nil {
 				errorCh <- err
 			}

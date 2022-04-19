@@ -3,6 +3,7 @@ package mq_broker
 import (
 	"encoding/json"
 	"fmt"
+	log "github.com/advancemg/vimb-loader/pkg/logging"
 	"github.com/pkg/errors"
 	"github.com/streadway/amqp"
 	"github.com/valinurovam/garagemq/config"
@@ -56,7 +57,7 @@ func (c *Config) Ping() bool {
 		conn, err := net.DialTimeout("tcp", endpoint, time.Second*1)
 		if err != nil {
 			time.Sleep(time.Second * 2)
-			fmt.Printf("ping amqp endpoint %s...\n", endpoint)
+			log.PrintLog("vimb-loader", "amqp", "info", "ping amqp endpoint", endpoint, "...")
 			continue
 		}
 		if conn != nil {
