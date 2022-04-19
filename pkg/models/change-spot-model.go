@@ -58,7 +58,7 @@ func (request *ChangeSpot) UploadToS3() error {
 		data, err := request.GetDataXmlZip()
 		if err != nil {
 			if vimbError, ok := err.(*utils.VimbError); ok {
-				vimbError.CheckTimeout()
+				vimbError.CheckTimeout("ChangeSpot")
 				continue
 			}
 			return err

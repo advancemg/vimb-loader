@@ -186,19 +186,19 @@ type VimbError struct {
 	Message string `json:"message"`
 }
 
-func (e *VimbError) CheckTimeout() {
+func (e *VimbError) CheckTimeout(method string) {
 	code := e.Code
 	switch code {
 	case 1001:
-		log.PrintLog("vimb-loader", "soap-client", "error", "timeout code:", code, e.Message)
+		log.PrintLog("vimb-loader", "soap-client", "error", method, " ", "timeout code:", code, " ", e.Message)
 		time.Sleep(time.Minute * 1)
 		return
 	case 1003:
-		log.PrintLog("vimb-loader", "soap-client", "error", "timeout code:", code, e.Message)
+		log.PrintLog("vimb-loader", "soap-client", "error", method, " ", "timeout code:", code, " ", e.Message)
 		time.Sleep(time.Minute * 2)
 		return
 	default:
-		log.PrintLog("vimb-loader", "soap-client", "error", "vimb-error code:", code, e.Message)
+		log.PrintLog("vimb-loader", "soap-client", "error", method, " ", "vimb-error code:", code, " ", e.Message)
 		time.Sleep(time.Minute * 1)
 		return
 	}

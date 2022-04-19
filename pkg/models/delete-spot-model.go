@@ -57,7 +57,7 @@ func (request *DeleteSpot) UploadToS3() error {
 		data, err := request.GetDataXmlZip()
 		if err != nil {
 			if vimbError, ok := err.(*utils.VimbError); ok {
-				vimbError.CheckTimeout()
+				vimbError.CheckTimeout("DeleteSpot")
 				continue
 			}
 			return err

@@ -166,7 +166,7 @@ func (request *GetMPLans) UploadToS3() (*MqUpdateMessage, error) {
 		data, err := request.GetDataXmlZip()
 		if err != nil {
 			if vimbError, ok := err.(*utils.VimbError); ok {
-				vimbError.CheckTimeout()
+				vimbError.CheckTimeout("GetMPLans")
 				continue
 			}
 			return nil, err

@@ -178,7 +178,7 @@ func (request *GetAdvMessages) UploadToS3() (*MqUpdateMessage, error) {
 		data, err := request.GetDataXmlZip()
 		if err != nil {
 			if vimbError, ok := err.(*utils.VimbError); ok {
-				vimbError.CheckTimeout()
+				vimbError.CheckTimeout("GetAdvMessages")
 				continue
 			}
 			return nil, err

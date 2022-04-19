@@ -191,7 +191,7 @@ func (request *GetProgramBreaksLight) UploadToS3() (*MqUpdateMessage, error) {
 		data, err := request.GetDataXmlZip()
 		if err != nil {
 			if vimbError, ok := err.(*utils.VimbError); ok {
-				vimbError.CheckTimeout()
+				vimbError.CheckTimeout("GetProgramBreaksLight")
 				continue
 			}
 			return nil, err

@@ -63,7 +63,7 @@ func (request *AddMPlan) UploadToS3() error {
 		data, err := request.GetDataXmlZip()
 		if err != nil {
 			if vimbError, ok := err.(*utils.VimbError); ok {
-				vimbError.CheckTimeout()
+				vimbError.CheckTimeout("AddMPlan")
 				continue
 			}
 			return err

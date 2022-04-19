@@ -136,7 +136,7 @@ func (request *GetCustomersWithAdvertisers) UploadToS3() (*MqUpdateMessage, erro
 		data, err := request.GetDataXmlZip()
 		if err != nil {
 			if vimbError, ok := err.(*utils.VimbError); ok {
-				vimbError.CheckTimeout()
+				vimbError.CheckTimeout("GetCustomersWithAdvertisers")
 				continue
 			}
 			return nil, err

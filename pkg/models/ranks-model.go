@@ -134,7 +134,7 @@ func (request *GetRanks) UploadToS3() (*MqUpdateMessage, error) {
 		data, err := request.GetDataXmlZip()
 		if err != nil {
 			if vimbError, ok := err.(*utils.VimbError); ok {
-				vimbError.CheckTimeout()
+				vimbError.CheckTimeout("GetRanks")
 				continue
 			}
 			return nil, err
