@@ -91,8 +91,10 @@ func (cfg *DeletedSpotInfoConfiguration) InitJob() func() {
 			return
 		}
 		type agreement struct {
-			Id string `json:"ID"`
+			Id int64 `json:"ID"`
 		}
+		agr := map[int64]struct{}{}
+		var agreements []agreement
 		var budgets []Budget
 		months := map[int64][]time.Time{}
 		badgerBudgets := storage.Open(DbBudgets)
@@ -102,21 +104,25 @@ func (cfg *DeletedSpotInfoConfiguration) InitJob() func() {
 			return
 		}
 		for _, budget := range budgets {
+			agr[*budget.AgrID] = struct{}{}
 			days, err := utils.GetDaysFromYearMonthInt(*budget.Month)
 			if err != nil {
 				panic(err)
 			}
 			months[*budget.Month] = days
 		}
+		for agrId, _ := range agr {
+			agreements = append(agreements, agreement{agrId})
+		}
 		for _, days := range months {
 			startDay := fmt.Sprintf("%v", days[0].Format(time.RFC3339))
 			endDay := fmt.Sprintf("%v", days[len(days)-1].Format(time.RFC3339))
 			startDay = startDay[0 : len(startDay)-1]
-			endDay = endDay[0 : len(endDay)-1][:11] + "12:00:00"
+			endDay = endDay[0 : len(endDay)-1]
 			request := goConvert.New()
 			request.Set("DateStart", startDay)
 			request.Set("DateEnd", endDay)
-			request.Set("Agreements", []agreement{})
+			request.Set("Agreements", agreements)
 			err = amqpConfig.PublishJson(qName, request)
 			if err != nil {
 				fmt.Printf("Q:%s - err:%s", qName, err.Error())
