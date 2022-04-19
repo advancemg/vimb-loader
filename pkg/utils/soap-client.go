@@ -7,10 +7,10 @@ import (
 	"encoding/pem"
 	"fmt"
 	convert "github.com/advancemg/go-convert"
+	log "github.com/advancemg/vimb-loader/pkg/logging"
 	"github.com/buger/jsonparser"
 	"golang.org/x/crypto/pkcs12"
 	"io"
-	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -64,11 +64,11 @@ func (cfg *Config) newClient() *http.Client {
 	}
 	dataCert, err := base64.StdEncoding.DecodeString(cfg.Cert)
 	if err != nil {
-		log.Fatal("error:", err)
+		log.PrintLog("vimb-loader", "soap-client", "error", "base64.StdEncoding error", err.Error())
 	}
 	blocks, err := pkcs12.ToPEM(dataCert, cfg.Password)
 	if err != nil {
-		log.Fatal("error:", err)
+		log.PrintLog("vimb-loader", "soap-client", "error", "pkcs12.ToPEM error", err.Error())
 	}
 	var pemData []byte
 	for _, b := range blocks {
@@ -76,7 +76,7 @@ func (cfg *Config) newClient() *http.Client {
 	}
 	cert, err := tls.X509KeyPair(pemData, pemData)
 	if err != nil {
-		log.Fatalf("err while converting to key pair: %v", err)
+		log.PrintLog("vimb-loader", "soap-client", "error", "err while converting to key pair: ", err.Error())
 	}
 	config := &tls.Config{
 		InsecureSkipVerify: true,
@@ -190,16 +190,15 @@ func (e *VimbError) CheckTimeout() {
 	code := e.Code
 	switch code {
 	case 1001:
-		fmt.Printf("Vimb code %v timeout...", code)
+		log.PrintLog("vimb-loader", "soap-client", "error", "timeout code:", code, e.Message)
 		time.Sleep(time.Minute * 1)
 		return
 	case 1003:
-		fmt.Printf("Vimb code %v timeout...", code)
+		log.PrintLog("vimb-loader", "soap-client", "error", "timeout code:", code, e.Message)
 		time.Sleep(time.Minute * 2)
 		return
 	default:
-		fmt.Printf("Vimb code %v - not implemented timeout...", code)
-		fmt.Println(e.Message)
+		log.PrintLog("vimb-loader", "soap-client", "error", "vimb-error code:", code, e.Message)
 		time.Sleep(time.Minute * 1)
 		return
 	}

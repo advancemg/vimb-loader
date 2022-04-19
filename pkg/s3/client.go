@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	log "github.com/advancemg/vimb-loader/pkg/logging"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -15,7 +16,6 @@ import (
 	"github.com/zenthangplus/goccm"
 	"io"
 	"io/ioutil"
-	"log"
 	"net"
 	"os"
 	"path"
@@ -25,10 +25,6 @@ import (
 )
 
 var cfg *Config
-
-/*func init() {
-	cfg = loadConfig()
-}*/
 
 type Config struct {
 	S3AccessKeyId     string           `json:"s3AccessKeyId"`
@@ -62,7 +58,7 @@ func (c *Config) Ping() bool {
 		conn, err := net.DialTimeout("tcp", c.S3Endpoint, time.Second*1)
 		if err != nil {
 			time.Sleep(time.Second * 2)
-			fmt.Printf("ping s3 endpoint %s ...\n", c.S3Endpoint)
+			fmt.Printf("ping s3 endpoint %s...\n", c.S3Endpoint)
 			continue
 		}
 		if conn != nil {
@@ -128,7 +124,7 @@ func CreateDefaultBucket() error {
 func CreateBucket(name string) error {
 	err := connection()
 	if err != nil {
-		log.Print(map[string]string{"CreateBucket(s3Client)": "error", "error": err.Error()})
+		log.PrintLog("vimb-loader", "s3", "error", "Connection error:", err.Error())
 		return err
 	}
 	client := s3.New(cfg.S3Session)
@@ -141,7 +137,7 @@ func CreateBucket(name string) error {
 		if failure.Code() == "BucketAlreadyOwnedByYou" {
 			return nil
 		}
-		log.Print(map[string]string{"CreateBucket(s3Client)": "error", "error": err.Error()})
+		log.PrintLog("vimb-loader", "s3", "error", "CreateBucket error:", err.Error())
 		return err
 	}
 	return nil
@@ -150,7 +146,7 @@ func CreateBucket(name string) error {
 func CheckFile(bucket, key string) (map[string]string, error) {
 	err := connection()
 	if err != nil {
-		log.Print(map[string]string{"CreateBucket(s3Client)": "error", "error": err.Error()})
+		log.PrintLog("vimb-loader", "s3", "error", "Connection error:", err.Error())
 		return nil, err
 	}
 	client := s3.New(cfg.S3Session)
@@ -160,7 +156,7 @@ func CheckFile(bucket, key string) (map[string]string, error) {
 	}
 	result, err := client.HeadObject(&request)
 	if err != nil {
-		log.Print(map[string]string{"CheckFile(s3Client)": "error", "error": err.Error()})
+		log.PrintLog("vimb-loader", "s3", "error", "CheckFile error:", err.Error())
 		return nil, err
 	}
 	state := map[string]string{
@@ -172,7 +168,7 @@ func CheckFile(bucket, key string) (map[string]string, error) {
 func Exist(bucket, key string) bool {
 	err := connection()
 	if err != nil {
-		log.Print(map[string]string{"Exist(s3Client)": "error", "error": err.Error()})
+		log.PrintLog("vimb-loader", "s3", "error", "Connection error:", err.Error())
 		return false
 	}
 	client := s3.New(cfg.S3Session)
@@ -182,7 +178,7 @@ func Exist(bucket, key string) bool {
 	}
 	result, err := client.HeadObject(&request)
 	if err != nil {
-		log.Print(map[string]string{"Exist(s3Client)": "error", "error": err.Error()})
+		log.PrintLog("vimb-loader", "s3", "error", "Exist error:", err.Error())
 		return false
 	}
 	b := nil != result
@@ -191,7 +187,7 @@ func Exist(bucket, key string) bool {
 func ListDirectories(bucket, prefix string) map[string]string {
 	err := connection()
 	if err != nil {
-		log.Print(map[string]string{"ListDirectories(s3Client)": "error", "error": err.Error()})
+		log.PrintLog("vimb-loader", "s3", "error", "Connection error:", err.Error())
 		return nil
 	}
 	client := s3.New(cfg.S3Session)
@@ -206,7 +202,7 @@ func ListDirectories(bucket, prefix string) map[string]string {
 	for {
 		result, errData = client.ListObjectsV2(&request)
 		if errData != nil {
-			log.Print(map[string]string{"ListDirectories(s3Client)": "error", "error": err.Error()})
+			log.PrintLog("vimb-loader", "s3", "error", "ListDirectories error:", err.Error())
 			return nil
 		}
 		for _, file := range result.Contents {
@@ -228,7 +224,7 @@ func ListDirectories(bucket, prefix string) map[string]string {
 func ListKeys(bucket, prefix string) map[string]string {
 	err := connection()
 	if err != nil {
-		log.Print(map[string]string{"ListKeys(s3Client)": "error", "error": err.Error()})
+		log.PrintLog("vimb-loader", "s3", "error", "Connection error:", err.Error())
 		return nil
 	}
 	client := s3.New(cfg.S3Session)
@@ -238,7 +234,7 @@ func ListKeys(bucket, prefix string) map[string]string {
 	}
 	result, err := client.ListObjects(&request)
 	if err != nil {
-		log.Print(map[string]string{"ListKeys(s3Client)": "error", "error": err.Error()})
+		log.PrintLog("vimb-loader", "s3", "error", "ListKeys error:", err.Error())
 		return nil
 	}
 	var data = map[string]string{}
@@ -250,7 +246,7 @@ func ListKeys(bucket, prefix string) map[string]string {
 func ListKeysWithCred(bucket, prefix string) map[string]string {
 	err := connection()
 	if err != nil {
-		log.Print(map[string]string{"ListKeysWithCred(s3Client)": "error", "error": err.Error()})
+		log.PrintLog("vimb-loader", "s3", "error", "Connection error:", err.Error())
 		return nil
 	}
 	client := s3.New(cfg.S3Session)
@@ -260,7 +256,7 @@ func ListKeysWithCred(bucket, prefix string) map[string]string {
 	}
 	result, err := client.ListObjects(&request)
 	if err != nil {
-		log.Print(map[string]string{"ListKeysWithCred(s3Client)": "error", "error": err.Error()})
+		log.PrintLog("vimb-loader", "s3", "error", "ListKeysWithCred error:", err.Error())
 		return nil
 	}
 	var data = map[string]string{}
@@ -273,7 +269,7 @@ func CopyBatch(bucket, inputPrefix, outputPrefix string) error {
 	keys := ListKeys(bucket, inputPrefix)
 	err := connection()
 	if err != nil {
-		log.Print(map[string]string{"CopyBatch(s3Client)": "error", "error": err.Error()})
+		log.PrintLog("vimb-loader", "s3", "error", "Connection error:", err.Error())
 		return err
 	}
 	s3Client := s3.New(cfg.S3Session)
@@ -285,7 +281,7 @@ func CopyBatch(bucket, inputPrefix, outputPrefix string) error {
 			Key:        aws.String(outputS3Key),
 		})
 		if err != nil {
-			log.Print(map[string]string{"CopyBatch(s3Client)": "error", "error": err.Error()})
+			log.PrintLog("vimb-loader", "s3", "error", "CopyBatch error:", err.Error())
 			return err
 		}
 	}
@@ -295,13 +291,13 @@ func DownloadBatch(bucket, prefix string) (string, error) {
 	keys := ListKeys(bucket, prefix)
 	err := connection()
 	if err != nil {
-		log.Print(map[string]string{"DownloadBatch(s3Client)": "error", "error": err.Error()})
+		log.PrintLog("vimb-loader", "s3", "error", "Connection error:", err.Error())
 		return "", err
 	}
 	s3Client := s3.New(cfg.S3Session)
 	sessionDataDir, err := ioutil.TempDir(``, `s3_client-dir-Session-`)
 	if err != nil {
-		log.Print(map[string]string{"DownloadBatch(s3Client)": "error", "error": err.Error()})
+		log.PrintLog("vimb-loader", "s3", "error", "DownloadBatch error:", err.Error())
 		return "", err
 	}
 	errorCh := make(chan error)
@@ -357,13 +353,13 @@ func Download(key string) (string, error) {
 	bucket := cfg.S3Bucket
 	err := connection()
 	if err != nil {
-		log.Print(map[string]string{"Download(s3Client)": "error", "error": err.Error()})
+		log.PrintLog("vimb-loader", "s3", "error", "Connection error:", err.Error())
 		return "", err
 	}
 	s3Client := s3.New(cfg.S3Session)
 	size, err := GetFileSize(s3Client, bucket, key)
 	if err != nil {
-		log.Print(map[string]string{"Download(s3Client)": "error", "error": err.Error()})
+		log.PrintLog("vimb-loader", "s3", "error", "Download error:", err.Error())
 		return ``, err
 	}
 	temp, err := ioutil.TempFile(``, "s3_client-load-file-tmp-")
@@ -381,7 +377,7 @@ func Download(key string) (string, error) {
 		Key:    aws.String(key),
 	})
 	if err != nil {
-		log.Print(map[string]string{"Download(s3Client)": "error", "error": err.Error()})
+		log.PrintLog("vimb-loader", "s3", "error", "Download error:", err.Error())
 		os.Remove(tempfileName)
 		return ``, err
 	}
@@ -390,12 +386,12 @@ func Download(key string) (string, error) {
 func UploadFileWithBucket(filePathInput, s3Key string) (*s3manager.UploadOutput, error) {
 	file, err := os.Open(filePathInput)
 	if err != nil {
-		log.Print(map[string]string{"UploadFileWithBucket(s3Client)": "error", "error": err.Error()})
+		log.PrintLog("vimb-loader", "s3", "error", "UploadFileWithBucket error:", err.Error())
 		file.Close()
 	}
 	err = connection()
 	if err != nil {
-		log.Print(map[string]string{"UploadFileWithBucket(s3Client)": "error", "error": err.Error()})
+		log.PrintLog("vimb-loader", "s3", "error", "Connection error:", err.Error())
 		return nil, err
 	}
 	defer file.Close()
@@ -410,10 +406,11 @@ func UploadFileWithBucket(filePathInput, s3Key string) (*s3manager.UploadOutput,
 func UploadBytesWithBucket(s3Key string, data []byte) (*s3manager.UploadOutput, error) {
 	err := connection()
 	if err != nil {
-		log.Print(map[string]string{"UploadFileWithBucket(s3Client)": "error", "error": err.Error()})
+		log.PrintLog("vimb-loader", "s3", "error", "Connection error:", err.Error())
 		return nil, err
 	}
 	svc := s3manager.NewUploader(cfg.S3Session)
+	log.PrintLog("vimb-loader", "s3", "info", "Upload:", s3Key)
 	return svc.Upload(&s3manager.UploadInput{
 		Bucket: aws.String(cfg.S3Bucket),
 		Key:    aws.String(s3Key),
@@ -425,7 +422,7 @@ func DeleteWithBucketPrefix(bucket string, prefix string) error {
 	keys := ListKeys(bucket, prefix)
 	err := connection()
 	if err != nil {
-		log.Print(map[string]string{"DeleteWithBucketPrefix(s3Client)": "error", "error": err.Error()})
+		log.PrintLog("vimb-loader", "s3", "error", "Connection error:", err.Error())
 		return err
 	}
 	svc := s3manager.NewBatchDelete(cfg.S3Session, func(d *s3manager.BatchDelete) {
@@ -444,7 +441,7 @@ func DeleteWithBucketPrefix(bucket string, prefix string) error {
 		Objects: objects,
 	})
 	if err != nil {
-		log.Print(map[string]string{"DeleteWithBucketPrefix(s3Client)": "error", "error": err.Error()})
+		log.PrintLog("vimb-loader", "s3", "error", "DeleteWithBucketPrefix error:", err.Error())
 		return err
 	}
 	return nil
@@ -452,7 +449,7 @@ func DeleteWithBucketPrefix(bucket string, prefix string) error {
 func DeleteWithBucket(bucket string, s3Keys []string) error {
 	err := connection()
 	if err != nil {
-		log.Print(map[string]string{"DeleteWithBucket(s3Client)": "error", "error": err.Error()})
+		log.PrintLog("vimb-loader", "s3", "error", "Connection error:", err.Error())
 		return err
 	}
 	svc := s3manager.NewBatchDelete(cfg.S3Session, func(d *s3manager.BatchDelete) {
@@ -471,7 +468,7 @@ func DeleteWithBucket(bucket string, s3Keys []string) error {
 		Objects: objects,
 	})
 	if err != nil {
-		log.Print(map[string]string{"DeleteWithBucket(s3Client)": "error", "error": err.Error()})
+		log.PrintLog("vimb-loader", "s3", "error", "DeleteWithBucket error:", err.Error())
 		return err
 	}
 	return nil

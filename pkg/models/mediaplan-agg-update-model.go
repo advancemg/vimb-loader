@@ -10,8 +10,6 @@ import (
 	"time"
 )
 
-const MediaplanAggTable = "mediaplans-agg"
-
 type MediaplanAggUpdateRequest struct {
 	Month        int64 `json:"month"`
 	ChannelId    int64 `json:"channelId"`

@@ -11,8 +11,6 @@ import (
 	"time"
 )
 
-const MediaplanTable = "mediaplans"
-
 type internalMDiscount struct {
 	Item map[string]interface{} `json:"item"`
 }

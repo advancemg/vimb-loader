@@ -2,8 +2,8 @@ package models
 
 import (
 	"encoding/json"
-	"fmt"
 	goConvert "github.com/advancemg/go-convert"
+	log "github.com/advancemg/vimb-loader/pkg/logging"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/utils"
 )
@@ -45,7 +45,7 @@ func (request *BudgetLoadRequest) InitTasks() (CommonResponse, error) {
 		req.Set("EndMonth", month.ValueString)
 		err := amqpConfig.PublishJson(qName, req)
 		if err != nil {
-			fmt.Printf("Q:%s - err:%s", qName, err.Error())
+			log.PrintLog("vimb-loader", "Budget InitTasks", "error", "Q:", qName, "err:", err.Error())
 			return nil, err
 		}
 	}

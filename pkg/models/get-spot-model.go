@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	goConvert "github.com/advancemg/go-convert"
+	log "github.com/advancemg/vimb-loader/pkg/logging"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
 	"github.com/advancemg/vimb-loader/pkg/storage"
@@ -86,12 +87,12 @@ func (cfg *SpotsConfiguration) InitJob() func() {
 		amqpConfig := mq_broker.InitConfig()
 		err := amqpConfig.DeclareSimpleQueue(qName)
 		if err != nil {
-			fmt.Printf("Q:%s - err:%s", qName, err.Error())
+			log.PrintLog("vimb-loader", "Spots InitJob", "error", "Q:", qName, "err:", err.Error())
 			return
 		}
 		qInfo, err := amqpConfig.GetQueueInfo(qName)
 		if err != nil {
-			fmt.Printf("Q:%s - err:%s", qName, err.Error())
+			log.PrintLog("vimb-loader", "Spots InitJob", "error", "Q:", qName, "err:", err.Error())
 			return
 		}
 		if qInfo.Messages > 0 {
@@ -114,7 +115,7 @@ func (cfg *SpotsConfiguration) InitJob() func() {
 		badgerBudgets := storage.Open(DbBudgets)
 		err = badgerBudgets.Find(&budgets, badgerhold.Where("Month").Ge(int64(-1)))
 		if err != nil {
-			fmt.Printf("Q:%s - err:%s", qName, err.Error())
+			log.PrintLog("vimb-loader", "Spots InitJob", "error", "Q:", qName, "err:", err.Error())
 			return
 		}
 		badgerChannels := storage.Open(DbChannels)
@@ -163,7 +164,7 @@ func (cfg *SpotsConfiguration) InitJob() func() {
 			request.Set("AdtList", allAdvertisers)
 			err := amqpConfig.PublishJson(qName, request)
 			if err != nil {
-				fmt.Printf("Q:%s - err:%s", qName, err.Error())
+				log.PrintLog("vimb-loader", "Spots InitJob", "error", "Q:", qName, "err:", err.Error())
 				return
 			}
 		}

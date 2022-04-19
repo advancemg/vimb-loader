@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	goConvert "github.com/advancemg/go-convert"
+	log "github.com/advancemg/vimb-loader/pkg/logging"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
 	"github.com/advancemg/vimb-loader/pkg/utils"
@@ -81,12 +82,12 @@ func (cfg *BudgetConfiguration) InitJob() func() {
 		amqpConfig := mq_broker.InitConfig()
 		err := amqpConfig.DeclareSimpleQueue(qName)
 		if err != nil {
-			fmt.Printf("Q:%s - err:%s", qName, err.Error())
+			log.PrintLog("vimb-loader", "Budget InitJob", "error", "Q:", qName, "err:", err.Error())
 			return
 		}
 		qInfo, err := amqpConfig.GetQueueInfo(qName)
 		if err != nil {
-			fmt.Printf("Q:%s - err:%s", qName, err.Error())
+			log.PrintLog("vimb-loader", "Budget InitJob", "error", "Q:", qName, "err:", err.Error())
 			return
 		}
 		if qInfo.Messages > 0 {
@@ -94,7 +95,7 @@ func (cfg *BudgetConfiguration) InitJob() func() {
 		}
 		months, err := utils.GetActualMonths()
 		if err != nil {
-			fmt.Printf("Q:%s - err:%s", qName, err.Error())
+			log.PrintLog("vimb-loader", "Budget InitJob", "error", "Q:", qName, "err:", err.Error())
 			return
 		}
 		for _, month := range months {
@@ -104,7 +105,7 @@ func (cfg *BudgetConfiguration) InitJob() func() {
 			request.Set("EndMonth", month.ValueString)
 			err := amqpConfig.PublishJson(qName, request)
 			if err != nil {
-				fmt.Printf("Q:%s - err:%s", qName, err.Error())
+				log.PrintLog("vimb-loader", "Budget InitJob", "error", "Q:", qName, "err:", err.Error())
 				return
 			}
 		}
