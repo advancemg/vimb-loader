@@ -42,6 +42,9 @@ func TestBudgetsUpdateRequest_loadFromFile(t *testing.T) {
 }
 
 func TestQueryBudgets(t *testing.T) {
+	if testing.Short() {
+		t.SkipNow()
+	}
 	type Cnl struct {
 		Cnl  int64
 		Main int64

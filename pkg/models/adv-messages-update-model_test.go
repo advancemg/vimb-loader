@@ -16,7 +16,7 @@ func TestAdvertiserUpdateRequest_loadFromFile(t *testing.T) {
 	}{
 		{
 			name:    "loadFromFile-Advertiser",
-			fields:  fields{"../../dev-test-data/advertisers.gz"},
+			fields:  fields{"../../dev-test-data/AdvMessages.gz"},
 			wantErr: false,
 		},
 	}

@@ -29,7 +29,7 @@ func NewBadger(storageDir string) *Badger {
 	opts.SyncWrites = true
 	opts.Dir = storageDir
 	opts.ValueDir = storageDir
-	opts.MaxTableSize = 128 << 20 //128 Mb
+	opts.MaxTableSize = 256 << 20
 	opts.Logger = badgerLogger
 	storage.db, err = badger.Open(opts)
 	if err != nil {
@@ -242,6 +242,15 @@ func (storage *Badger) Count() int64 {
 		count++
 	})
 	return count
+}
+
+func (storage *Badger) Upsert(key, data interface{}, ttl time.Duration) error {
+	err := storage.db.Update(func(txn *badger.Txn) error {
+		e := badger.NewEntry([]byte("answer"), []byte("42")).WithTTL(time.Hour)
+		err := txn.SetEntry(e)
+		return err
+	})
+	return err
 }
 
 func (storage *Badger) runStorageGC() {

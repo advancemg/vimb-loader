@@ -19,7 +19,7 @@ func TestMediaplanUpdateRequest_loadFromFile(t *testing.T) {
 		{
 			name: "mediaplans-load-from file",
 			fields: fields{
-				S3Key: "../../dev-test-data/mediaplans.gz",
+				S3Key: "../../dev-test-data/MPLans.gz",
 			},
 			wantErr: false,
 		},

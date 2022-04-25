@@ -3,15 +3,15 @@ package models
 import (
 	"encoding/json"
 	"fmt"
+	log "github.com/advancemg/vimb-loader/pkg/logging"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
 	"github.com/advancemg/vimb-loader/pkg/storage"
 	"github.com/advancemg/vimb-loader/pkg/utils"
+	"os"
 	"reflect"
 	"time"
 )
-
-const BudgetTable = "budgets"
 
 type Budget struct {
 	Month                 *int64       `json:"Month"`
@@ -175,16 +175,29 @@ func BudgetStartJob() chan error {
 }
 
 func (request *BudgetsUpdateRequest) Update() error {
-	var err error
-	request.S3Key, err = s3.Download(request.S3Key)
-	if err != nil {
-		return err
+	for {
+		var err error
+		request.S3Key, err = s3.Download(request.S3Key)
+		if err != nil {
+			return err
+		}
+		open, err := os.Open(request.S3Key)
+		if err != nil {
+			if os.IsNotExist(err) {
+				log.PrintLog("BudgetsUpdateRequest", "Update()", "error", "Empty s3Key", err.Error())
+				time.Sleep(time.Minute * 2)
+				continue
+			} else {
+				return err
+			}
+		}
+		open.Close()
+		err = request.loadFromFile()
+		if err != nil {
+			return err
+		}
+		return nil
 	}
-	err = request.loadFromFile()
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
 func (request *BudgetsUpdateRequest) loadFromFile() error {

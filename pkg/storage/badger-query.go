@@ -7,11 +7,31 @@ import (
 	"github.com/dgraph-io/badger"
 	"github.com/timshannon/badgerhold"
 	"os"
+	"time"
 )
 
 var queryBadger = map[string]*badgerhold.Store{}
 
-var badgerLogger = &log.BadgerLog{}
+type BadgerLog struct {
+}
+
+func (l *BadgerLog) Errorf(f string, v ...interface{}) {
+	log.PrintLog("", "BADGER", "BADGER ERROR: "+f, v)
+}
+
+func (l *BadgerLog) Warningf(f string, v ...interface{}) {
+	log.PrintLog("", "BADGER", "BADGER WARNING: "+f, v)
+}
+
+func (l *BadgerLog) Infof(f string, v ...interface{}) {
+	log.PrintLog("", "BADGER", "BADGER INFO: "+f, v)
+}
+
+func (l *BadgerLog) Debugf(f string, v ...interface{}) {
+	log.PrintLog("", "BADGER", "BADGER DEBUG: "+f, v)
+}
+
+var badgerLogger = &BadgerLog{}
 
 func DefaultEncode(value interface{}) ([]byte, error) {
 	var buff bytes.Buffer
@@ -46,7 +66,10 @@ func Open(storageDir string) *badgerhold.Store {
 	opts.SyncWrites = true
 	opts.Dir = storageDir
 	opts.ValueDir = storageDir
-	opts.MaxTableSize = 128 << 20 //128 Mb
+	opts.MaxTableSize = 256 << 20
+	opts.NumVersionsToKeep = 0
+	opts.NumVersionsToKeep = 1
+	opts.ValueLogFileSize = 1<<30 - 1
 	opts.Logger = badgerLogger
 	options := badgerhold.Options{
 		Encoder:          DefaultEncode,
@@ -60,4 +83,19 @@ func Open(storageDir string) *badgerhold.Store {
 	}
 	queryBadger[storageDir] = store
 	return queryBadger[storageDir]
+}
+
+func CleanGC() {
+	ticker := time.NewTicker(30 * time.Minute)
+	defer ticker.Stop()
+	for range ticker.C {
+		for dbName, db := range queryBadger {
+		again:
+			err := db.Badger().RunValueLogGC(0.7)
+			if err == nil {
+				goto again
+			}
+			log.PrintLog("vimb-loader", "badger", "info", "Clean BadgerGC:"+dbName)
+		}
+	}
 }

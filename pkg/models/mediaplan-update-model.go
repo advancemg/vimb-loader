@@ -3,10 +3,12 @@ package models
 import (
 	"encoding/json"
 	"fmt"
+	log "github.com/advancemg/vimb-loader/pkg/logging"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
 	"github.com/advancemg/vimb-loader/pkg/storage"
 	"github.com/advancemg/vimb-loader/pkg/utils"
+	"os"
 	"reflect"
 	"time"
 )
@@ -294,56 +296,70 @@ func MediaplanStartJob() chan error {
 }
 
 func (request *MediaplanUpdateRequest) Update() error {
-	filePath, err := s3.Download(request.S3Key)
-	if err != nil {
-		return err
-	}
-	resp := utils.VimbResponse{FilePath: filePath}
-	convertData, err := resp.Convert("MPlansList")
-	if err != nil {
-		return err
-	}
-	marshalData, err := json.Marshal(convertData)
-	if err != nil {
-		return err
-	}
-	var internalData []internalM
-	err = json.Unmarshal(marshalData, &internalData)
-	if err != nil {
-		return err
-	}
-	badgerMediaplans := storage.Open(DbMediaplans)
-	aggTasks := map[string]MediaplanAggUpdateRequest{}
-	for _, dataM := range internalData {
-		mediaplan, err := dataM.ConvertMediaplan()
+	for {
+		var err error
+		filePath, err := s3.Download(request.S3Key)
 		if err != nil {
 			return err
 		}
-		id := mediaplan.MediaplanId
-		advertiserId := mediaplan.AdvertiserId
-		channelId := mediaplan.ChannelId
-		agreementId := mediaplan.AgreementId
-		month := mediaplan.Month
-		aggTasks[mediaplan.AggKey()] = MediaplanAggUpdateRequest{
-			Month:        *month,
-			ChannelId:    *channelId,
-			MediaplanId:  *id,
-			AdvertiserId: *advertiserId,
-			AgreementId:  *agreementId,
+		open, err := os.Open(request.S3Key)
+		if err != nil {
+			if os.IsNotExist(err) {
+				log.PrintLog("DeletedSpotInfoUpdateRequest", "Update()", "error", "Empty s3Key", err.Error())
+				time.Sleep(time.Minute * 2)
+				continue
+			} else {
+				return err
+			}
 		}
-		err = badgerMediaplans.Upsert(mediaplan.Key(), mediaplan)
+		open.Close()
+		resp := utils.VimbResponse{FilePath: filePath}
+		convertData, err := resp.Convert("MPlansList")
 		if err != nil {
 			return err
 		}
-	}
-	amqpConfig := mq_broker.InitConfig()
-	for _, aggMessage := range aggTasks {
-		err := amqpConfig.PublishJson(MediaplanAggUpdateQueue, aggMessage)
+		marshalData, err := json.Marshal(convertData)
 		if err != nil {
 			return err
 		}
+		var internalData []internalM
+		err = json.Unmarshal(marshalData, &internalData)
+		if err != nil {
+			return err
+		}
+		badgerMediaplans := storage.Open(DbMediaplans)
+		aggTasks := map[string]MediaplanAggUpdateRequest{}
+		for _, dataM := range internalData {
+			mediaplan, err := dataM.ConvertMediaplan()
+			if err != nil {
+				return err
+			}
+			id := mediaplan.MediaplanId
+			advertiserId := mediaplan.AdvertiserId
+			channelId := mediaplan.ChannelId
+			agreementId := mediaplan.AgreementId
+			month := mediaplan.Month
+			aggTasks[mediaplan.AggKey()] = MediaplanAggUpdateRequest{
+				Month:        *month,
+				ChannelId:    *channelId,
+				MediaplanId:  *id,
+				AdvertiserId: *advertiserId,
+				AgreementId:  *agreementId,
+			}
+			err = badgerMediaplans.Upsert(mediaplan.Key(), mediaplan)
+			if err != nil {
+				return err
+			}
+		}
+		amqpConfig := mq_broker.InitConfig()
+		for _, aggMessage := range aggTasks {
+			err := amqpConfig.PublishJson(MediaplanAggUpdateQueue, aggMessage)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
 	}
-	return nil
 }
 
 func (request *MediaplanUpdateRequest) loadFromFile() error {
@@ -363,7 +379,6 @@ func (request *MediaplanUpdateRequest) loadFromFile() error {
 	}
 	aggTasks := map[string]MediaplanAggUpdateRequest{}
 	badgerMediaplans := storage.Open(DbMediaplans)
-	defer badgerMediaplans.Close()
 	for _, dataM := range internalData {
 		mediaplan, err := dataM.ConvertMediaplan()
 		if err != nil {

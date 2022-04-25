@@ -225,7 +225,7 @@ func (request *GetSpots) UploadToS3() (*MqUpdateMessage, error) {
 		}
 		return &MqUpdateMessage{
 			Key:   newS3Key,
-			Month: month.(string),
+			Month: month.(string)[:6],
 		}, nil
 	}
 }

@@ -10,6 +10,7 @@ import (
 	"github.com/advancemg/vimb-loader/pkg/routes"
 	"github.com/advancemg/vimb-loader/pkg/s3"
 	"github.com/advancemg/vimb-loader/pkg/services"
+	"github.com/advancemg/vimb-loader/pkg/storage"
 	"github.com/advancemg/vimb-loader/pkg/utils"
 	"github.com/gorilla/mux"
 	"github.com/swaggo/http-swagger"
@@ -96,7 +97,7 @@ func main() {
 		fmt.Print("Base... [http://localhost", port, "/api/v1/docs/index.html", "]\n")
 		utils.CheckErr(s.ListenAndServe())
 	}()
-	/* s3 */
+	/* s3 server start*/
 	s3Config := s3.InitConfig()
 	err = os.Mkdir(s3Config.S3LocalDir, os.ModePerm)
 	if err != nil && !os.IsExist(err) {
@@ -109,6 +110,14 @@ func main() {
 	for !s3Config.Ping() {
 	}
 	utils.CheckErr(s3.CreateDefaultBucket())
+	/* s3 server restart every 2 hour*/
+	go func() {
+		utils.CheckErr(s3Config.ServerRestart())
+	}()
+	/* Clean BadgerGC every 30 min*/
+	go func() {
+		storage.CleanGC()
+	}()
 	/* amqp server */
 	mqConfig := mq.InitConfig()
 	go func() {

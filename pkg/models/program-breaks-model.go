@@ -219,7 +219,7 @@ func (request *GetProgramBreaks) UploadToS3() (*MqUpdateMessage, error) {
 		}
 		return &MqUpdateMessage{
 			Key:   newS3Key,
-			Month: startDate.(string),
+			Month: startDate.(string)[:6],
 		}, nil
 	}
 }
