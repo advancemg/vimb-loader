@@ -2,7 +2,7 @@ package models
 
 import (
 	"encoding/json"
-	"github.com/timshannon/badgerhold"
+	"github.com/advancemg/badgerhold"
 	"os"
 	"strconv"
 	"strings"
@@ -57,6 +57,7 @@ const (
 	DbDeletedSpotInfo                   = "db/deleted-spot-info"
 	DbMediaplans                        = "db/mediaplans"
 	DbAggMediaplans                     = "db/agg-mediaplans"
+	DbTimeout                           = "db/timeout"
 )
 
 var QueueNames = []string{

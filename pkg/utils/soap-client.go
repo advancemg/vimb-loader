@@ -8,6 +8,7 @@ import (
 	"fmt"
 	convert "github.com/advancemg/go-convert"
 	log "github.com/advancemg/vimb-loader/pkg/logging"
+	"github.com/advancemg/vimb-loader/pkg/storage"
 	"github.com/buger/jsonparser"
 	"golang.org/x/crypto/pkcs12"
 	"io"
@@ -190,18 +191,30 @@ func (e *VimbError) CheckTimeout(method string) {
 	code := e.Code
 	switch code {
 	case 1001:
-		log.PrintLog("vimb-loader", "soap-client", "error", method, " ", "timeout code:", code, " ", e.Message)
-		time.Sleep(time.Minute * 1)
+		wait(method, code, e.Message, time.Minute*5)
 		return
 	case 1003:
-		log.PrintLog("vimb-loader", "soap-client", "error", method, " ", "timeout code:", code, " ", e.Message)
-		time.Sleep(time.Minute * 2)
+		wait(method, code, e.Message, time.Minute*5)
 		return
 	default:
-		log.PrintLog("vimb-loader", "soap-client", "error", method, " ", "vimb-error code:", code, " ", e.Message)
-		time.Sleep(time.Minute * 1)
+		wait(method, code, e.Message, time.Minute*5)
 		return
 	}
+}
+
+type Timeout struct {
+	IsTimeout bool          `json:"is_timeout"`
+	Wait      time.Duration `json:"wait"`
+}
+
+func wait(method string, code int, msg string, waitTime time.Duration) {
+	log.PrintLog("vimb-loader", "soap-client", "error", method, " ", "timeout code:", code, " ", msg)
+	db := storage.Open("db/timeout")
+	err := db.UpsertTTL("vimb-timeout", Timeout{IsTimeout: true, Wait: waitTime}, waitTime)
+	if err != nil {
+		panic(err)
+	}
+	time.Sleep(waitTime)
 }
 
 func (e VimbError) Error() string {

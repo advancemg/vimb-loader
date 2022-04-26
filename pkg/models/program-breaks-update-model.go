@@ -3,12 +3,10 @@ package models
 import (
 	"encoding/json"
 	"fmt"
-	log "github.com/advancemg/vimb-loader/pkg/logging"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
 	"github.com/advancemg/vimb-loader/pkg/storage"
 	"github.com/advancemg/vimb-loader/pkg/utils"
-	"os"
 	"reflect"
 	"time"
 )
@@ -334,29 +332,16 @@ func ProgramBreaksStartJob() chan error {
 }
 
 func (request *ProgramBreaksUpdateRequest) Update() error {
-	for {
-		var err error
-		request.S3Key, err = s3.Download(request.S3Key)
-		if err != nil {
-			return err
-		}
-		open, err := os.Open(request.S3Key)
-		if err != nil {
-			if os.IsNotExist(err) {
-				log.PrintLog("DeletedSpotInfoUpdateRequest", "Update()", "error", "Empty s3Key", err.Error())
-				time.Sleep(time.Minute * 2)
-				continue
-			} else {
-				return err
-			}
-		}
-		open.Close()
-		err = request.loadFromFile()
-		if err != nil {
-			return err
-		}
-		return nil
+	var err error
+	request.S3Key, err = s3.Download(request.S3Key)
+	if err != nil {
+		return err
 	}
+	err = request.loadFromFile()
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (request *ProgramBreaksUpdateRequest) loadFromFile() error {

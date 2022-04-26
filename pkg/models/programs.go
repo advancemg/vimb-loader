@@ -3,9 +3,9 @@ package models
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/advancemg/badgerhold"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/storage"
-	"github.com/timshannon/badgerhold"
 	"time"
 )
 

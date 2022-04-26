@@ -114,7 +114,7 @@ func main() {
 	go func() {
 		utils.CheckErr(s3Config.ServerRestart())
 	}()
-	/* Clean BadgerGC every 30 min*/
+	/* Clean BadgerGC every 15 min*/
 	go func() {
 		storage.CleanGC()
 	}()

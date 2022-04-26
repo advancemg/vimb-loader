@@ -3,8 +3,8 @@ package models
 import (
 	"bytes"
 	"encoding/json"
+	"github.com/advancemg/badgerhold"
 	"github.com/advancemg/vimb-loader/pkg/storage"
-	"github.com/timshannon/badgerhold"
 )
 
 type MediaplanAggBadgerQuery struct {
