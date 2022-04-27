@@ -20,7 +20,7 @@ func TestBudgetsUpdateRequest_loadFromFile(t *testing.T) {
 	}{
 		{
 			name:    "loadFromFile-Budgets",
-			fields:  fields{"../../dev-test-data/budgets.gz"},
+			fields:  fields{"../../dev-test-data/budgets201902.gz"},
 			wantErr: false,
 		},
 	}

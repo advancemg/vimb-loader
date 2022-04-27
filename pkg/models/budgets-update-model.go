@@ -3,6 +3,7 @@ package models
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/advancemg/badgerhold"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
 	"github.com/advancemg/vimb-loader/pkg/storage"
@@ -205,6 +206,17 @@ func (request *BudgetsUpdateRequest) loadFromFile() error {
 		budget, err := dataM.ConvertBudget()
 		if err != nil {
 			return err
+		}
+		var budgets []Budget
+		err = badgerBudgets.Find(&budgets, badgerhold.Where("Month").Eq(*budget.Month))
+		if err != nil {
+			return err
+		}
+		for _, item := range budgets {
+			err = badgerBudgets.Delete(item.Key(), item)
+			if err != nil {
+				return err
+			}
 		}
 		err = badgerBudgets.Upsert(budget.Key(), budget)
 		if err != nil {

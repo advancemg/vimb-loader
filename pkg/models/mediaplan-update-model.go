@@ -3,6 +3,7 @@ package models
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/advancemg/badgerhold"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
 	"github.com/advancemg/vimb-loader/pkg/storage"
@@ -381,6 +382,17 @@ func (request *MediaplanUpdateRequest) loadFromFile() error {
 			MediaplanId:  *id,
 			AdvertiserId: *advertiserId,
 			AgreementId:  *agreementId,
+		}
+		var mediaplans []Mediaplan
+		err = badgerMediaplans.Find(&mediaplans, badgerhold.Where("MediaplanId").Eq(*mediaplan.MediaplanId))
+		if err != nil {
+			return err
+		}
+		for _, item := range mediaplans {
+			err = badgerMediaplans.Delete(item.Key(), item)
+			if err != nil {
+				return err
+			}
 		}
 		err = badgerMediaplans.Upsert(mediaplan.Key(), mediaplan)
 		if err != nil {

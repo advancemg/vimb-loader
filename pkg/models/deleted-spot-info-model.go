@@ -166,7 +166,6 @@ func (request *GetDeletedSpotInfo) GetDataXmlZip() (*StreamResponse, error) {
 			}
 		}
 		if isTimeout.IsTimeout {
-			time.Sleep(isTimeout.Wait)
 			continue
 		}
 		if !isTimeout.IsTimeout {

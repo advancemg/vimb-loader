@@ -200,6 +200,17 @@ func (request *SpotsUpdateRequest) loadFromFile() error {
 		if err != nil {
 			return err
 		}
+		var orders []SpotOrderBlock
+		err = badgerSpotsOrderBlock.Find(&orders, badgerhold.Where("OrdID").Eq(*spot.OrdID))
+		if err != nil {
+			return err
+		}
+		for _, item := range orders {
+			err = badgerSpotsOrderBlock.Delete(item.Key(), item)
+			if err != nil {
+				return err
+			}
+		}
 		err = badgerSpotsOrderBlock.Upsert(spot.Key(), spot)
 		if err != nil {
 			return err
@@ -235,7 +246,7 @@ func (request *SpotsUpdateRequest) loadFromFile() error {
 		/*load from networks*/
 		networksQuery := ProgramBreaksBadgerQuery{}
 		var networks []ProgramBreaks
-		filterNetwork := badgerhold.Where("CnlID").Eq(*spot.SptChnlPTR).And("Month").Eq(month)
+		filterNetwork := badgerhold.Where("CnlID").Eq(*spot.SptChnlPTR).And("Month").Eq(int64(month))
 		err = networksQuery.Find(&networks, filterNetwork)
 		if err != nil {
 			return err
@@ -283,6 +294,17 @@ func (request *SpotsUpdateRequest) loadFromFile() error {
 					spot.Rating30 = &spotRating
 					spot.SpotPullRating = &rate
 				}
+			}
+		}
+		var spotItems []Spot
+		err = badgerSpots.Find(&spotItems, badgerhold.Where("SpotID").Eq(*spot.SpotID))
+		if err != nil {
+			return err
+		}
+		for _, item := range spotItems {
+			err = badgerSpots.Delete(item.Key(), item)
+			if err != nil {
+				return err
 			}
 		}
 		err = badgerSpots.Upsert(spot.Key(), spot)

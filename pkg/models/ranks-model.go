@@ -11,7 +11,6 @@ import (
 	"github.com/advancemg/vimb-loader/pkg/s3"
 	"github.com/advancemg/vimb-loader/pkg/storage"
 	"github.com/advancemg/vimb-loader/pkg/utils"
-	"time"
 )
 
 type SwaggerGetRanksRequest struct {
@@ -129,7 +128,6 @@ func (request *GetRanks) GetDataXmlZip() (*StreamResponse, error) {
 			}
 		}
 		if isTimeout.IsTimeout {
-			time.Sleep(isTimeout.Wait)
 			continue
 		}
 		if !isTimeout.IsTimeout {

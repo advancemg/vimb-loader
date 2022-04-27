@@ -3,6 +3,7 @@ package models
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/advancemg/badgerhold"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
 	"github.com/advancemg/vimb-loader/pkg/storage"
@@ -170,6 +171,17 @@ func (request *ProgramBreaksLightUpdateRequest) loadFromFile() error {
 		programBreaksLight, err := dataB.Convert()
 		if err != nil {
 			return err
+		}
+		var networksLight []ProgramBreaksLight
+		err = badgerProgramBreaksLight.Find(&networksLight, badgerhold.Where("BlockID").Eq(*programBreaksLight.BlockID))
+		if err != nil {
+			return err
+		}
+		for _, item := range networksLight {
+			err = badgerProgramBreaksLight.Delete(item.Key(), item)
+			if err != nil {
+				return err
+			}
 		}
 		err = badgerProgramBreaksLight.Upsert(programBreaksLight.Key(), programBreaksLight)
 		if err != nil {
