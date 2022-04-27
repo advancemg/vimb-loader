@@ -1,6 +1,8 @@
 package models
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestProgramBreaksLightUpdateRequest_loadFromFile(t *testing.T) {
 	if testing.Short() {

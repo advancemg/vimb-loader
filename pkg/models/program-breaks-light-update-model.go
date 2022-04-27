@@ -173,9 +173,11 @@ func (request *ProgramBreaksLightUpdateRequest) loadFromFile() error {
 			return err
 		}
 		var networksLight []ProgramBreaksLight
-		err = badgerProgramBreaksLight.Find(&networksLight, badgerhold.Where("BlockID").Eq(*programBreaksLight.BlockID))
-		if err != nil {
-			return err
+		if programBreaksLight.BlockID != nil {
+			err = badgerProgramBreaksLight.Find(&networksLight, badgerhold.Where("BlockID").Eq(*programBreaksLight.BlockID))
+			if err != nil {
+				return err
+			}
 		}
 		for _, item := range networksLight {
 			err = badgerProgramBreaksLight.Delete(item.Key(), item)

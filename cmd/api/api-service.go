@@ -18,6 +18,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"time"
 )
 
@@ -99,37 +100,42 @@ func main() {
 	}()
 	/* s3 server start*/
 	s3Config := s3.InitConfig()
-	err = os.Mkdir(s3Config.S3LocalDir, os.ModePerm)
-	if err != nil && !os.IsExist(err) {
-		panic(err.Error())
+	if strings.Contains(s3Config.S3Endpoint, "127.0.0.1") || strings.Contains(s3Config.S3Endpoint, "localhost") {
+		err = os.Mkdir(s3Config.S3LocalDir, os.ModePerm)
+		if err != nil && !os.IsExist(err) {
+			panic(err.Error())
+		}
+		go func() {
+			utils.CheckErr(s3Config.ServerStart())
+		}()
+		/* s3 CreateDefaultBucket */
+		for !s3Config.Ping() {
+		}
+		utils.CheckErr(s3.CreateDefaultBucket())
 	}
-	go func() {
-		utils.CheckErr(s3Config.ServerStart())
-	}()
-	/* s3 CreateDefaultBucket */
 	for !s3Config.Ping() {
 	}
-	utils.CheckErr(s3.CreateDefaultBucket())
-	/* s3 server restart every 2 hour*/
-	go func() {
-		utils.CheckErr(s3Config.ServerRestart())
-	}()
 	/* Clean BadgerGC every 15 min*/
 	go func() {
 		storage.CleanGC()
 	}()
 	/* amqp server */
 	mqConfig := mq.InitConfig()
-	go func() {
-		utils.CheckErr(mqConfig.ServerStart())
-	}()
-	/* amqp load services */
+	if strings.Contains(mqConfig.MqHost, "127.0.0.1") || strings.Contains(mqConfig.MqHost, "localhost") {
+		go func() {
+			utils.CheckErr(mqConfig.ServerStart())
+		}()
+		for !mqConfig.Ping() {
+		}
+	}
 	for !mqConfig.Ping() {
 	}
+	/* amqp load services */
 	go func() {
 		service := services.LoadService{}
 		utils.CheckErr(service.Start())
 	}()
+	/* amqp update services */
 	go func() {
 		service := services.UpdateService{}
 		utils.CheckErr(service.Start())

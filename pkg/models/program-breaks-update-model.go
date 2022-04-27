@@ -370,9 +370,11 @@ func (request *ProgramBreaksUpdateRequest) loadFromFile() error {
 		}
 		programBreaks.Month = &month
 		var networks []ProgramBreaks
-		err = badgerProgramBreaks.Find(&networks, badgerhold.Where("BlockID").Eq(*programBreaks.BlockID))
-		if err != nil {
-			return err
+		if programBreaks.BlockID != nil {
+			err = badgerProgramBreaks.Find(&networks, badgerhold.Where("BlockID").Eq(*programBreaks.BlockID))
+			if err != nil {
+				return err
+			}
 		}
 		for _, item := range networks {
 			err = badgerProgramBreaks.Delete(item.Key(), item)
@@ -408,9 +410,11 @@ func (request *ProgramBreaksUpdateRequest) loadFromFile() error {
 				return err
 			}
 			var proMasters []ProMaster
-			err = badgerProgramBreaksProMaster.Find(&proMasters, badgerhold.Where("BlockID").Eq(*data.ProID))
-			if err != nil {
-				return err
+			if data.ProID != nil {
+				err = badgerProgramBreaksProMaster.Find(&proMasters, badgerhold.Where("BlockID").Eq(*data.ProID))
+				if err != nil {
+					return err
+				}
 			}
 			for _, item := range proMasters {
 				err = badgerProgramBreaksProMaster.Delete(item.Key(), item)
@@ -435,9 +439,11 @@ func (request *ProgramBreaksUpdateRequest) loadFromFile() error {
 			return err
 		}
 		var proMasters []ProMaster
-		err = badgerProgramBreaksProMaster.Find(&proMasters, badgerhold.Where("ProID").Eq(*data.ProID))
-		if err != nil {
-			return err
+		if data.ProID != nil {
+			err = badgerProgramBreaksProMaster.Find(&proMasters, badgerhold.Where("ProID").Eq(*data.ProID))
+			if err != nil {
+				return err
+			}
 		}
 		for _, item := range proMasters {
 			err = badgerProgramBreaksProMaster.Delete(item.Key(), item)
@@ -473,9 +479,11 @@ func (request *ProgramBreaksUpdateRequest) loadFromFile() error {
 				return err
 			}
 			var blockForecasts []BlockForecast
-			err = badgerProgramBreaksBlockForecast.Find(&blockForecasts, badgerhold.Where("BlockID").Eq(*data.BlockID))
-			if err != nil {
-				return err
+			if data.BlockID != nil {
+				err = badgerProgramBreaksBlockForecast.Find(&blockForecasts, badgerhold.Where("BlockID").Eq(*data.BlockID))
+				if err != nil {
+					return err
+				}
 			}
 			for _, item := range blockForecasts {
 				err = badgerProgramBreaksBlockForecast.Delete(item.Key(), item)
@@ -500,9 +508,11 @@ func (request *ProgramBreaksUpdateRequest) loadFromFile() error {
 			return err
 		}
 		var blockForecasts []BlockForecast
-		err = badgerProgramBreaksBlockForecast.Find(&blockForecasts, badgerhold.Where("BlockID").Eq(*data.BlockID))
-		if err != nil {
-			return err
+		if data.BlockID != nil {
+			err = badgerProgramBreaksBlockForecast.Find(&blockForecasts, badgerhold.Where("BlockID").Eq(*data.BlockID))
+			if err != nil {
+				return err
+			}
 		}
 		for _, item := range blockForecasts {
 			err = badgerProgramBreaksBlockForecast.Delete(item.Key(), item)
@@ -538,9 +548,11 @@ func (request *ProgramBreaksUpdateRequest) loadFromFile() error {
 				return err
 			}
 			var blockForecastTrg []BlockForecastTgr
-			err = badgerProgramBreaksBlockForecastTgr.Find(&blockForecastTrg, badgerhold.Where("ID").Eq(*data.ID))
-			if err != nil {
-				return err
+			if data.ID != nil {
+				err = badgerProgramBreaksBlockForecastTgr.Find(&blockForecastTrg, badgerhold.Where("ID").Eq(*data.ID))
+				if err != nil {
+					return err
+				}
 			}
 			for _, item := range blockForecastTrg {
 				err = badgerProgramBreaksBlockForecastTgr.Delete(item.Key(), item)
@@ -565,9 +577,11 @@ func (request *ProgramBreaksUpdateRequest) loadFromFile() error {
 			return err
 		}
 		var blockForecastTrg []BlockForecastTgr
-		err = badgerProgramBreaksBlockForecastTgr.Find(&blockForecastTrg, badgerhold.Where("ID").Eq(*data.ID))
-		if err != nil {
-			return err
+		if data.ID != nil {
+			err = badgerProgramBreaksBlockForecastTgr.Find(&blockForecastTrg, badgerhold.Where("ID").Eq(*data.ID))
+			if err != nil {
+				return err
+			}
 		}
 		for _, item := range blockForecastTrg {
 			err = badgerProgramBreaksBlockForecastTgr.Delete(item.Key(), item)

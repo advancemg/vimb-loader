@@ -183,6 +183,7 @@ func (request *GetProgramBreaksLight) GetDataXmlZip() (*StreamResponse, error) {
 			}
 		}
 		if isTimeout.IsTimeout {
+			time.Sleep(1 * time.Second)
 			continue
 		}
 		if !isTimeout.IsTimeout {

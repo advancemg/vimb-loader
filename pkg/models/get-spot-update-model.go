@@ -201,9 +201,11 @@ func (request *SpotsUpdateRequest) loadFromFile() error {
 			return err
 		}
 		var orders []SpotOrderBlock
-		err = badgerSpotsOrderBlock.Find(&orders, badgerhold.Where("OrdID").Eq(*spot.OrdID))
-		if err != nil {
-			return err
+		if spot.OrdID != nil {
+			err = badgerSpotsOrderBlock.Find(&orders, badgerhold.Where("OrdID").Eq(*spot.OrdID))
+			if err != nil {
+				return err
+			}
 		}
 		for _, item := range orders {
 			err = badgerSpotsOrderBlock.Delete(item.Key(), item)
@@ -246,10 +248,12 @@ func (request *SpotsUpdateRequest) loadFromFile() error {
 		/*load from networks*/
 		networksQuery := ProgramBreaksBadgerQuery{}
 		var networks []ProgramBreaks
-		filterNetwork := badgerhold.Where("CnlID").Eq(*spot.SptChnlPTR).And("Month").Eq(int64(month))
-		err = networksQuery.Find(&networks, filterNetwork)
-		if err != nil {
-			return err
+		if spot.SptChnlPTR != nil {
+			filterNetwork := badgerhold.Where("CnlID").Eq(*spot.SptChnlPTR).And("Month").Eq(int64(month))
+			err = networksQuery.Find(&networks, filterNetwork)
+			if err != nil {
+				return err
+			}
 		}
 		if networks != nil {
 			for _, network := range networks {
@@ -264,10 +268,12 @@ func (request *SpotsUpdateRequest) loadFromFile() error {
 		/*load from mediaplans*/
 		mediaplanQuery := MediaplanBadgerQuery{}
 		var mediaplans []Mediaplan
-		filterMediplan := badgerhold.Where("ComplimentId").Eq(*spot.CommInMplID)
-		err = mediaplanQuery.Find(&mediaplans, filterMediplan)
-		if err != nil {
-			return err
+		if spot.CommInMplID != nil {
+			filterMediplan := badgerhold.Where("ComplimentId").Eq(*spot.CommInMplID)
+			err = mediaplanQuery.Find(&mediaplans, filterMediplan)
+			if err != nil {
+				return err
+			}
 		}
 		if spot.CommInMplID == nil {
 			continue
@@ -297,9 +303,11 @@ func (request *SpotsUpdateRequest) loadFromFile() error {
 			}
 		}
 		var spotItems []Spot
-		err = badgerSpots.Find(&spotItems, badgerhold.Where("SpotID").Eq(*spot.SpotID))
-		if err != nil {
-			return err
+		if spot.SpotID != nil {
+			err = badgerSpots.Find(&spotItems, badgerhold.Where("SpotID").Eq(*spot.SpotID))
+			if err != nil {
+				return err
+			}
 		}
 		for _, item := range spotItems {
 			err = badgerSpots.Delete(item.Key(), item)

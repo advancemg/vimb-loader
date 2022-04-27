@@ -384,9 +384,11 @@ func (request *MediaplanUpdateRequest) loadFromFile() error {
 			AgreementId:  *agreementId,
 		}
 		var mediaplans []Mediaplan
-		err = badgerMediaplans.Find(&mediaplans, badgerhold.Where("MediaplanId").Eq(*mediaplan.MediaplanId))
-		if err != nil {
-			return err
+		if mediaplan.MediaplanId != nil {
+			err = badgerMediaplans.Find(&mediaplans, badgerhold.Where("MediaplanId").Eq(*mediaplan.MediaplanId))
+			if err != nil {
+				return err
+			}
 		}
 		for _, item := range mediaplans {
 			err = badgerMediaplans.Delete(item.Key(), item)

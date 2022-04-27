@@ -135,10 +135,12 @@ func (request *MediaplanAggUpdateRequest) Update() error {
 		var bcpCentralID int64
 		channelQuery := ChannelBadgerQuery{}
 		var channels []Channel
-		filterChannels := badgerhold.Where("ID").Eq(*mediaplan.ChannelId)
-		err = channelQuery.Find(&channels, filterChannels)
-		if err != nil {
-			return err
+		if mediaplan.ChannelId != nil {
+			filterChannels := badgerhold.Where("ID").Eq(*mediaplan.ChannelId)
+			err = channelQuery.Find(&channels, filterChannels)
+			if err != nil {
+				return err
+			}
 		}
 		if channels != nil {
 			channelName = *channels[0].ShortName
@@ -148,10 +150,12 @@ func (request *MediaplanAggUpdateRequest) Update() error {
 		/*load from spots*/
 		spotQuery := SpotBadgerQuery{}
 		var spots []Spot
-		filterSpots := badgerhold.Where("MplID").Eq(*mediaplan.MplID)
-		err = spotQuery.Find(&spots, filterSpots)
-		if err != nil {
-			return err
+		if mediaplan.MplID != nil {
+			filterSpots := badgerhold.Where("MplID").Eq(*mediaplan.MplID)
+			err = spotQuery.Find(&spots, filterSpots)
+			if err != nil {
+				return err
+			}
 		}
 		/*update plans*/
 		if len(mediaplan.Discounts) > 0 {
@@ -183,16 +187,16 @@ func (request *MediaplanAggUpdateRequest) Update() error {
 		var primeTimeRatingSum float64
 		if spots != nil {
 			for _, spot := range spots {
-				isPrime := *spot.IsPrime
+				var isPrime int64
 				if (spot.DLDate == nil) || (time.Now().Unix() < spot.DLDate.Unix()) {
 					break
 				}
 				totalSpotsRatingSum += *spot.Rating30
-				if &isPrime == nil {
+				if spot.IsPrime == nil {
 					isPrime = 0
 					continue
 				}
-				if isPrime == 1 {
+				if *spot.IsPrime == 1 {
 					/*prime*/
 					primeTimeRatingSum += *spot.Rating30
 					primeFactRating += *spot.Rating30

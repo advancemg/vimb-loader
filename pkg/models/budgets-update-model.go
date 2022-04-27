@@ -208,9 +208,11 @@ func (request *BudgetsUpdateRequest) loadFromFile() error {
 			return err
 		}
 		var budgets []Budget
-		err = badgerBudgets.Find(&budgets, badgerhold.Where("Month").Eq(*budget.Month))
-		if err != nil {
-			return err
+		if budget.Month != nil {
+			err = badgerBudgets.Find(&budgets, badgerhold.Where("Month").Eq(*budget.Month))
+			if err != nil {
+				return err
+			}
 		}
 		for _, item := range budgets {
 			err = badgerBudgets.Delete(item.Key(), item)

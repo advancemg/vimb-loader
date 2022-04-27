@@ -1,6 +1,10 @@
 package models
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+	"time"
+)
 
 func TestProgramBreaksUpdateRequest_loadFromFile(t *testing.T) {
 	if testing.Short() {
@@ -27,9 +31,11 @@ func TestProgramBreaksUpdateRequest_loadFromFile(t *testing.T) {
 				S3Key: tt.fields.S3Key,
 				Month: tt.fields.Month,
 			}
+			start := time.Now()
 			if err := request.loadFromFile(); (err != nil) != tt.wantErr {
 				t.Errorf("loadFromFile() error = %v, wantErr %v", err, tt.wantErr)
 			}
+			fmt.Println(time.Since(start))
 		})
 	}
 }
