@@ -2,11 +2,16 @@ package models
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
+	"github.com/advancemg/badgerhold"
 	goConvert "github.com/advancemg/go-convert"
+	log "github.com/advancemg/vimb-loader/pkg/logging"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
+	"github.com/advancemg/vimb-loader/pkg/storage"
 	"github.com/advancemg/vimb-loader/pkg/utils"
+	"time"
 )
 
 type SwaggerGetCustomersWithAdvertisersRequest struct {
@@ -36,6 +41,7 @@ func (cfg *CustomersWithAdvertisersConfiguration) StartJob() chan error {
 		if err != nil {
 			errorCh <- err
 		}
+		defer ch.Close()
 		err = ch.Qos(1, 0, false)
 		messages, err := ch.Consume(qName, "",
 			false,
@@ -49,7 +55,11 @@ func (cfg *CustomersWithAdvertisersConfiguration) StartJob() chan error {
 			if err != nil {
 				errorCh <- err
 			}
-			err = bodyJson.UploadToS3()
+			s3Message, err := bodyJson.UploadToS3()
+			if err != nil {
+				errorCh <- err
+			}
+			err = amqpConfig.PublishJson(CustomersWithAdvertisersUpdateQueue, s3Message)
 			if err != nil {
 				errorCh <- err
 			}
@@ -69,12 +79,12 @@ func (cfg *CustomersWithAdvertisersConfiguration) InitJob() func() {
 		amqpConfig := mq_broker.InitConfig()
 		err := amqpConfig.DeclareSimpleQueue(qName)
 		if err != nil {
-			fmt.Printf("Q:%s - err:%s", qName, err.Error())
+			log.PrintLog("vimb-loader", "CustomersWithAdvertisers InitJob", "error", "Q:", qName, "err:", err.Error())
 			return
 		}
 		qInfo, err := amqpConfig.GetQueueInfo(qName)
 		if err != nil {
-			fmt.Printf("Q:%s - err:%s", qName, err.Error())
+			log.PrintLog("vimb-loader", "CustomersWithAdvertisers InitJob", "error", "Q:", qName, "err:", err.Error())
 			return
 		}
 		if qInfo.Messages > 0 {
@@ -84,7 +94,7 @@ func (cfg *CustomersWithAdvertisersConfiguration) InitJob() func() {
 		request.Set("SellingDirectionID", cfg.SellingDirection)
 		err = amqpConfig.PublishJson(qName, request)
 		if err != nil {
-			fmt.Printf("Q:%s - err:%s", qName, err.Error())
+			log.PrintLog("vimb-loader", "CustomersWithAdvertisers InitJob", "error", "Q:", qName, "err:", err.Error())
 			return
 		}
 	}
@@ -111,6 +121,24 @@ func (request *GetCustomersWithAdvertisers) GetDataJson() (*JsonResponse, error)
 }
 
 func (request *GetCustomersWithAdvertisers) GetDataXmlZip() (*StreamResponse, error) {
+	for {
+		var isTimeout utils.Timeout
+		err := storage.Open(DbTimeout).Get("vimb-timeout", &isTimeout)
+		if err != nil {
+			if errors.Is(err, badgerhold.ErrNotFound) {
+				isTimeout.IsTimeout = false
+			} else {
+				return nil, err
+			}
+		}
+		if isTimeout.IsTimeout {
+			time.Sleep(1 * time.Second)
+			continue
+		}
+		if !isTimeout.IsTimeout {
+			break
+		}
+	}
 	req, err := request.getXml()
 	if err != nil {
 		return nil, err
@@ -125,23 +153,25 @@ func (request *GetCustomersWithAdvertisers) GetDataXmlZip() (*StreamResponse, er
 	}, nil
 }
 
-func (request *GetCustomersWithAdvertisers) UploadToS3() error {
+func (request *GetCustomersWithAdvertisers) UploadToS3() (*MqUpdateMessage, error) {
 	for {
 		typeName := GetCustomersWithAdvertisersType
 		data, err := request.GetDataXmlZip()
 		if err != nil {
 			if vimbError, ok := err.(*utils.VimbError); ok {
-				vimbError.CheckTimeout()
+				vimbError.CheckTimeout("GetCustomersWithAdvertisers")
 				continue
 			}
-			return err
+			return nil, err
 		}
 		var newS3Key = fmt.Sprintf("vimb/%s/%s/%s-%s.gz", utils.Actions.Client, typeName, utils.DateTimeNowInt(), typeName)
 		_, err = s3.UploadBytesWithBucket(newS3Key, data.Body)
 		if err != nil {
-			return err
+			return nil, err
 		}
-		return nil
+		return &MqUpdateMessage{
+			Key: newS3Key,
+		}, nil
 	}
 }
 

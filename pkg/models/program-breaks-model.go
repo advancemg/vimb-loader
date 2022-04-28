@@ -2,13 +2,15 @@ package models
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
+	"github.com/advancemg/badgerhold"
 	goConvert "github.com/advancemg/go-convert"
+	log "github.com/advancemg/vimb-loader/pkg/logging"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
 	"github.com/advancemg/vimb-loader/pkg/storage"
 	"github.com/advancemg/vimb-loader/pkg/utils"
-	"strconv"
 	"time"
 )
 
@@ -50,6 +52,7 @@ func (cfg *ProgramBreaksConfiguration) StartJob() chan error {
 		if err != nil {
 			errorCh <- err
 		}
+		defer ch.Close()
 		err = ch.Qos(1, 0, false)
 		messages, err := ch.Consume(qName, "",
 			false,
@@ -63,7 +66,11 @@ func (cfg *ProgramBreaksConfiguration) StartJob() chan error {
 			if err != nil {
 				errorCh <- err
 			}
-			err = bodyJson.UploadToS3()
+			s3Message, err := bodyJson.UploadToS3()
+			if err != nil {
+				errorCh <- err
+			}
+			err = amqpConfig.PublishJson(ProgramBreaksUpdateQueue, s3Message)
 			if err != nil {
 				errorCh <- err
 			}
@@ -83,42 +90,42 @@ func (cfg *ProgramBreaksConfiguration) InitJob() func() {
 		amqpConfig := mq_broker.InitConfig()
 		err := amqpConfig.DeclareSimpleQueue(qName)
 		if err != nil {
-			fmt.Printf("Q:%s - err:%s", qName, err.Error())
+			log.PrintLog("vimb-loader", "ProgramBreaks InitJob", "error", "Q:", qName, "err:", err.Error())
 			return
 		}
 		qInfo, err := amqpConfig.GetQueueInfo(qName)
 		if err != nil {
-			fmt.Printf("Q:%s - err:%s", qName, err.Error())
+			log.PrintLog("vimb-loader", "ProgramBreaks InitJob", "error", "Q:", qName, "err:", err.Error())
 			return
 		}
 		if qInfo.Messages > 0 {
 			return
 		}
-		var cnl []int
+		type Channels struct {
+			Cnl string `json:"Cnl"`
+		}
+		channels := map[int64]struct{}{}
 		var budgets []Budget
-		months := map[int][]string{}
-		badgerBudgets := storage.NewBadger(DbBudgets)
-		badgerBudgets.Iterate(func(key []byte, value []byte) {
-			var budget Budget
-			json.Unmarshal(value, &budget)
-			budgets = append(budgets, budget)
-		})
+		var cnl []Channels
+		months := map[int64][]time.Time{}
+		badgerBudgets := storage.Open(DbBudgets)
+		err = badgerBudgets.Find(&budgets, badgerhold.Where("Month").Ge(int64(-1)))
+		if err != nil {
+			log.PrintLog("vimb-loader", "ProgramBreaks InitJob", "error", "Q:", qName, "err:", err.Error())
+			return
+		}
 		for _, budget := range budgets {
-			cnl = append(cnl, *budget.CnlID)
-			monthStr := fmt.Sprintf("%d", *budget.Month)
-			month, err := strconv.Atoi(monthStr[4:6])
+			channels[*budget.CnlID] = struct{}{}
+			days, err := utils.GetDaysFromYearMonthInt(*budget.Month)
 			if err != nil {
 				panic(err)
 			}
-			year, err := strconv.Atoi(monthStr[0:4])
-			if err != nil {
-				panic(err)
-			}
-			days, err := utils.GetDaysFromMonth(year, time.Month(month))
-			if err != nil {
-				panic(err)
-			}
-			months[month] = days
+			months[*budget.Month] = days
+		}
+		for channel, _ := range channels {
+			cnl = append(cnl, Channels{
+				Cnl: fmt.Sprintf("%d", channel),
+			})
 		}
 		for month, days := range months {
 			for _, day := range days {
@@ -131,7 +138,12 @@ func (cfg *ProgramBreaksConfiguration) InitJob() func() {
 					if j > len(cnl) {
 						j = len(cnl)
 					}
-					startEndDay := fmt.Sprintf("%d%s", month, day)
+					var startEndDay string
+					if day.Day() <= 9 {
+						startEndDay = fmt.Sprintf("%d0%d", month, day.Day())
+					} else {
+						startEndDay = fmt.Sprintf("%d%d", month, day.Day())
+					}
 					request := goConvert.New()
 					request.Set("SellingDirectionID", cfg.SellingDirection)
 					request.Set("InclProgAttr", "0")
@@ -145,130 +157,7 @@ func (cfg *ProgramBreaksConfiguration) InitJob() func() {
 					request.Set("Path", chunkCount)
 					err := amqpConfig.PublishJson(qName, request)
 					if err != nil {
-						fmt.Printf("Q:%s - err:%s", qName, err.Error())
-						return
-					}
-				}
-			}
-		}
-	}
-}
-
-type ProgramBreaksLightConfiguration struct {
-	Cron             string `json:"cron"`
-	SellingDirection string `json:"sellingDirection"`
-	Loading          bool   `json:"loading"`
-}
-
-func (cfg *ProgramBreaksLightConfiguration) StartJob() chan error {
-	errorCh := make(chan error)
-	go func() {
-		qName := GetProgramBreaksLightModeType
-		amqpConfig := mq_broker.InitConfig()
-		err := amqpConfig.DeclareSimpleQueue(qName)
-		if err != nil {
-			errorCh <- err
-		}
-		ch, err := amqpConfig.Channel()
-		if err != nil {
-			errorCh <- err
-		}
-		err = ch.Qos(1, 0, false)
-		messages, err := ch.Consume(qName, "",
-			false,
-			false,
-			false,
-			false,
-			nil)
-		for msg := range messages {
-			var bodyJson GetProgramBreaks
-			err := json.Unmarshal(msg.Body, &bodyJson)
-			if err != nil {
-				errorCh <- err
-			}
-			err = bodyJson.UploadToS3()
-			if err != nil {
-				errorCh <- err
-			}
-			msg.Ack(false)
-		}
-		defer close(errorCh)
-	}()
-	return errorCh
-}
-
-func (cfg *ProgramBreaksLightConfiguration) InitJob() func() {
-	return func() {
-		if !cfg.Loading {
-			return
-		}
-		qName := GetProgramBreaksLightModeType
-		amqpConfig := mq_broker.InitConfig()
-		err := amqpConfig.DeclareSimpleQueue(qName)
-		if err != nil {
-			fmt.Printf("Q:%s - err:%s", qName, err.Error())
-			return
-		}
-		qInfo, err := amqpConfig.GetQueueInfo(qName)
-		if err != nil {
-			fmt.Printf("Q:%s - err:%s", qName, err.Error())
-			return
-		}
-		if qInfo.Messages > 0 {
-			return
-		}
-		var cnl []int
-		var budgets []Budget
-		months := map[int][]string{}
-		badgerBudgets := storage.NewBadger(DbBudgets)
-		badgerBudgets.Iterate(func(key []byte, value []byte) {
-			var budget Budget
-			json.Unmarshal(value, &budget)
-			budgets = append(budgets, budget)
-		})
-		for _, budget := range budgets {
-			cnl = append(cnl, *budget.CnlID)
-			monthStr := fmt.Sprintf("%d", *budget.Month)
-			month, err := strconv.Atoi(monthStr[4:6])
-			if err != nil {
-				panic(err)
-			}
-			year, err := strconv.Atoi(monthStr[0:4])
-			if err != nil {
-				panic(err)
-			}
-			days, err := utils.GetDaysFromMonth(year, time.Month(month))
-			if err != nil {
-				panic(err)
-			}
-			months[month] = days
-		}
-		for month, days := range months {
-			for _, day := range days {
-				chunk := 50
-				chunkCount := 0
-				var j int
-				for i := 0; i < len(cnl); i += chunk {
-					chunkCount++
-					j += chunk
-					if j > len(cnl) {
-						j = len(cnl)
-					}
-					startEndDay := fmt.Sprintf("%d%s", month, day)
-					request := goConvert.New()
-					request.Set("SellingDirectionID", cfg.SellingDirection)
-					request.Set("InclProgAttr", "0")
-					request.Set("InclForecast", "0")
-					request.Set("AudRatDec", "8")
-					request.Set("StartDate", startEndDay)
-					request.Set("EndDate", startEndDay)
-					request.Set("LightMode", "1")
-					request.Set("CnlList", cnl[i:j])
-					request.Set("ProtocolVersion", "2")
-					request.Set("Path", chunkCount)
-					err := amqpConfig.PublishJson(qName, request)
-					if err != nil {
-						fmt.Printf("Q:%s - err:%s", qName, err.Error())
+						log.PrintLog("vimb-loader", "ProgramBreaks InitJob", "error", "Q:", qName, "err:", err.Error())
 						return
 					}
 				}
@@ -298,6 +187,24 @@ func (request *GetProgramBreaks) GetDataJson() (*JsonResponse, error) {
 }
 
 func (request *GetProgramBreaks) GetDataXmlZip() (*StreamResponse, error) {
+	for {
+		var isTimeout utils.Timeout
+		err := storage.Open(DbTimeout).Get("vimb-timeout", &isTimeout)
+		if err != nil {
+			if errors.Is(err, badgerhold.ErrNotFound) {
+				isTimeout.IsTimeout = false
+			} else {
+				return nil, err
+			}
+		}
+		if isTimeout.IsTimeout {
+			time.Sleep(1 * time.Second)
+			continue
+		}
+		if !isTimeout.IsTimeout {
+			break
+		}
+	}
 	req, err := request.getXml()
 	if err != nil {
 		return nil, err
@@ -312,25 +219,28 @@ func (request *GetProgramBreaks) GetDataXmlZip() (*StreamResponse, error) {
 	}, nil
 }
 
-func (request *GetProgramBreaks) UploadToS3() error {
+func (request *GetProgramBreaks) UploadToS3() (*MqUpdateMessage, error) {
 	for {
 		typeName := GetProgramBreaksType
 		data, err := request.GetDataXmlZip()
 		if err != nil {
 			if vimbError, ok := err.(*utils.VimbError); ok {
-				vimbError.CheckTimeout()
+				vimbError.CheckTimeout("GetProgramBreaks")
 				continue
 			}
-			return err
+			return nil, err
 		}
 		sellingDirectionID, _ := request.Get("SellingDirectionID")
 		startDate, _ := request.Get("StartDate")
 		var newS3Key = fmt.Sprintf("vimb/%s/%s/%s/%s/%s/%d/%s-%s.gz", sellingDirectionID, utils.Actions.Client, typeName, startDate.(string)[4:6], startDate, request.Path, utils.DateTimeNowInt(), typeName)
 		_, err = s3.UploadBytesWithBucket(newS3Key, data.Body)
 		if err != nil {
-			return err
+			return nil, err
 		}
-		return nil
+		return &MqUpdateMessage{
+			Key:   newS3Key,
+			Month: startDate.(string)[:6],
+		}, nil
 	}
 }
 

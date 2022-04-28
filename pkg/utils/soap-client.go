@@ -7,10 +7,11 @@ import (
 	"encoding/pem"
 	"fmt"
 	convert "github.com/advancemg/go-convert"
+	log "github.com/advancemg/vimb-loader/pkg/logging"
+	"github.com/advancemg/vimb-loader/pkg/storage"
 	"github.com/buger/jsonparser"
 	"golang.org/x/crypto/pkcs12"
 	"io"
-	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -64,11 +65,11 @@ func (cfg *Config) newClient() *http.Client {
 	}
 	dataCert, err := base64.StdEncoding.DecodeString(cfg.Cert)
 	if err != nil {
-		log.Fatal("error:", err)
+		log.PrintLog("vimb-loader", "soap-client", "error", "base64.StdEncoding error", err.Error())
 	}
 	blocks, err := pkcs12.ToPEM(dataCert, cfg.Password)
 	if err != nil {
-		log.Fatal("error:", err)
+		log.PrintLog("vimb-loader", "soap-client", "error", "pkcs12.ToPEM error", err.Error())
 	}
 	var pemData []byte
 	for _, b := range blocks {
@@ -76,7 +77,7 @@ func (cfg *Config) newClient() *http.Client {
 	}
 	cert, err := tls.X509KeyPair(pemData, pemData)
 	if err != nil {
-		log.Fatalf("err while converting to key pair: %v", err)
+		log.PrintLog("vimb-loader", "soap-client", "error", "err while converting to key pair: ", err.Error())
 	}
 	config := &tls.Config{
 		InsecureSkipVerify: true,
@@ -140,7 +141,10 @@ func (act *Action) RequestJson(input []byte) ([]byte, error) {
 }
 
 func vimbRequest(inputXml string) string {
-	return fmt.Sprintf(`<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:vim="VIMBWebApplication2"><soapenv:Header/><soapenv:Body><vim:GetVimbInfoStream><vim:InputXML><![CDATA[%s]]></vim:InputXML></vim:GetVimbInfoStream></soapenv:Body></soapenv:Envelope>`, inputXml)
+	input := strings.ReplaceAll(inputXml, "<", "&lt;")
+	input = strings.ReplaceAll(input, ">", "&gt;")
+	//fmt.Sprintf(`<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:vim="VIMBWebApplication2"><soapenv:Header/><soapenv:Body><vim:GetVimbInfoStream><vim:InputXML><![CDATA[%s]]></vim:InputXML></vim:GetVimbInfoStream></soapenv:Body></soapenv:Envelope>`, inputXml)
+	return fmt.Sprintf(`<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:vim="VIMBWebApplication2"><soapenv:Header/><soapenv:Body><vim:GetVimbInfoStream><vim:InputXML>%s</vim:InputXML></vim:GetVimbInfoStream></soapenv:Body></soapenv:Envelope>`, input)
 }
 
 func catchError(resp []byte) (*VimbError, error) {
@@ -183,23 +187,33 @@ type VimbError struct {
 	Message string `json:"message"`
 }
 
-func (e *VimbError) CheckTimeout() {
+func (e *VimbError) CheckTimeout(method string) {
 	code := e.Code
 	switch code {
 	case 1001:
-		fmt.Printf("Vimb code %v timeout...", code)
-		time.Sleep(time.Minute * 1)
+		wait(method, code, e.Message, time.Minute*5)
 		return
 	case 1003:
-		fmt.Printf("Vimb code %v timeout...", code)
-		time.Sleep(time.Minute * 2)
+		wait(method, code, e.Message, time.Minute*5)
 		return
 	default:
-		fmt.Printf("Vimb code %v - not implemented timeout...", code)
-		fmt.Println(e.Message)
-		time.Sleep(time.Minute * 1)
+		wait(method, code, e.Message, time.Minute*5)
 		return
 	}
+}
+
+type Timeout struct {
+	IsTimeout bool `json:"is_timeout"`
+}
+
+func wait(method string, code int, msg string, waitTime time.Duration) {
+	log.PrintLog("vimb-loader", "soap-client", "error", method, " ", "timeout code:", code, " ", msg)
+	db := storage.Open("db/timeout")
+	err := db.UpsertTTL("vimb-timeout", Timeout{IsTimeout: true}, waitTime)
+	if err != nil {
+		panic(err)
+	}
+	time.Sleep(waitTime)
 }
 
 func (e VimbError) Error() string {

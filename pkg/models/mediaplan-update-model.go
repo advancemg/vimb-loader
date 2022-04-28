@@ -3,6 +3,7 @@ package models
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/advancemg/badgerhold"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
 	"github.com/advancemg/vimb-loader/pkg/storage"
@@ -11,97 +12,95 @@ import (
 	"time"
 )
 
-const MediaplanTable = "mediaplans"
-
 type internalMDiscount struct {
 	Item map[string]interface{} `json:"item"`
 }
 
 type Mediaplan struct {
-	AdtID                 *int                    `json:"AdtID"`
+	AdtID                 *int64                  `json:"AdtID"`
 	AdtName               *string                 `json:"AdtName"`
-	AdvID                 *int                    `json:"AdvID"`
-	AgrID                 *int                    `json:"AgrID"`
+	AdvID                 *int64                  `json:"AdvID"`
+	AgrID                 *int64                  `json:"AgrID"`
 	AgrName               *string                 `json:"AgrName"`
-	AllocationType        *string                 `json:"AllocationType"`
+	AllocationType        *int64                  `json:"AllocationType"`
 	AmountFact            *float64                `json:"AmountFact"`
 	AmountPlan            *float64                `json:"AmountPlan"`
-	BrandID               *int                    `json:"BrandID"`
+	BrandID               *int64                  `json:"BrandID"`
 	BrandName             *string                 `json:"BrandName"`
 	CPPoffprime           *float64                `json:"CPPoffprime"`
 	CPPprime              *float64                `json:"CPPprime"`
-	ComplimentId          *int                    `json:"CommInMplID"`
-	ContractBeg           *int                    `json:"ContractBeg"`
-	ContractEnd           *int                    `json:"ContractEnd"`
-	DateFrom              *int                    `json:"DateFrom"`
-	DateTo                *int                    `json:"DateTo"`
-	DealChannelStatus     *int                    `json:"DealChannelStatus"`
+	ComplimentId          *int64                  `json:"CommInMplID"`
+	ContractBeg           *int64                  `json:"ContractBeg"`
+	ContractEnd           *int64                  `json:"ContractEnd"`
+	DateFrom              *int64                  `json:"DateFrom"`
+	DateTo                *int64                  `json:"DateTo"`
+	DealChannelStatus     *int64                  `json:"DealChannelStatus"`
 	Discounts             []MediaplanDiscountItem `json:"Discounts"`
 	DoubleAdvertiser      *bool                   `json:"DoubleAdvertiser"`
-	DtpID                 *int                    `json:"DtpID"`
-	DublSpot              *int                    `json:"DublSpot"`
+	DtpID                 *int64                  `json:"DtpID"`
+	DublSpot              *int64                  `json:"DublSpot"`
 	FbrName               *string                 `json:"FbrName"`
-	FilmDur               *int                    `json:"FilmDur"`
+	FilmDur               *int64                  `json:"FilmDur"`
 	FilmDurKoef           *float64                `json:"FilmDurKoef"`
-	FilmID                *int                    `json:"FilmID"`
+	FilmID                *int64                  `json:"FilmID"`
 	FilmName              *string                 `json:"FilmName"`
 	FilmVersion           *string                 `json:"FilmVersion"`
-	FixPriceAsFloat       *int                    `json:"FixPriceAsFloat"`
-	FixPriority           *int                    `json:"FixPriority"`
+	FixPriceAsFloat       *int64                  `json:"FixPriceAsFloat"`
+	FixPriority           *int64                  `json:"FixPriority"`
 	GRP                   *float64                `json:"GRP"`
 	GRPShift              *float64                `json:"GRPShift"`
 	GrpFact               *float64                `json:"GrpFact"`
 	GrpPlan               *float64                `json:"GrpPlan"`
 	GrpTotal              *float64                `json:"GrpTotal"`
 	GrpTotalPrime         *float64                `json:"GrpTotalPrime"`
-	HasReserve            *int                    `json:"HasReserve"`
-	InventoryUnitDuration *int                    `json:"InventoryUnitDuration"`
-	MplCbrID              *int                    `json:"MplCbrID"`
+	HasReserve            *int64                  `json:"HasReserve"`
+	InventoryUnitDuration *int64                  `json:"InventoryUnitDuration"`
+	MplCbrID              *int64                  `json:"MplCbrID"`
 	MplCbrName            *string                 `json:"MplCbrName"`
-	MplCnlID              *int                    `json:"MplCnlID"`
-	MplID                 *string                 `json:"MplID"`
+	MplCnlID              *int64                  `json:"MplCnlID"`
+	MplID                 *int64                  `json:"MplID"`
 	MplMonth              *string                 `json:"MplMonth"`
 	MplName               *string                 `json:"MplName"`
-	MplState              *int                    `json:"MplState"`
-	Multiple              *int                    `json:"Multiple"`
-	OBDPos                *int                    `json:"OBDPos"`
-	OrdFrID               *int                    `json:"OrdFrID"`
-	OrdID                 *int                    `json:"OrdID"`
-	OrdIsTriggered        *int                    `json:"OrdIsTriggered"`
+	MplState              *int64                  `json:"MplState"`
+	Multiple              *int64                  `json:"Multiple"`
+	OBDPos                *int64                  `json:"OBDPos"`
+	OrdFrID               *int64                  `json:"OrdFrID"`
+	OrdID                 *int64                  `json:"OrdID"`
+	OrdIsTriggered        *int64                  `json:"OrdIsTriggered"`
 	OrdName               *string                 `json:"OrdName"`
 	PBACond               *string                 `json:"PBACond"`
-	PBAObjID              *int                    `json:"PBAObjID"`
-	ProdClassID           *int                    `json:"ProdClassID"`
-	SellingDirection      *int                    `json:"SellingDirection"`
-	SplitMessageGroupID   *int                    `json:"SplitMessageGroupID"`
+	PBAObjID              *int64                  `json:"PBAObjID"`
+	ProdClassID           *int64                  `json:"ProdClassID"`
+	SellingDirection      *int64                  `json:"SellingDirection"`
+	SplitMessageGroupID   *int64                  `json:"SplitMessageGroupID"`
 	SumShift              *float64                `json:"SumShift"`
 	TPName                *string                 `json:"TPName"`
 	TgrID                 *string                 `json:"TgrID"`
 	TgrName               *string                 `json:"TgrName"`
 	Timestamp             *time.Time              `json:"Timestamp"`
-	AdvertiserId          *int                    `json:"AdvertiserId"`
-	AgreementId           *int                    `json:"AgreementId"`
-	ChannelId             *int                    `json:"ChannelId"`
-	FfoaAllocated         *int                    `json:"FfoaAllocated"`
-	FfoaLawAcc            *int                    `json:"FfoaLawAcc"`
-	FilmId                *int                    `json:"FilmId"`
-	MediaplanId           *int                    `json:"MediaplanId"`
-	Month                 *int                    `json:"Month"`
-	OrdBegDate            *int                    `json:"OrdBegDate"`
-	OrdEndDate            *int                    `json:"OrdEndDate"`
-	OrdManager            *string                 `json:"OrdManager"`
+	AdvertiserId          *int64                  `json:"AdvertiserId"`
+	AgreementId           *int64                  `json:"AgreementId"`
+	ChannelId             *int64                  `json:"ChannelId"`
+	FfoaAllocated         *int64                  `json:"ffoaAllocated"`
+	FfoaLawAcc            *int64                  `json:"ffoaLawAcc"`
+	FilmId                *int64                  `json:"FilmId"`
+	MediaplanId           *int64                  `json:"MediaplanId"`
+	Month                 *int64                  `json:"Month"`
+	OrdBegDate            *int64                  `json:"ordBegDate"`
+	OrdEndDate            *int64                  `json:"ordEndDate"`
+	OrdManager            *string                 `json:"ordManager"`
 }
 type MediaplanDiscountItem struct {
 	DiscountFactor          *float64   `json:"DiscountFactor"`
-	TypeID                  *int       `json:"TypeID"`
+	TypeID                  *int64     `json:"TypeID"`
 	IsManual                *bool      `json:"IsManual"`
 	DicountEndDate          *time.Time `json:"DicountEndDate"`
 	IsSpotPositionDependent *bool      `json:"IsSpotPositionDependent"`
 	DiscountTypeName        *string    `json:"DiscountTypeName"`
 	DiscountStartDate       *time.Time `json:"DiscountStartDate"`
-	ValueID                 *int       `json:"ValueID"`
+	ValueID                 *int64     `json:"ValueID"`
 	ApplicableToDeals       *bool      `json:"ApplicableToDeals"`
-	ApplyingTypeID          *int       `json:"ApplyingTypeID"`
+	ApplyingTypeID          *int64     `json:"ApplyingTypeID"`
 	IsDiscountAggregate     *bool      `json:"IsDiscountAggregate"`
 	AggregationMethodName   *string    `json:"AggregationMethodName"`
 }
@@ -122,16 +121,16 @@ func (m *internalMDiscount) Convert() (*MediaplanDiscountItem, error) {
 	endTime := utils.TimeI(m.Item["DicountEndDate"], `2006-01-02T15:04:05`)
 	item := &MediaplanDiscountItem{
 		DiscountFactor:          utils.FloatI(m.Item["DiscountFactor"]),
-		TypeID:                  utils.IntI(m.Item["TypeID"]),
+		TypeID:                  utils.Int64I(m.Item["TypeID"]),
 		IsManual:                utils.BoolI(m.Item["IsManual"]),
 		DicountEndDate:          endTime,
 		IsSpotPositionDependent: utils.BoolI(m.Item["IsSpotPositionDependent"]),
 		DiscountTypeName:        utils.StringI(m.Item["DiscountTypeName"]),
 		AggregationMethodName:   utils.StringI(m.Item["AggregationMethodName"]),
 		DiscountStartDate:       startTime,
-		ValueID:                 utils.IntI(m.Item["ValueID"]),
+		ValueID:                 utils.Int64I(m.Item["ValueID"]),
 		ApplicableToDeals:       utils.BoolI(m.Item["ApplicableToDeals"]),
-		ApplyingTypeID:          utils.IntI(m.Item["ApplyingTypeID"]),
+		ApplyingTypeID:          utils.Int64I(m.Item["ApplyingTypeID"]),
 		IsDiscountAggregate:     utils.BoolI(m.Item["IsDiscountAggregate"]),
 	}
 	return item, nil
@@ -139,12 +138,12 @@ func (m *internalMDiscount) Convert() (*MediaplanDiscountItem, error) {
 
 func (m *internalM) ConvertMediaplan() (*Mediaplan, error) {
 	timestamp := time.Now()
-	month := utils.IntI(m.M["MplMonth"])
-	channelId := utils.IntI(m.M["MplCnlID"])
-	mediaplanId := utils.IntI(m.M["MplID"])
-	advertiserId := utils.IntI(m.M["AdtID"])
-	filmId := utils.IntI(m.M["FilmID"])
-	agreementId := utils.IntI(m.M["AgrID"])
+	month := utils.Int64I(m.M["MplMonth"])
+	channelId := utils.Int64I(m.M["MplCnlID"])
+	mediaplanId := utils.Int64I(m.M["MplID"])
+	advertiserId := utils.Int64I(m.M["AdtID"])
+	filmId := utils.Int64I(m.M["FilmID"])
+	agreementId := utils.Int64I(m.M["AgrID"])
 	var discounts []MediaplanDiscountItem
 	if _, ok := m.M["Discounts"]; ok {
 		marshalData, err := json.Marshal(m.M["Discounts"])
@@ -179,62 +178,62 @@ func (m *internalM) ConvertMediaplan() (*Mediaplan, error) {
 		}
 	}
 	mediaplan := &Mediaplan{
-		AdtID:                 utils.IntI(m.M["AdtID"]),
+		AdtID:                 utils.Int64I(m.M["AdtID"]),
 		AdtName:               utils.StringI(m.M["AdtName"]),
-		AdvID:                 utils.IntI(m.M["AdvID"]),
-		AgrID:                 utils.IntI(m.M["AgrID"]),
+		AdvID:                 utils.Int64I(m.M["AdvID"]),
+		AgrID:                 utils.Int64I(m.M["AgrID"]),
 		AgrName:               utils.StringI(m.M["AgrName"]),
-		AllocationType:        utils.StringI(m.M["AllocationType"]),
+		AllocationType:        utils.Int64I(m.M["AllocationType"]),
 		AmountFact:            utils.FloatI(m.M["AmountFact"]),
 		AmountPlan:            utils.FloatI(m.M["AmountPlan"]),
-		BrandID:               utils.IntI(m.M["BrandID"]),
+		BrandID:               utils.Int64I(m.M["BrandID"]),
 		BrandName:             utils.StringI(m.M["BrandName"]),
 		CPPoffprime:           utils.FloatI(m.M["CPPoffprime"]),
 		CPPprime:              utils.FloatI(m.M["CPPprime"]),
-		ComplimentId:          utils.IntI(m.M["CommInMplID"]),
-		ContractBeg:           utils.IntI(m.M["ContractBeg"]),
-		ContractEnd:           utils.IntI(m.M["ContractEnd"]),
-		DateFrom:              utils.IntI(m.M["DateFrom"]),
-		DateTo:                utils.IntI(m.M["DateTo"]),
-		DealChannelStatus:     utils.IntI(m.M["DealChannelStatus"]),
+		ComplimentId:          utils.Int64I(m.M["CommInMplID"]),
+		ContractBeg:           utils.Int64I(m.M["ContractBeg"]),
+		ContractEnd:           utils.Int64I(m.M["ContractEnd"]),
+		DateFrom:              utils.Int64I(m.M["DateFrom"]),
+		DateTo:                utils.Int64I(m.M["DateTo"]),
+		DealChannelStatus:     utils.Int64I(m.M["DealChannelStatus"]),
 		Discounts:             discounts,
 		DoubleAdvertiser:      utils.BoolI(m.M["DoubleAdvertiser"]),
-		DtpID:                 utils.IntI(m.M["DtpID"]),
-		DublSpot:              utils.IntI(m.M["DublSpot"]),
+		DtpID:                 utils.Int64I(m.M["DtpID"]),
+		DublSpot:              utils.Int64I(m.M["DublSpot"]),
 		FbrName:               utils.StringI(m.M["FbrName"]),
-		FilmDur:               utils.IntI(m.M["FilmDur"]),
+		FilmDur:               utils.Int64I(m.M["FilmDur"]),
 		FilmDurKoef:           utils.FloatI(m.M["FilmDurKoef"]),
-		FilmID:                utils.IntI(m.M["FilmID"]),
+		FilmID:                utils.Int64I(m.M["FilmID"]),
 		FilmName:              utils.StringI(m.M["FilmName"]),
 		FilmVersion:           utils.StringI(m.M["FilmVersion"]),
-		FixPriceAsFloat:       utils.IntI(m.M["FixPriceAsFloat"]),
-		FixPriority:           utils.IntI(m.M["FixPriority"]),
+		FixPriceAsFloat:       utils.Int64I(m.M["FixPriceAsFloat"]),
+		FixPriority:           utils.Int64I(m.M["FixPriority"]),
 		GRP:                   utils.FloatI(m.M["GRP"]),
 		GRPShift:              utils.FloatI(m.M["GRPShift"]),
 		GrpFact:               utils.FloatI(m.M["GRPShift"]),
 		GrpPlan:               utils.FloatI(m.M["GrpPlan"]),
 		GrpTotal:              utils.FloatI(m.M["GrpTotal"]),
 		GrpTotalPrime:         utils.FloatI(m.M["GrpTotalPrime"]),
-		HasReserve:            utils.IntI(m.M["HasReserve"]),
-		InventoryUnitDuration: utils.IntI(m.M["InventoryUnitDuration"]),
-		MplCbrID:              utils.IntI(m.M["MplCbrID"]),
+		HasReserve:            utils.Int64I(m.M["HasReserve"]),
+		InventoryUnitDuration: utils.Int64I(m.M["InventoryUnitDuration"]),
+		MplCbrID:              utils.Int64I(m.M["MplCbrID"]),
 		MplCbrName:            utils.StringI(m.M["MplCbrName"]),
-		MplCnlID:              utils.IntI(m.M["MplCnlID"]),
-		MplID:                 utils.StringI(m.M["MplID"]),
+		MplCnlID:              utils.Int64I(m.M["MplCnlID"]),
+		MplID:                 utils.Int64I(m.M["MplID"]),
 		MplMonth:              utils.StringI(m.M["MplMonth"]),
 		MplName:               utils.StringI(m.M["MplName"]),
-		MplState:              utils.IntI(m.M["MplState"]),
-		Multiple:              utils.IntI(m.M["Multiple"]),
-		OBDPos:                utils.IntI(m.M["OBDPos"]),
-		OrdFrID:               utils.IntI(m.M["OrdFrID"]),
-		OrdID:                 utils.IntI(m.M["OrdID"]),
-		OrdIsTriggered:        utils.IntI(m.M["OrdIsTriggered"]),
+		MplState:              utils.Int64I(m.M["MplState"]),
+		Multiple:              utils.Int64I(m.M["Multiple"]),
+		OBDPos:                utils.Int64I(m.M["OBDPos"]),
+		OrdFrID:               utils.Int64I(m.M["OrdFrID"]),
+		OrdID:                 utils.Int64I(m.M["OrdID"]),
+		OrdIsTriggered:        utils.Int64I(m.M["OrdIsTriggered"]),
 		OrdName:               utils.StringI(m.M["OrdName"]),
 		PBACond:               utils.StringI(m.M["PBACond"]),
-		PBAObjID:              utils.IntI(m.M["PBAObjID"]),
-		ProdClassID:           utils.IntI(m.M["ProdClassID"]),
-		SellingDirection:      utils.IntI(m.M["SellingDirection"]),
-		SplitMessageGroupID:   utils.IntI(m.M["SplitMessageGroupID"]),
+		PBAObjID:              utils.Int64I(m.M["PBAObjID"]),
+		ProdClassID:           utils.Int64I(m.M["ProdClassID"]),
+		SellingDirection:      utils.Int64I(m.M["SellingDirection"]),
+		SplitMessageGroupID:   utils.Int64I(m.M["SplitMessageGroupID"]),
 		SumShift:              utils.FloatI(m.M["SumShift"]),
 		TPName:                utils.StringI(m.M["TPName"]),
 		TgrID:                 utils.StringI(m.M["TgrID"]),
@@ -243,14 +242,14 @@ func (m *internalM) ConvertMediaplan() (*Mediaplan, error) {
 		AdvertiserId:          advertiserId,
 		AgreementId:           agreementId,
 		ChannelId:             channelId,
-		FfoaAllocated:         utils.IntI(m.M["FfoaAllocated"]),
-		FfoaLawAcc:            utils.IntI(m.M["FfoaLawAcc"]),
+		FfoaAllocated:         utils.Int64I(m.M["ffoaAllocated"]),
+		FfoaLawAcc:            utils.Int64I(m.M["ffoaLawAcc"]),
 		FilmId:                filmId,
 		MediaplanId:           mediaplanId,
 		Month:                 month,
-		OrdBegDate:            utils.IntI(m.M["OrdBegDate"]),
-		OrdEndDate:            utils.IntI(m.M["OrdEndDate"]),
-		OrdManager:            utils.StringI(m.M["OrdManager"]),
+		OrdBegDate:            utils.Int64I(m.M["ordBegDate"]),
+		OrdEndDate:            utils.Int64I(m.M["ordEndDate"]),
+		OrdManager:            utils.StringI(m.M["ordManager"]),
 	}
 	return mediaplan, nil
 }
@@ -268,6 +267,7 @@ func MediaplanStartJob() chan error {
 		if err != nil {
 			errorCh <- err
 		}
+		defer ch.Close()
 		err = ch.Qos(1, 0, false)
 		messages, err := ch.Consume(qName, "",
 			false,
@@ -296,6 +296,7 @@ func MediaplanStartJob() chan error {
 }
 
 func (request *MediaplanUpdateRequest) Update() error {
+	var err error
 	filePath, err := s3.Download(request.S3Key)
 	if err != nil {
 		return err
@@ -365,7 +366,6 @@ func (request *MediaplanUpdateRequest) loadFromFile() error {
 	}
 	aggTasks := map[string]MediaplanAggUpdateRequest{}
 	badgerMediaplans := storage.Open(DbMediaplans)
-	defer badgerMediaplans.Close()
 	for _, dataM := range internalData {
 		mediaplan, err := dataM.ConvertMediaplan()
 		if err != nil {
@@ -383,6 +383,19 @@ func (request *MediaplanUpdateRequest) loadFromFile() error {
 			MediaplanId:  *id,
 			AdvertiserId: *advertiserId,
 			AgreementId:  *agreementId,
+		}
+		var mediaplans []Mediaplan
+		if mediaplan.MediaplanId != nil {
+			err = badgerMediaplans.Find(&mediaplans, badgerhold.Where("MediaplanId").Eq(*mediaplan.MediaplanId))
+			if err != nil {
+				return err
+			}
+		}
+		for _, item := range mediaplans {
+			err = badgerMediaplans.Delete(item.Key(), item)
+			if err != nil {
+				return err
+			}
 		}
 		err = badgerMediaplans.Upsert(mediaplan.Key(), mediaplan)
 		if err != nil {

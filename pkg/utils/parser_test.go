@@ -6,6 +6,9 @@ import (
 )
 
 func TestStringI(t *testing.T) {
+	if testing.Short() {
+		t.SkipNow()
+	}
 	value := "Value1"
 	data := map[string]interface{}{
 		"Field1": value,

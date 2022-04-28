@@ -12,29 +12,28 @@ import (
 )
 
 type ChannelsUpdateRequest struct {
-	S3Key string
+	S3Key              string
+	SellingDirectionID string
 }
 
 func (channel *Channel) Key() string {
 	return fmt.Sprintf("%d", *channel.ID)
 }
 
-type iChanelAspect struct {
-	StartDate string `json:"StartDate"`
-	EndDate   string `json:"EndDate"`
-	ID        string `json:"ID"`
+type internalChanelAspect struct {
+	Aspect map[string]interface{} `json:"Aspect"`
 }
 
 type Channel struct {
-	ID                 *int           `json:"ID"`
-	MainChnl           *int           `json:"MainChnl"`
-	SellingDirectionID *int           `json:"SellingDirectionID"`
-	CnlOrderNo         *int           `json:"CnlOrderNo"`
-	CnlCentralID       *int           `json:"CnlCentralID"`
-	IsDisabled         *int           `json:"IsDisabled"`
-	BcpCentralID       *int           `json:"BcpCentralID"`
+	ID                 *int64         `json:"ID"`
+	MainChnl           *int64         `json:"MainChnl"`
+	SellingDirectionID *int64         `json:"SellingDirectionID"`
+	CnlOrderNo         *int64         `json:"CnlOrderNo"`
+	CnlCentralID       *int64         `json:"cnlCentralID"`
+	IsDisabled         *int64         `json:"IsDisabled"`
+	BcpCentralID       *int64         `json:"bcpCentralID"`
 	ShortName          *string        `json:"ShortName"`
-	BcpName            *string        `json:"BcpName"`
+	BcpName            *string        `json:"bcpName"`
 	StartTime          *string        `json:"StartTime"`
 	EndTime            *string        `json:"EndTime"`
 	TotalOffset        *string        `json:"TotalOffset"`
@@ -45,14 +44,14 @@ type Channel struct {
 type ChanelAspect struct {
 	StartDate *time.Time `json:"StartDate"`
 	EndDate   *time.Time `json:"EndDate"`
-	ID        *int       `json:"ID"`
+	ID        *int64     `json:"ID"`
 }
 
-func (m *iChanelAspect) Convert() (*ChanelAspect, error) {
+func (m *internalChanelAspect) Convert() (*ChanelAspect, error) {
 	aspect := &ChanelAspect{
-		StartDate: utils.TimeI(m.StartDate, `2006-01-02T15:04:05`),
-		EndDate:   utils.TimeI(m.EndDate, `2006-01-02T15:04:05`),
-		ID:        utils.IntI(m.ID),
+		StartDate: utils.TimeI(m.Aspect["StartDate"], `2006-01-02T15:04:05`),
+		EndDate:   utils.TimeI(m.Aspect["EndDate"], `2006-01-02T15:04:05`),
+		ID:        utils.Int64I(m.Aspect["ID"]),
 	}
 	return aspect, nil
 }
@@ -67,7 +66,7 @@ func (m *internalChannel) Convert() (*Channel, error) {
 		}
 		switch reflect.TypeOf(m.Channel["Aspects"]).Kind() {
 		case reflect.Array, reflect.Slice:
-			var internalChanelAspectData []iChanelAspect
+			var internalChanelAspectData []internalChanelAspect
 			err = json.Unmarshal(marshalData, &internalChanelAspectData)
 			if err != nil {
 				return nil, err
@@ -80,7 +79,7 @@ func (m *internalChannel) Convert() (*Channel, error) {
 				aspects = append(aspects, *aspect)
 			}
 		case reflect.Map, reflect.Struct:
-			var internalChanelAspectData iChanelAspect
+			var internalChanelAspectData internalChanelAspect
 			err = json.Unmarshal(marshalData, &internalChanelAspectData)
 			if err != nil {
 				return nil, err
@@ -93,15 +92,15 @@ func (m *internalChannel) Convert() (*Channel, error) {
 		}
 	}
 	channel := &Channel{
-		ID:                 utils.IntI(m.Channel["ID"]),
-		MainChnl:           utils.IntI(m.Channel["MainChnl"]),
-		SellingDirectionID: utils.IntI(m.Channel["SellingDirectionID"]),
-		CnlOrderNo:         utils.IntI(m.Channel["CnlOrderNo"]),
-		CnlCentralID:       utils.IntI(m.Channel["CnlCentralID"]),
-		IsDisabled:         utils.IntI(m.Channel["IsDisabled"]),
-		BcpCentralID:       utils.IntI(m.Channel["BcpCentralID"]),
+		ID:                 utils.Int64I(m.Channel["ID"]),
+		MainChnl:           utils.Int64I(m.Channel["MainChnl"]),
+		SellingDirectionID: utils.Int64I(m.Channel["SellingDirectionID"]),
+		CnlOrderNo:         utils.Int64I(m.Channel["CnlOrderNo"]),
+		CnlCentralID:       utils.Int64I(m.Channel["cnlCentralID"]),
+		IsDisabled:         utils.Int64I(m.Channel["IsDisabled"]),
+		BcpCentralID:       utils.Int64I(m.Channel["bcpCentralID"]),
 		ShortName:          utils.StringI(m.Channel["ShortName"]),
-		BcpName:            utils.StringI(m.Channel["BcpName"]),
+		BcpName:            utils.StringI(m.Channel["bcpName"]),
 		StartTime:          utils.StringI(m.Channel["StartTime"]),
 		EndTime:            utils.StringI(m.Channel["EndTime"]),
 		TotalOffset:        utils.StringI(m.Channel["TotalOffset"]),
@@ -124,6 +123,7 @@ func ChannelsStartJob() chan error {
 		if err != nil {
 			errorCh <- err
 		}
+		defer ch.Close()
 		err = ch.Qos(1, 0, false)
 		messages, err := ch.Consume(qName, "",
 			false,
@@ -139,7 +139,8 @@ func ChannelsStartJob() chan error {
 			}
 			/*read from s3 by s3Key*/
 			req := ChannelsUpdateRequest{
-				S3Key: bodyJson.Key,
+				S3Key:              bodyJson.Key,
+				SellingDirectionID: bodyJson.SellingDirectionID,
 			}
 			err = req.Update()
 			if err != nil {
@@ -180,12 +181,14 @@ func (request *ChannelsUpdateRequest) loadFromFile() error {
 	if err != nil {
 		return err
 	}
+	badgerChannels := storage.Open(DbChannels)
+	sellingDirectionID := utils.Int64(request.SellingDirectionID)
 	for _, dataM := range internalData {
 		channel, err := dataM.Convert()
 		if err != nil {
 			return err
 		}
-		badgerChannels := storage.Open(DbChannels)
+		channel.SellingDirectionID = &sellingDirectionID
 		err = badgerChannels.Upsert(channel.Key(), channel)
 		if err != nil {
 			return err

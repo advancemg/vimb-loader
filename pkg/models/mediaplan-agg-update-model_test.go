@@ -7,11 +7,11 @@ func TestMediaplanAggUpdateRequest_Update(t *testing.T) {
 		t.SkipNow()
 	}
 	type fields struct {
-		Month        int
-		ChannelId    int
-		MediaplanId  int
-		AdvertiserId int
-		AgreementId  int
+		Month        int64
+		ChannelId    int64
+		MediaplanId  int64
+		AdvertiserId int64
+		AgreementId  int64
 	}
 	tests := []struct {
 		name    string
@@ -21,11 +21,11 @@ func TestMediaplanAggUpdateRequest_Update(t *testing.T) {
 		{
 			name: "update agg mediaplan",
 			fields: fields{
-				Month:        201903,
-				ChannelId:    1020269,
-				MediaplanId:  14832106,
+				Month:        201902,
+				ChannelId:    1020582,
+				MediaplanId:  14825353,
 				AdvertiserId: 700068653,
-				AgreementId:  8124,
+				AgreementId:  81024,
 			},
 			wantErr: false,
 		},

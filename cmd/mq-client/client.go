@@ -17,6 +17,7 @@ func main() {
 	if err != nil {
 		return
 	}
+	defer ch.Close()
 	err = ch.Qos(1, 0, false)
 	messages, err := ch.Consume(qName, "",
 		false,

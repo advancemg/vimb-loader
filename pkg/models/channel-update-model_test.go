@@ -7,7 +7,8 @@ func TestChannelsUpdateRequest_loadFromFile(t *testing.T) {
 		t.SkipNow()
 	}
 	type fields struct {
-		S3Key string
+		S3Key              string
+		SellingDirectionID string
 	}
 	tests := []struct {
 		name    string
@@ -16,14 +17,15 @@ func TestChannelsUpdateRequest_loadFromFile(t *testing.T) {
 	}{
 		{
 			name:    "loadFromFile-Channels",
-			fields:  fields{"../../dev-test-data/channels.gz"},
+			fields:  fields{"../../dev-test-data/channels.gz", "23"},
 			wantErr: false,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			request := &ChannelsUpdateRequest{
-				S3Key: tt.fields.S3Key,
+				S3Key:              tt.fields.S3Key,
+				SellingDirectionID: tt.fields.SellingDirectionID,
 			}
 			if err := request.loadFromFile(); (err != nil) != tt.wantErr {
 				t.Errorf("loadFromFile() error = %v, wantErr %v", err, tt.wantErr)

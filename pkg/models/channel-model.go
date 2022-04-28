@@ -1,16 +1,17 @@
 package models
 
 import (
-	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"github.com/advancemg/badgerhold"
 	goConvert "github.com/advancemg/go-convert"
+	log "github.com/advancemg/vimb-loader/pkg/logging"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
 	"github.com/advancemg/vimb-loader/pkg/storage"
 	"github.com/advancemg/vimb-loader/pkg/utils"
-	"io"
-	"os"
+	"time"
 )
 
 type SwaggerGetChannelsRequest struct {
@@ -40,6 +41,7 @@ func (cfg *ChannelConfiguration) StartJob() chan error {
 		if err != nil {
 			errorCh <- err
 		}
+		defer ch.Close()
 		err = ch.Qos(1, 0, false)
 		messages, err := ch.Consume(qName, "",
 			false,
@@ -78,12 +80,12 @@ func (cfg *ChannelConfiguration) InitJob() func() {
 		amqpConfig := mq_broker.InitConfig()
 		err := amqpConfig.DeclareSimpleQueue(qName)
 		if err != nil {
-			fmt.Printf("Q:%s - err:%s", qName, err.Error())
+			log.PrintLog("vimb-loader", "Channels InitJob", "error", "Q:", qName, "err:", err.Error())
 			return
 		}
 		qInfo, err := amqpConfig.GetQueueInfo(qName)
 		if err != nil {
-			fmt.Printf("Q:%s - err:%s", qName, err.Error())
+			log.PrintLog("vimb-loader", "Channels InitJob", "error", "Q:", qName, "err:", err.Error())
 			return
 		}
 		if qInfo.Messages > 0 {
@@ -93,7 +95,7 @@ func (cfg *ChannelConfiguration) InitJob() func() {
 		request.Set("SellingDirectionID", cfg.SellingDirection)
 		err = amqpConfig.PublishJson(qName, request)
 		if err != nil {
-			fmt.Printf("Q:%s - err:%s", qName, err.Error())
+			log.PrintLog("vimb-loader", "Channels InitJob", "error", "Q:", qName, "err:", err.Error())
 			return
 		}
 	}
@@ -120,6 +122,24 @@ func (request *GetChannels) GetDataJson() (*JsonResponse, error) {
 }
 
 func (request *GetChannels) GetDataXmlZip() (*StreamResponse, error) {
+	for {
+		var isTimeout utils.Timeout
+		err := storage.Open(DbTimeout).Get("vimb-timeout", &isTimeout)
+		if err != nil {
+			if errors.Is(err, badgerhold.ErrNotFound) {
+				isTimeout.IsTimeout = false
+			} else {
+				return nil, err
+			}
+		}
+		if isTimeout.IsTimeout {
+			time.Sleep(1 * time.Second)
+			continue
+		}
+		if !isTimeout.IsTimeout {
+			break
+		}
+	}
 	req, err := request.getXml()
 	if err != nil {
 		return nil, err
@@ -140,67 +160,22 @@ func (request *GetChannels) UploadToS3() (*MqUpdateMessage, error) {
 		data, err := request.GetDataXmlZip()
 		if err != nil {
 			if vimbError, ok := err.(*utils.VimbError); ok {
-				vimbError.CheckTimeout()
+				vimbError.CheckTimeout("GetChannels")
 				continue
 			}
 			return nil, err
 		}
+		sellingDirectionID, _ := request.Get("SellingDirectionID")
 		var newS3Key = fmt.Sprintf("vimb/%s/%s/%s-%s.gz", utils.Actions.Client, typeName, utils.DateTimeNowInt(), typeName)
 		_, err = s3.UploadBytesWithBucket(newS3Key, data.Body)
 		if err != nil {
 			return nil, err
 		}
-		/*update data from gz file*/
-		//err = request.DataConfiguration(newS3Key)
-		//if err != nil {
-		//	return nil, err
-		//}
 		return &MqUpdateMessage{
-			Key: newS3Key,
+			Key:                newS3Key,
+			SellingDirectionID: sellingDirectionID.(string),
 		}, nil
 	}
-}
-
-func (request *GetChannels) DataConfiguration(s3Key string) error {
-	download, err := s3.Download(s3Key)
-	if err != nil {
-		return err
-	}
-	open, err := os.Open(download)
-	if err != nil {
-		return err
-	}
-	defer open.Close()
-	zipBuffer := new(bytes.Buffer)
-	_, err = io.Copy(zipBuffer, open)
-	if err != nil {
-		return fmt.Errorf("not copy zip data, %v", err)
-	}
-	toJson, err := goConvert.ZipXmlToJson(zipBuffer.Bytes())
-	if err != nil {
-		return fmt.Errorf("not ZipXmlToJson, %v", err)
-	}
-	channels := storage.NewBadger(DbChannels)
-	defer channels.Close()
-	var channelMap map[string]interface{}
-	json.Unmarshal(toJson, &channelMap)
-	if err != nil {
-		return err
-	}
-	for _, v := range channelMap {
-		if mapLevel2, ok := v.(map[string]interface{}); ok {
-			for _, v2 := range mapLevel2 {
-				if array, ok := v2.([]interface{}); ok {
-					for _, value := range array {
-						id := value.(map[string]interface{})["ID"].(string)
-						mainChan := value.(map[string]interface{})["MainChnl"].(string)
-						channels.Set(id, []byte(mainChan))
-					}
-				}
-			}
-		}
-	}
-	return nil
 }
 
 func (request *GetChannels) getXml() ([]byte, error) {

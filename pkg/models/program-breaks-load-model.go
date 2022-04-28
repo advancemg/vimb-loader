@@ -1,8 +1,9 @@
 package models
 
 import (
-	"fmt"
+	"encoding/json"
 	goConvert "github.com/advancemg/go-convert"
+	log "github.com/advancemg/vimb-loader/pkg/logging"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/utils"
 	"time"
@@ -18,6 +19,27 @@ type ProgramBreaksLoadRequest struct {
 		Cnl string `json:"Cnl" example:"1018566"` //ID канала (int, not nillable)
 	} `json:"CnlList"`
 	ProtocolVersion string `json:"ProtocolVersion" example:"2"`
+}
+
+type ProMasterQuery struct {
+	ProID struct {
+		Eq int64 `json:"eq" example:"355114"`
+	} `json:"ProID"`
+	PropName struct {
+		Eq string `json:"eq" example:"Ведущий"`
+	} `json:"PropName"`
+}
+
+type ProgramBreaksQuery struct {
+	Month struct {
+		Eq int64 `json:"eq" example:"201902"`
+	} `json:"Month"`
+	CnlID struct {
+		Eq int64 `json:"eq" example:"1020232"`
+	} `json:"CnlID"`
+	WeekDay struct {
+		Ee int64 `json:"ge" example:"1"`
+	} `json:"WeekDay"`
 }
 
 func (request *ProgramBreaksLoadRequest) InitTasks() (CommonResponse, error) {
@@ -55,7 +77,7 @@ func (request *ProgramBreaksLoadRequest) InitTasks() (CommonResponse, error) {
 			req.Set("Path", chunkCount)
 			err := amqpConfig.PublishJson(qName, req)
 			if err != nil {
-				fmt.Printf("Q:%s - err:%s", qName, err.Error())
+				log.PrintLog("vimb-loader", "ProgramBreaks InitTasks", "error", "Q:", qName, "err:", err.Error())
 				return nil, err
 			}
 		}
@@ -67,4 +89,32 @@ func (request *ProgramBreaksLoadRequest) InitTasks() (CommonResponse, error) {
 
 func (request *ProgramBreaksLoadRequest) getDays() ([]time.Time, error) {
 	return utils.GetDaysByPeriod(request.StartDate, request.EndDate)
+}
+
+func (request *Any) QueryProgramBreaks() ([]ProgramBreaks, error) {
+	var result []ProgramBreaks
+	query := ProgramBreaksBadgerQuery{}
+	marshal, err := json.Marshal(request.Body)
+	if err != nil {
+		return nil, err
+	}
+	err = query.FindJson(&result, marshal)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func (request *Any) QueryProgramBreaksProMaster() ([]ProMaster, error) {
+	var result []ProMaster
+	query := ProgramBreaksProMasterBadgerQuery{}
+	marshal, err := json.Marshal(request.Body)
+	if err != nil {
+		return nil, err
+	}
+	err = query.FindJson(&result, marshal)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
 }

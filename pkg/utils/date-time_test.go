@@ -7,6 +7,9 @@ import (
 )
 
 func TestGetDaysFromMonth(t *testing.T) {
+	if testing.Short() {
+		t.SkipNow()
+	}
 	type args struct {
 		year  int
 		month time.Month
@@ -38,6 +41,9 @@ func TestGetDaysFromMonth(t *testing.T) {
 }
 
 func TestGetDaysFromYearMonth(t *testing.T) {
+	if testing.Short() {
+		t.SkipNow()
+	}
 	type args struct {
 		yearMonth string
 	}
@@ -64,5 +70,15 @@ func TestGetDaysFromYearMonth(t *testing.T) {
 			endDay := fmt.Sprintf("%v", got[len(got)-1].Format(time.RFC3339))
 			fmt.Println(endDay[0 : len(endDay)-1])
 		})
+	}
+}
+
+func TestGetWeekDayByYearMonth(t *testing.T) {
+	for i := 0; i < 12; i++ {
+		yearMonth := 201901 + i
+		month, _ := GetWeekDayByYearMonth(yearMonth)
+		for i, t := range month {
+			fmt.Println(i, t)
+		}
 	}
 }

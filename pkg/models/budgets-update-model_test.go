@@ -1,14 +1,9 @@
 package models
 
 import (
-	"encoding/json"
-	"fmt"
+	"github.com/advancemg/badgerhold"
 	"github.com/advancemg/vimb-loader/pkg/storage"
-	"github.com/advancemg/vimb-loader/pkg/utils"
-	"github.com/timshannon/badgerhold"
-	"strconv"
 	"testing"
-	"time"
 )
 
 func TestBudgetsUpdateRequest_loadFromFile(t *testing.T) {
@@ -25,7 +20,7 @@ func TestBudgetsUpdateRequest_loadFromFile(t *testing.T) {
 	}{
 		{
 			name:    "loadFromFile-Budgets",
-			fields:  fields{"../../dev-test-data/budgets.gz"},
+			fields:  fields{"../../dev-test-data/budgets201902.gz"},
 			wantErr: false,
 		},
 	}
@@ -42,19 +37,22 @@ func TestBudgetsUpdateRequest_loadFromFile(t *testing.T) {
 }
 
 func TestQueryBudgets(t *testing.T) {
+	if testing.Short() {
+		t.SkipNow()
+	}
 	type Cnl struct {
-		Cnl  int
-		Main int
+		Cnl  int64
+		Main int64
 	}
 	var budgets []Budget
 	var channels []Channel
 	var allChannels []Cnl
-	advertisers := map[int]int{}
-	channelList := map[int]Cnl{}
+	advertisers := map[int64]int64{}
+	channelList := map[int64]Cnl{}
 	badgerBudgets := storage.Open(DbBudgets)
-	_ = badgerBudgets.Find(&budgets, badgerhold.Where("Month").Ge(-1))
+	_ = badgerBudgets.Find(&budgets, badgerhold.Where("Month").Ge(int64(-1)))
 	badgerChannels := storage.Open(DbChannels)
-	_ = badgerChannels.Find(&channels, badgerhold.Where("ID").Ge(-1))
+	_ = badgerChannels.Find(&channels, badgerhold.Where("ID").Ge(int64(-1)))
 	for _, budget := range budgets {
 		advertisers[*budget.AdtID] = *budget.AdtID
 		channelList[*budget.CnlID] = Cnl{
@@ -68,105 +66,4 @@ func TestQueryBudgets(t *testing.T) {
 			allChannels = append(allChannels, channelItem)
 		}
 	}
-}
-
-func TestBudgetsUpdateRequest_readBudgets(t *testing.T) {
-	if testing.Short() {
-		t.SkipNow()
-	}
-	var cnl []int
-	var result []Budget
-	months := map[int][]string{}
-	badgerBudgets := storage.NewBadger(DbBudgets)
-	badgerBudgets.Iterate(func(key []byte, value []byte) {
-		var budget Budget
-		err := json.Unmarshal(value, &budget)
-		if err != nil {
-			return
-		}
-		result = append(result, budget)
-	})
-	for _, budget := range result {
-		cnl = append(cnl, *budget.CnlID)
-		monthStr := fmt.Sprintf("%d", *budget.Month)
-		month, err := strconv.Atoi(monthStr[4:6])
-		if err != nil {
-			panic(err)
-		}
-		year, err := strconv.Atoi(monthStr[0:4])
-		if err != nil {
-			panic(err)
-		}
-		days, err := utils.GetDaysFromMonth(year, time.Month(month))
-		if err != nil {
-			panic(err)
-		}
-		months[month] = days
-	}
-	fmt.Println(cnl)
-	fmt.Println(months)
-}
-
-func TestBudgetsUpdateRequest_readBudgetsAndChannels(t *testing.T) {
-	if testing.Short() {
-		t.SkipNow()
-	}
-	type Cnl struct {
-		Cnl  int
-		Main int
-	}
-	var cnl []int
-	var advertisers []int
-	var allchannels []Cnl
-	var budgets []Budget
-	var channels []Channel
-	channelList := map[int]Cnl{}
-	months := map[int][]string{}
-	badgerBudgets := storage.NewBadger(DbBudgets)
-	badgerBudgets.Iterate(func(key []byte, value []byte) {
-		var budget Budget
-		json.Unmarshal(value, &budget)
-		budgets = append(budgets, budget)
-	})
-	for _, budget := range budgets {
-		advertisers = append(advertisers, *budget.AdtID)
-		cnl = append(cnl, *budget.CnlID)
-		monthStr := fmt.Sprintf("%d", *budget.Month)
-		month, err := strconv.Atoi(monthStr[4:6])
-		if err != nil {
-			panic(err)
-		}
-		year, err := strconv.Atoi(monthStr[0:4])
-		if err != nil {
-			panic(err)
-		}
-		days, err := utils.GetDaysFromMonth(year, time.Month(month))
-		if err != nil {
-			panic(err)
-		}
-		months[month] = days
-	}
-	channelsBadger := storage.NewBadger(DbChannels)
-	if channelsBadger.Count() > 0 {
-		channelsBadger.Iterate(func(key []byte, value []byte) {
-			var channel Channel
-			json.Unmarshal(value, &channel)
-			channels = append(channels, channel)
-		})
-		for _, channel := range channels {
-			allchannels = append(allchannels, Cnl{
-				Cnl:  *channel.ID,
-				Main: *channel.MainChnl,
-			})
-		}
-		for _, channel := range cnl {
-			for _, cnlIdMain := range allchannels {
-				if cnlIdMain.Cnl == channel {
-					channelList[channel] = cnlIdMain
-				}
-			}
-		}
-	}
-	fmt.Println(channelList)
-	fmt.Println(advertisers)
 }

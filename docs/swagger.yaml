@@ -1,5 +1,20 @@
 basePath: /
 definitions:
+  models.AdvMessageQuery:
+    properties:
+      AdtID:
+        properties:
+          eq:
+            example: 700061957
+            type: integer
+        type: object
+      BrandID:
+        properties:
+          eq:
+            example: 44362
+            type: integer
+        type: object
+    type: object
   models.AdvMessagesLoadRequest:
     properties:
       Advertisers:
@@ -33,6 +48,27 @@ definitions:
         example: "true"
         type: string
     type: object
+  models.AggMediaplanQuery:
+    properties:
+      CppOffPrime:
+        properties:
+          ge:
+            example: 100
+            type: number
+        type: object
+      CppPrime:
+        properties:
+          eq:
+            example: 2205.20143600803
+            type: number
+        type: object
+      MplMonth:
+        properties:
+          eq:
+            example: 201902
+            type: integer
+        type: object
+    type: object
   models.BudgetLoadRequest:
     properties:
       EndMonth:
@@ -45,14 +81,74 @@ definitions:
         example: "201903"
         type: string
     type: object
+  models.BudgetQuery:
+    properties:
+      AdtID:
+        properties:
+          eq:
+            example: 700068653
+            type: integer
+        type: object
+      CnlID:
+        properties:
+          eq:
+            example: 1020335
+            type: integer
+        type: object
+      Month:
+        properties:
+          eq:
+            example: 201902
+            type: integer
+        type: object
+    type: object
   models.ChannelLoadRequest:
     properties:
       SellingDirectionID:
         example: "23"
         type: string
     type: object
+  models.ChannelQuery:
+    properties:
+      ID:
+        properties:
+          eq:
+            example: 1018583
+            type: integer
+        type: object
+      MainChnl:
+        properties:
+          eq:
+            example: 1018568
+            type: integer
+        type: object
+      SellingDirectionID:
+        properties:
+          eq:
+            example: 23
+            type: integer
+        type: object
+    type: object
   models.CommonResponse:
     additionalProperties: true
+    type: object
+  models.CustomersWithAdvertiserDataQuery:
+    properties:
+      CustID:
+        properties:
+          eq:
+            example: 1
+            type: integer
+        type: object
+    type: object
+  models.CustomersWithAdvertiserQuery:
+    properties:
+      ID:
+        properties:
+          eq:
+            example: 1
+            type: integer
+        type: object
     type: object
   models.MediaplanLoadRequest:
     properties:
@@ -65,6 +161,42 @@ definitions:
       StartMonth:
         example: "201903"
         type: string
+    type: object
+  models.MediaplanQuery:
+    properties:
+      AdtID:
+        properties:
+          eq:
+            example: 700068653
+            type: integer
+        type: object
+      AgrID:
+        properties:
+          eq:
+            example: 81024
+            type: integer
+        type: object
+      MplID:
+        properties:
+          eq:
+            example: 14824608
+            type: integer
+        type: object
+    type: object
+  models.ProMasterQuery:
+    properties:
+      ProID:
+        properties:
+          eq:
+            example: 355114
+            type: integer
+        type: object
+      PropName:
+        properties:
+          eq:
+            example: Ведущий
+            type: string
+        type: object
     type: object
   models.ProgramBreaksLightModeLoadRequest:
     properties:
@@ -79,7 +211,7 @@ definitions:
         type: array
       EndDate:
         description: Дата окончания периода (включительно) в формате YYYYMMDD
-        example: "20170702"
+        example: "20190202"
         type: string
       InclForecast:
         description: Признак "Как заполнять секцию прогнозных рейтингов". 0 - Не заполнять,  1
@@ -96,12 +228,21 @@ definitions:
         type: string
       SellingDirectionID:
         description: ID направления продаж
-        example: "21"
+        example: "23"
         type: string
       StartDate:
         description: Дата начала периода в формате YYYYMMDD
-        example: "20170701"
+        example: "20190201"
         type: string
+    type: object
+  models.ProgramBreaksLightModeQuery:
+    properties:
+      BlockID:
+        properties:
+          eq:
+            example: 142480512
+            type: integer
+        type: object
     type: object
   models.ProgramBreaksLoadRequest:
     properties:
@@ -140,6 +281,51 @@ definitions:
         example: "20170701"
         type: string
     type: object
+  models.ProgramBreaksQuery:
+    properties:
+      CnlID:
+        properties:
+          eq:
+            example: 1020232
+            type: integer
+        type: object
+      Month:
+        properties:
+          eq:
+            example: 201902
+            type: integer
+        type: object
+      WeekDay:
+        properties:
+          ge:
+            example: 1
+            type: integer
+        type: object
+    type: object
+  models.QuerySpotsOrderBlockQuery:
+    properties:
+      BlockID:
+        properties:
+          eq:
+            example: 451118797
+            type: integer
+        type: object
+      OrdID:
+        properties:
+          eq:
+            example: 319260
+            type: integer
+        type: object
+    type: object
+  models.RankQuery:
+    properties:
+      ID:
+        properties:
+          eq:
+            example: 1
+            type: integer
+        type: object
+    type: object
   models.RanksLoadRequest:
     type: object
   models.SpotsLoadRequest:
@@ -168,6 +354,21 @@ definitions:
         type: string
       StartDate:
         type: string
+    type: object
+  models.SpotsQuery:
+    properties:
+      Rating:
+        properties:
+          eq:
+            example: 0.58321
+            type: number
+        type: object
+      SpotID:
+        properties:
+          eq:
+            example: 451118797
+            type: integer
+        type: object
     type: object
   models.StreamResponse:
     properties:
@@ -533,6 +734,54 @@ paths:
       summary: Создание задач, на загрузку роликов.
       tags:
       - Справочники
+  /api/v1/adv-messages/query:
+    post:
+      consumes:
+      - application/json
+      description: 'Динамический запрос на загрузку сохраненных данных. Логические
+        операторы: eq ==, ne !=, gt >, lt <, ge >=, le <=, in in, isnil is nil.'
+      operationId: routes-query-adv-messages
+      parameters:
+      - description: Запрос
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.AdvMessageQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.CommonResponse'
+      summary: Загрузку сохраненных роликов.
+      tags:
+      - Справочники
+  /api/v1/agg-mediaplan/query:
+    post:
+      consumes:
+      - application/json
+      description: 'Динамический запрос на загрузку сохраненных данных. Логические
+        операторы: eq ==, ne !=, gt >, lt <, ge >=, le <=, in in, isnil is nil.'
+      operationId: routes-query-agg-mediaplans
+      parameters:
+      - description: Запрос
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.AggMediaplanQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.CommonResponse'
+      summary: Загрузка агрегированных данных.
+      tags:
+      - Медиапланы
   /api/v1/budgets:
     post:
       consumes:
@@ -577,6 +826,30 @@ paths:
           schema:
             $ref: '#/definitions/models.CommonResponse'
       summary: Создание задач, на загрузку бюджетов.
+      tags:
+      - Сделки
+  /api/v1/budgets/query:
+    post:
+      consumes:
+      - application/json
+      description: 'Динамический запрос на загрузку сохраненных данных. Логические
+        операторы: eq ==, ne !=, gt >, lt <, ge >=, le <=, in in, isnil is nil.'
+      operationId: routes-query-budgets
+      parameters:
+      - description: Запрос
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.BudgetQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.CommonResponse'
+      summary: Загрузка сохраненных бюджетов.
       tags:
       - Сделки
   /api/v1/channels:
@@ -627,6 +900,30 @@ paths:
       summary: Создание задач, на загрузку каналов.
       tags:
       - Справочники
+  /api/v1/channels/query:
+    post:
+      consumes:
+      - application/json
+      description: 'Динамический запрос на загрузку сохраненных данных. Логические
+        операторы: eq ==, ne !=, gt >, lt <, ge >=, le <=, in in, isnil is nil.'
+      operationId: routes-query-channels
+      parameters:
+      - description: Запрос
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.ChannelQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.CommonResponse'
+      summary: Загрузку сохраненных каналов.
+      tags:
+      - Справочники
   /api/v1/customers-with-advertisers:
     post:
       consumes:
@@ -649,6 +946,31 @@ paths:
           schema:
             $ref: '#/definitions/models.StreamResponse'
       summary: Возвращает список заказчиков с рекламодеталями для заданного направления
+        продаж.
+      tags:
+      - Сделки
+  /api/v1/customers-with-advertisers-data/query:
+    post:
+      consumes:
+      - application/json
+      description: 'Динамический запрос на загрузку сохраненных данных. Логические
+        операторы: eq ==, ne !=, gt >, lt <, ge >=, le <=, in in, isnil is nil.'
+      operationId: routes-customers-with-advertisers-data-query
+      parameters:
+      - description: Запрос
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.CustomersWithAdvertiserDataQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.StreamResponse'
+      summary: Загрузка сохраненных заказчиков с рекламодеталями для заданного направления
         продаж.
       tags:
       - Сделки
@@ -675,6 +997,31 @@ paths:
             $ref: '#/definitions/models.StreamResponse'
       summary: Создание задачи для загружки заказчиков с рекламодеталями для заданного
         направления продаж.
+      tags:
+      - Сделки
+  /api/v1/customers-with-advertisers/query:
+    post:
+      consumes:
+      - application/json
+      description: 'Динамический запрос на загрузку сохраненных данных. Логические
+        операторы: eq ==, ne !=, gt >, lt <, ge >=, le <=, in in, isnil is nil.'
+      operationId: routes-customers-with-advertisers-query
+      parameters:
+      - description: Запрос
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.CustomersWithAdvertiserQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.StreamResponse'
+      summary: Загрузка сохраненных заказчиков с рекламодеталями для заданного направления
+        продаж.
       tags:
       - Сделки
   /api/v1/mediaplan:
@@ -819,6 +1166,30 @@ paths:
       summary: Создание задач, на загрузку медиапланов.
       tags:
       - Медиапланы
+  /api/v1/mediaplan/query:
+    post:
+      consumes:
+      - application/json
+      description: 'Динамический запрос на загрузку сохраненных данных. Логические
+        операторы: eq ==, ne !=, gt >, lt <, ge >=, le <=, in in, isnil is nil.'
+      operationId: routes-query-mediaplans
+      parameters:
+      - description: Запрос
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.MediaplanQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.CommonResponse'
+      summary: Загрузка сохраненных медиапланов.
+      tags:
+      - Медиапланы
   /api/v1/mq/queues:
     get:
       consumes:
@@ -883,6 +1254,30 @@ paths:
       summary: Создание задач, на загрузку сеток Light Mode.
       tags:
       - Блоки
+  /api/v1/program-breaks-light/query:
+    post:
+      consumes:
+      - application/json
+      description: 'Динамический запрос на загрузку сохраненных данных. Логические
+        операторы: eq ==, ne !=, gt >, lt <, ge >=, le <=, in in, isnil is nil.'
+      operationId: routes-query-program-breaks-light-mode
+      parameters:
+      - description: Запрос
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.ProgramBreaksLightModeQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.CommonResponse'
+      summary: Загрузка сохраненных сеток Light Mode.
+      tags:
+      - Блоки
   /api/v1/program-breaks/load:
     post:
       consumes:
@@ -904,6 +1299,54 @@ paths:
           schema:
             $ref: '#/definitions/models.CommonResponse'
       summary: Создание задач, на загрузку сеток.
+      tags:
+      - Блоки
+  /api/v1/program-breaks/pro-master/query:
+    post:
+      consumes:
+      - application/json
+      description: 'Динамический запрос на загрузку сохраненных данных. Логические
+        операторы: eq ==, ne !=, gt >, lt <, ge >=, le <=, in in, isnil is nil.'
+      operationId: routes-query-program-breaks-pro-master
+      parameters:
+      - description: Запрос
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.ProMasterQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.CommonResponse'
+      summary: Загрузка сохраненных сеток.
+      tags:
+      - Блоки
+  /api/v1/program-breaks/query:
+    post:
+      consumes:
+      - application/json
+      description: 'Динамический запрос на загрузку сохраненных данных. Логические
+        операторы: eq ==, ne !=, gt >, lt <, ge >=, le <=, in in, isnil is nil.'
+      operationId: routes-query-program-breaks
+      parameters:
+      - description: Запрос
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.ProgramBreaksQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.CommonResponse'
+      summary: Загрузка сохраненных сеток.
       tags:
       - Блоки
   /api/v1/ranks:
@@ -950,6 +1393,30 @@ paths:
           schema:
             $ref: '#/definitions/models.CommonResponse'
       summary: Создание задач, на загрузку рангов размещения.
+      tags:
+      - Справочники
+  /api/v1/ranks/query:
+    post:
+      consumes:
+      - application/json
+      description: 'Динамический запрос на загрузку сохраненных данных. Логические
+        операторы: eq ==, ne !=, gt >, lt <, ge >=, le <=, in in, isnil is nil.'
+      operationId: routes-query-ranks
+      parameters:
+      - description: Запрос
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.RankQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.CommonResponse'
+      summary: Загрузку сохраненных рангов размещения.
       tags:
       - Справочники
   /api/v1/spot:
@@ -1111,6 +1578,54 @@ paths:
           schema:
             $ref: '#/definitions/models.CommonResponse'
       summary: Создание задач на загрузку спотов.
+      tags:
+      - Споты
+  /api/v1/spot/order-block/query:
+    post:
+      consumes:
+      - application/json
+      description: 'Динамический запрос на загрузку сохраненных данных. Логические
+        операторы: eq ==, ne !=, gt >, lt <, ge >=, le <=, in in, isnil is nil.'
+      operationId: routes-query-spots-order-block
+      parameters:
+      - description: Запрос
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.QuerySpotsOrderBlockQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.CommonResponse'
+      summary: Загрузка сохраненных спотов.
+      tags:
+      - Споты
+  /api/v1/spot/query:
+    post:
+      consumes:
+      - application/json
+      description: 'Динамический запрос на загрузку сохраненных данных. Логические
+        операторы: eq ==, ne !=, gt >, lt <, ge >=, le <=, in in, isnil is nil.'
+      operationId: routes-query-spots
+      parameters:
+      - description: Запрос
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.SpotsQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.CommonResponse'
+      summary: Загрузка сохраненных спотов.
       tags:
       - Споты
   /api/v1/spot/set-position:

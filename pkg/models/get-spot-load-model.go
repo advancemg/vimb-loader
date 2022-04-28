@@ -1,8 +1,9 @@
 package models
 
 import (
-	"fmt"
+	"encoding/json"
 	goConvert "github.com/advancemg/go-convert"
+	log "github.com/advancemg/vimb-loader/pkg/logging"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/utils"
 	"time"
@@ -20,6 +21,24 @@ type SpotsLoadRequest struct {
 	AdtList []struct {
 		AdtID string `json:"AdtID"`
 	} `json:"AdtList"`
+}
+
+type SpotsQuery struct {
+	Rating struct {
+		Eq float64 `json:"eq" example:"0.58321"`
+	} `json:"Rating"`
+	SpotID struct {
+		Eq int64 `json:"eq" example:"451118797"`
+	} `json:"SpotID"`
+}
+
+type QuerySpotsOrderBlockQuery struct {
+	OrdID struct {
+		Eq int64 `json:"eq" example:"319260"`
+	} `json:"OrdID"`
+	BlockID struct {
+		Eq int64 `json:"eq" example:"451118797"`
+	} `json:"BlockID"`
 }
 
 func (request *SpotsLoadRequest) InitTasks() (CommonResponse, error) {
@@ -44,7 +63,7 @@ func (request *SpotsLoadRequest) InitTasks() (CommonResponse, error) {
 		req.Set("AdtList", request.AdtList)
 		err := amqpConfig.PublishJson(qName, req)
 		if err != nil {
-			fmt.Printf("Q:%s - err:%s", qName, err.Error())
+			log.PrintLog("vimb-loader", "Spots InitTasks", "error", "Q:", qName, "err:", err.Error())
 			return nil, err
 		}
 	}
@@ -55,4 +74,32 @@ func (request *SpotsLoadRequest) InitTasks() (CommonResponse, error) {
 
 func (request *SpotsLoadRequest) getDays() ([]time.Time, error) {
 	return utils.GetDaysByPeriod(request.StartDate, request.EndDate)
+}
+
+func (request *Any) QuerySpots() ([]Spot, error) {
+	var result []Spot
+	query := SpotBadgerQuery{}
+	marshal, err := json.Marshal(request.Body)
+	if err != nil {
+		return nil, err
+	}
+	err = query.FindJson(&result, marshal)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func (request *Any) QuerySpotsOrderBlock() ([]SpotOrderBlock, error) {
+	var result []SpotOrderBlock
+	query := SpotsOrderBlockQuery{}
+	marshal, err := json.Marshal(request.Body)
+	if err != nil {
+		return nil, err
+	}
+	err = query.FindJson(&result, marshal)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
 }

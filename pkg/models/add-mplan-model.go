@@ -2,10 +2,14 @@ package models
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
+	"github.com/advancemg/badgerhold"
 	goConvert "github.com/advancemg/go-convert"
 	"github.com/advancemg/vimb-loader/pkg/s3"
+	"github.com/advancemg/vimb-loader/pkg/storage"
 	"github.com/advancemg/vimb-loader/pkg/utils"
+	"time"
 )
 
 type SwaggerAddMPlanRequest struct {
@@ -43,6 +47,24 @@ func (request *AddMPlan) GetDataJson() (*JsonResponse, error) {
 }
 
 func (request *AddMPlan) GetDataXmlZip() (*StreamResponse, error) {
+	for {
+		var isTimeout utils.Timeout
+		err := storage.Open(DbTimeout).Get("vimb-timeout", &isTimeout)
+		if err != nil {
+			if errors.Is(err, badgerhold.ErrNotFound) {
+				isTimeout.IsTimeout = false
+			} else {
+				return nil, err
+			}
+		}
+		if isTimeout.IsTimeout {
+			time.Sleep(1 * time.Second)
+			continue
+		}
+		if !isTimeout.IsTimeout {
+			break
+		}
+	}
 	req, err := request.getXml()
 	if err != nil {
 		return nil, err
@@ -63,7 +85,7 @@ func (request *AddMPlan) UploadToS3() error {
 		data, err := request.GetDataXmlZip()
 		if err != nil {
 			if vimbError, ok := err.(*utils.VimbError); ok {
-				vimbError.CheckTimeout()
+				vimbError.CheckTimeout("AddMPlan")
 				continue
 			}
 			return err

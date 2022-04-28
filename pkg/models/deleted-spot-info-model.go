@@ -2,8 +2,11 @@ package models
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
+	"github.com/advancemg/badgerhold"
 	goConvert "github.com/advancemg/go-convert"
+	log "github.com/advancemg/vimb-loader/pkg/logging"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
 	"github.com/advancemg/vimb-loader/pkg/storage"
@@ -41,6 +44,7 @@ func (cfg *DeletedSpotInfoConfiguration) StartJob() chan error {
 		if err != nil {
 			errorCh <- err
 		}
+		defer ch.Close()
 		err = ch.Qos(1, 0, false)
 		messages, err := ch.Consume(qName, "",
 			false,
@@ -54,7 +58,11 @@ func (cfg *DeletedSpotInfoConfiguration) StartJob() chan error {
 			if err != nil {
 				errorCh <- err
 			}
-			err = bodyJson.UploadToS3()
+			s3Message, err := bodyJson.UploadToS3()
+			if err != nil {
+				errorCh <- err
+			}
+			err = amqpConfig.PublishJson(DeletedSpotInfoUpdateQueue, s3Message)
 			if err != nil {
 				errorCh <- err
 			}
@@ -74,46 +82,53 @@ func (cfg *DeletedSpotInfoConfiguration) InitJob() func() {
 		amqpConfig := mq_broker.InitConfig()
 		err := amqpConfig.DeclareSimpleQueue(qName)
 		if err != nil {
-			fmt.Printf("Q:%s - err:%s", qName, err.Error())
+			log.PrintLog("vimb-loader", "DeletedSpotInfo InitJob", "error", "Q:", qName, "err:", err.Error())
 			return
 		}
 		qInfo, err := amqpConfig.GetQueueInfo(qName)
 		if err != nil {
-			fmt.Printf("Q:%s - err:%s", qName, err.Error())
+			log.PrintLog("vimb-loader", "DeletedSpotInfo InitJob", "error", "Q:", qName, "err:", err.Error())
 			return
 		}
 		if qInfo.Messages > 0 {
 			return
 		}
-		var budgets []Budget
-		var months []string
-		badgerBudgets := storage.NewBadger(DbBudgets)
-		badgerBudgets.Iterate(func(key []byte, value []byte) {
-			var budget Budget
-			json.Unmarshal(value, &budget)
-			budgets = append(budgets, budget)
-		})
-		for _, budget := range budgets {
-			month := fmt.Sprintf("%d", *budget.Month)
-			months = append(months, month)
-		}
 		type agreement struct {
-			Id string `json:"ID"`
+			Id int64 `json:"ID"`
 		}
-		for _, month := range months {
-			days, err := utils.GetDaysFromYearMonth(month)
+		agr := map[int64]struct{}{}
+		var agreements []agreement
+		var budgets []Budget
+		months := map[int64][]time.Time{}
+		badgerBudgets := storage.Open(DbBudgets)
+		err = badgerBudgets.Find(&budgets, badgerhold.Where("Month").Ge(int64(-1)))
+		if err != nil {
+			log.PrintLog("vimb-loader", "DeletedSpotInfo InitJob", "error", "Q:", qName, "err:", err.Error())
+			return
+		}
+		for _, budget := range budgets {
+			agr[*budget.AgrID] = struct{}{}
+			days, err := utils.GetDaysFromYearMonthInt(*budget.Month)
 			if err != nil {
 				panic(err)
 			}
+			months[*budget.Month] = days
+		}
+		for agrId, _ := range agr {
+			agreements = append(agreements, agreement{agrId})
+		}
+		for _, days := range months {
 			startDay := fmt.Sprintf("%v", days[0].Format(time.RFC3339))
 			endDay := fmt.Sprintf("%v", days[len(days)-1].Format(time.RFC3339))
+			startDay = startDay[0 : len(startDay)-1]
+			endDay = endDay[0 : len(endDay)-1]
 			request := goConvert.New()
-			request.Set("DateStart", startDay[0:len(startDay)-1])
-			request.Set("DateEnd", endDay[0 : len(endDay)-1][:11]+"12:00:00")
-			request.Set("Agreements", []agreement{})
+			request.Set("DateStart", startDay)
+			request.Set("DateEnd", endDay)
+			request.Set("Agreements", agreements)
 			err = amqpConfig.PublishJson(qName, request)
 			if err != nil {
-				fmt.Printf("Q:%s - err:%s", qName, err.Error())
+				log.PrintLog("vimb-loader", "DeletedSpotInfo InitJob", "error", "Q:", qName, "err:", err.Error())
 				return
 			}
 		}
@@ -141,6 +156,24 @@ func (request *GetDeletedSpotInfo) GetDataJson() (*JsonResponse, error) {
 }
 
 func (request *GetDeletedSpotInfo) GetDataXmlZip() (*StreamResponse, error) {
+	for {
+		var isTimeout utils.Timeout
+		err := storage.Open(DbTimeout).Get("vimb-timeout", &isTimeout)
+		if err != nil {
+			if errors.Is(err, badgerhold.ErrNotFound) {
+				isTimeout.IsTimeout = false
+			} else {
+				return nil, err
+			}
+		}
+		if isTimeout.IsTimeout {
+			time.Sleep(1 * time.Second)
+			continue
+		}
+		if !isTimeout.IsTimeout {
+			break
+		}
+	}
 	req, err := request.getXml()
 	if err != nil {
 		return nil, err
@@ -155,24 +188,26 @@ func (request *GetDeletedSpotInfo) GetDataXmlZip() (*StreamResponse, error) {
 	}, nil
 }
 
-func (request *GetDeletedSpotInfo) UploadToS3() error {
+func (request *GetDeletedSpotInfo) UploadToS3() (*MqUpdateMessage, error) {
 	for {
 		typeName := GetDeletedSpotInfoType
 		data, err := request.GetDataXmlZip()
 		if err != nil {
 			if vimbError, ok := err.(*utils.VimbError); ok {
-				vimbError.CheckTimeout()
+				vimbError.CheckTimeout("GetDeletedSpotInfo")
 				continue
 			}
-			return err
+			return nil, err
 		}
 		month, _ := request.Get("DateStart")
 		var newS3Key = fmt.Sprintf("vimb/%s/%s/%v/%s-%s.gz", utils.Actions.Client, typeName, month, utils.DateTimeNowInt(), typeName)
 		_, err = s3.UploadBytesWithBucket(newS3Key, data.Body)
 		if err != nil {
-			return err
+			return nil, err
 		}
-		return nil
+		return &MqUpdateMessage{
+			Key: newS3Key,
+		}, nil
 	}
 }
 

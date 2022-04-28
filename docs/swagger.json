@@ -99,6 +99,76 @@
                 }
             }
         },
+        "/api/v1/adv-messages/query": {
+            "post": {
+                "description": "Динамический запрос на загрузку сохраненных данных. Логические операторы: eq ==, ne !=, gt \u003e, lt \u003c, ge \u003e=, le \u003c=, in in, isnil is nil.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Справочники"
+                ],
+                "summary": "Загрузку сохраненных роликов.",
+                "operationId": "routes-query-adv-messages",
+                "parameters": [
+                    {
+                        "description": "Запрос",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.AdvMessageQuery"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.CommonResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/agg-mediaplan/query": {
+            "post": {
+                "description": "Динамический запрос на загрузку сохраненных данных. Логические операторы: eq ==, ne !=, gt \u003e, lt \u003c, ge \u003e=, le \u003c=, in in, isnil is nil.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Медиапланы"
+                ],
+                "summary": "Загрузка агрегированных данных.",
+                "operationId": "routes-query-agg-mediaplans",
+                "parameters": [
+                    {
+                        "description": "Запрос",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.AggMediaplanQuery"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.CommonResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/budgets": {
             "post": {
                 "description": "Возвращает данные по сделкам в разрезе канало-периодов.",
@@ -156,6 +226,41 @@
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/models.BudgetLoadRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.CommonResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/budgets/query": {
+            "post": {
+                "description": "Динамический запрос на загрузку сохраненных данных. Логические операторы: eq ==, ne !=, gt \u003e, lt \u003c, ge \u003e=, le \u003c=, in in, isnil is nil.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Сделки"
+                ],
+                "summary": "Загрузка сохраненных бюджетов.",
+                "operationId": "routes-query-budgets",
+                "parameters": [
+                    {
+                        "description": "Запрос",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.BudgetQuery"
                         }
                     }
                 ],
@@ -239,6 +344,41 @@
                 }
             }
         },
+        "/api/v1/channels/query": {
+            "post": {
+                "description": "Динамический запрос на загрузку сохраненных данных. Логические операторы: eq ==, ne !=, gt \u003e, lt \u003c, ge \u003e=, le \u003c=, in in, isnil is nil.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Справочники"
+                ],
+                "summary": "Загрузку сохраненных каналов.",
+                "operationId": "routes-query-channels",
+                "parameters": [
+                    {
+                        "description": "Запрос",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.ChannelQuery"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.CommonResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/customers-with-advertisers": {
             "post": {
                 "description": "Возвращает список заказчиков с рекламодеталями для заданного направления продаж.",
@@ -274,6 +414,41 @@
                 }
             }
         },
+        "/api/v1/customers-with-advertisers-data/query": {
+            "post": {
+                "description": "Динамический запрос на загрузку сохраненных данных. Логические операторы: eq ==, ne !=, gt \u003e, lt \u003c, ge \u003e=, le \u003c=, in in, isnil is nil.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Сделки"
+                ],
+                "summary": "Загрузка сохраненных заказчиков с рекламодеталями для заданного направления продаж.",
+                "operationId": "routes-customers-with-advertisers-data-query",
+                "parameters": [
+                    {
+                        "description": "Запрос",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CustomersWithAdvertiserDataQuery"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.StreamResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/customers-with-advertisers/load": {
             "post": {
                 "description": "Создание задачи для загружки заказчиков с рекламодеталями для заданного направления продаж.",
@@ -296,6 +471,41 @@
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/models.SwaggerGetCustomersWithAdvertisersRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.StreamResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/customers-with-advertisers/query": {
+            "post": {
+                "description": "Динамический запрос на загрузку сохраненных данных. Логические операторы: eq ==, ne !=, gt \u003e, lt \u003c, ge \u003e=, le \u003c=, in in, isnil is nil.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Сделки"
+                ],
+                "summary": "Загрузка сохраненных заказчиков с рекламодеталями для заданного направления продаж.",
+                "operationId": "routes-customers-with-advertisers-query",
+                "parameters": [
+                    {
+                        "description": "Запрос",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CustomersWithAdvertiserQuery"
                         }
                     }
                 ],
@@ -515,6 +725,41 @@
                 }
             }
         },
+        "/api/v1/mediaplan/query": {
+            "post": {
+                "description": "Динамический запрос на загрузку сохраненных данных. Логические операторы: eq ==, ne !=, gt \u003e, lt \u003c, ge \u003e=, le \u003c=, in in, isnil is nil.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Медиапланы"
+                ],
+                "summary": "Загрузка сохраненных медиапланов.",
+                "operationId": "routes-query-mediaplans",
+                "parameters": [
+                    {
+                        "description": "Запрос",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.MediaplanQuery"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.CommonResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/mq/queues": {
             "get": {
                 "description": "Состояние очередей.",
@@ -612,6 +857,41 @@
                 }
             }
         },
+        "/api/v1/program-breaks-light/query": {
+            "post": {
+                "description": "Динамический запрос на загрузку сохраненных данных. Логические операторы: eq ==, ne !=, gt \u003e, lt \u003c, ge \u003e=, le \u003c=, in in, isnil is nil.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Блоки"
+                ],
+                "summary": "Загрузка сохраненных сеток Light Mode.",
+                "operationId": "routes-query-program-breaks-light-mode",
+                "parameters": [
+                    {
+                        "description": "Запрос",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.ProgramBreaksLightModeQuery"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.CommonResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/program-breaks/load": {
             "post": {
                 "description": "Создание задач, на загрузку сеток, за выбранный период.",
@@ -634,6 +914,76 @@
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/models.ProgramBreaksLoadRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.CommonResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/program-breaks/pro-master/query": {
+            "post": {
+                "description": "Динамический запрос на загрузку сохраненных данных. Логические операторы: eq ==, ne !=, gt \u003e, lt \u003c, ge \u003e=, le \u003c=, in in, isnil is nil.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Блоки"
+                ],
+                "summary": "Загрузка сохраненных сеток.",
+                "operationId": "routes-query-program-breaks-pro-master",
+                "parameters": [
+                    {
+                        "description": "Запрос",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.ProMasterQuery"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.CommonResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/program-breaks/query": {
+            "post": {
+                "description": "Динамический запрос на загрузку сохраненных данных. Логические операторы: eq ==, ne !=, gt \u003e, lt \u003c, ge \u003e=, le \u003c=, in in, isnil is nil.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Блоки"
+                ],
+                "summary": "Загрузка сохраненных сеток.",
+                "operationId": "routes-query-program-breaks",
+                "parameters": [
+                    {
+                        "description": "Запрос",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.ProgramBreaksQuery"
                         }
                     }
                 ],
@@ -704,6 +1054,41 @@
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/models.RanksLoadRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.CommonResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/ranks/query": {
+            "post": {
+                "description": "Динамический запрос на загрузку сохраненных данных. Логические операторы: eq ==, ne !=, gt \u003e, lt \u003c, ge \u003e=, le \u003c=, in in, isnil is nil.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Справочники"
+                ],
+                "summary": "Загрузку сохраненных рангов размещения.",
+                "operationId": "routes-query-ranks",
+                "parameters": [
+                    {
+                        "description": "Запрос",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.RankQuery"
                         }
                     }
                 ],
@@ -958,6 +1343,76 @@
                 }
             }
         },
+        "/api/v1/spot/order-block/query": {
+            "post": {
+                "description": "Динамический запрос на загрузку сохраненных данных. Логические операторы: eq ==, ne !=, gt \u003e, lt \u003c, ge \u003e=, le \u003c=, in in, isnil is nil.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Споты"
+                ],
+                "summary": "Загрузка сохраненных спотов.",
+                "operationId": "routes-query-spots-order-block",
+                "parameters": [
+                    {
+                        "description": "Запрос",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.QuerySpotsOrderBlockQuery"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.CommonResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/spot/query": {
+            "post": {
+                "description": "Динамический запрос на загрузку сохраненных данных. Логические операторы: eq ==, ne !=, gt \u003e, lt \u003c, ge \u003e=, le \u003c=, in in, isnil is nil.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Споты"
+                ],
+                "summary": "Загрузка сохраненных спотов.",
+                "operationId": "routes-query-spots",
+                "parameters": [
+                    {
+                        "description": "Запрос",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.SpotsQuery"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.CommonResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/spot/set-position": {
             "post": {
                 "description": "Выполняет позиционирование спота..",
@@ -995,6 +1450,29 @@
         }
     },
     "definitions": {
+        "models.AdvMessageQuery": {
+            "type": "object",
+            "properties": {
+                "AdtID": {
+                    "type": "object",
+                    "properties": {
+                        "eq": {
+                            "type": "integer",
+                            "example": 700061957
+                        }
+                    }
+                },
+                "BrandID": {
+                    "type": "object",
+                    "properties": {
+                        "eq": {
+                            "type": "integer",
+                            "example": 44362
+                        }
+                    }
+                }
+            }
+        },
         "models.AdvMessagesLoadRequest": {
             "type": "object",
             "properties": {
@@ -1045,6 +1523,38 @@
                 }
             }
         },
+        "models.AggMediaplanQuery": {
+            "type": "object",
+            "properties": {
+                "CppOffPrime": {
+                    "type": "object",
+                    "properties": {
+                        "ge": {
+                            "type": "number",
+                            "example": 100
+                        }
+                    }
+                },
+                "CppPrime": {
+                    "type": "object",
+                    "properties": {
+                        "eq": {
+                            "type": "number",
+                            "example": 2205.20143600803
+                        }
+                    }
+                },
+                "MplMonth": {
+                    "type": "object",
+                    "properties": {
+                        "eq": {
+                            "type": "integer",
+                            "example": 201902
+                        }
+                    }
+                }
+            }
+        },
         "models.BudgetLoadRequest": {
             "type": "object",
             "properties": {
@@ -1062,6 +1572,38 @@
                 }
             }
         },
+        "models.BudgetQuery": {
+            "type": "object",
+            "properties": {
+                "AdtID": {
+                    "type": "object",
+                    "properties": {
+                        "eq": {
+                            "type": "integer",
+                            "example": 700068653
+                        }
+                    }
+                },
+                "CnlID": {
+                    "type": "object",
+                    "properties": {
+                        "eq": {
+                            "type": "integer",
+                            "example": 1020335
+                        }
+                    }
+                },
+                "Month": {
+                    "type": "object",
+                    "properties": {
+                        "eq": {
+                            "type": "integer",
+                            "example": 201902
+                        }
+                    }
+                }
+            }
+        },
         "models.ChannelLoadRequest": {
             "type": "object",
             "properties": {
@@ -1071,9 +1613,69 @@
                 }
             }
         },
+        "models.ChannelQuery": {
+            "type": "object",
+            "properties": {
+                "ID": {
+                    "type": "object",
+                    "properties": {
+                        "eq": {
+                            "type": "integer",
+                            "example": 1018583
+                        }
+                    }
+                },
+                "MainChnl": {
+                    "type": "object",
+                    "properties": {
+                        "eq": {
+                            "type": "integer",
+                            "example": 1018568
+                        }
+                    }
+                },
+                "SellingDirectionID": {
+                    "type": "object",
+                    "properties": {
+                        "eq": {
+                            "type": "integer",
+                            "example": 23
+                        }
+                    }
+                }
+            }
+        },
         "models.CommonResponse": {
             "type": "object",
             "additionalProperties": true
+        },
+        "models.CustomersWithAdvertiserDataQuery": {
+            "type": "object",
+            "properties": {
+                "CustID": {
+                    "type": "object",
+                    "properties": {
+                        "eq": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                }
+            }
+        },
+        "models.CustomersWithAdvertiserQuery": {
+            "type": "object",
+            "properties": {
+                "ID": {
+                    "type": "object",
+                    "properties": {
+                        "eq": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                }
+            }
         },
         "models.MediaplanLoadRequest": {
             "type": "object",
@@ -1089,6 +1691,61 @@
                 "StartMonth": {
                     "type": "string",
                     "example": "201903"
+                }
+            }
+        },
+        "models.MediaplanQuery": {
+            "type": "object",
+            "properties": {
+                "AdtID": {
+                    "type": "object",
+                    "properties": {
+                        "eq": {
+                            "type": "integer",
+                            "example": 700068653
+                        }
+                    }
+                },
+                "AgrID": {
+                    "type": "object",
+                    "properties": {
+                        "eq": {
+                            "type": "integer",
+                            "example": 81024
+                        }
+                    }
+                },
+                "MplID": {
+                    "type": "object",
+                    "properties": {
+                        "eq": {
+                            "type": "integer",
+                            "example": 14824608
+                        }
+                    }
+                }
+            }
+        },
+        "models.ProMasterQuery": {
+            "type": "object",
+            "properties": {
+                "ProID": {
+                    "type": "object",
+                    "properties": {
+                        "eq": {
+                            "type": "integer",
+                            "example": 355114
+                        }
+                    }
+                },
+                "PropName": {
+                    "type": "object",
+                    "properties": {
+                        "eq": {
+                            "type": "string",
+                            "example": "Ведущий"
+                        }
+                    }
                 }
             }
         },
@@ -1111,7 +1768,7 @@
                 "EndDate": {
                     "description": "Дата окончания периода (включительно) в формате YYYYMMDD",
                     "type": "string",
-                    "example": "20170702"
+                    "example": "20190202"
                 },
                 "InclForecast": {
                     "description": "Признак \"Как заполнять секцию прогнозных рейтингов\". 0 - Не заполнять,  1 - Заполнять только ЦА программатика, 2 - Заполнять всеми возможными ЦА",
@@ -1130,12 +1787,26 @@
                 "SellingDirectionID": {
                     "description": "ID направления продаж",
                     "type": "string",
-                    "example": "21"
+                    "example": "23"
                 },
                 "StartDate": {
                     "description": "Дата начала периода в формате YYYYMMDD",
                     "type": "string",
-                    "example": "20170701"
+                    "example": "20190201"
+                }
+            }
+        },
+        "models.ProgramBreaksLightModeQuery": {
+            "type": "object",
+            "properties": {
+                "BlockID": {
+                    "type": "object",
+                    "properties": {
+                        "eq": {
+                            "type": "integer",
+                            "example": 142480512
+                        }
+                    }
                 }
             }
         },
@@ -1186,6 +1857,75 @@
                 }
             }
         },
+        "models.ProgramBreaksQuery": {
+            "type": "object",
+            "properties": {
+                "CnlID": {
+                    "type": "object",
+                    "properties": {
+                        "eq": {
+                            "type": "integer",
+                            "example": 1020232
+                        }
+                    }
+                },
+                "Month": {
+                    "type": "object",
+                    "properties": {
+                        "eq": {
+                            "type": "integer",
+                            "example": 201902
+                        }
+                    }
+                },
+                "WeekDay": {
+                    "type": "object",
+                    "properties": {
+                        "ge": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                }
+            }
+        },
+        "models.QuerySpotsOrderBlockQuery": {
+            "type": "object",
+            "properties": {
+                "BlockID": {
+                    "type": "object",
+                    "properties": {
+                        "eq": {
+                            "type": "integer",
+                            "example": 451118797
+                        }
+                    }
+                },
+                "OrdID": {
+                    "type": "object",
+                    "properties": {
+                        "eq": {
+                            "type": "integer",
+                            "example": 319260
+                        }
+                    }
+                }
+            }
+        },
+        "models.RankQuery": {
+            "type": "object",
+            "properties": {
+                "ID": {
+                    "type": "object",
+                    "properties": {
+                        "eq": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                }
+            }
+        },
         "models.RanksLoadRequest": {
             "type": "object"
         },
@@ -1228,6 +1968,29 @@
                 },
                 "StartDate": {
                     "type": "string"
+                }
+            }
+        },
+        "models.SpotsQuery": {
+            "type": "object",
+            "properties": {
+                "Rating": {
+                    "type": "object",
+                    "properties": {
+                        "eq": {
+                            "type": "number",
+                            "example": 0.58321
+                        }
+                    }
+                },
+                "SpotID": {
+                    "type": "object",
+                    "properties": {
+                        "eq": {
+                            "type": "integer",
+                            "example": 451118797
+                        }
+                    }
                 }
             }
         },

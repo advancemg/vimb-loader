@@ -89,3 +89,85 @@ func PostLoadSpots(w http.ResponseWriter, r *http.Request) {
 	(w).WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(response)
 }
+
+// PostSpotsQuery godoc
+// @Summary Загрузка сохраненных спотов.
+// @Description Динамический запрос на загрузку сохраненных данных. Логические операторы: eq ==, ne !=, gt >, lt <, ge >=, le <=, in in, isnil is nil.
+// @ID routes-query-spots
+// @Tags Споты
+// @Param body body models.SpotsQuery true  "Запрос"
+// @Accept json
+// @Produce json
+// @Success 200 {object} models.CommonResponse
+// @Router /api/v1/spot/query [post]
+func PostSpotsQuery(w http.ResponseWriter, r *http.Request) {
+	setupResponse(&w, r)
+	if (*r).Method == "OPTIONS" {
+		(w).WriteHeader(http.StatusOK)
+		return
+	}
+	var request models.Any
+	err := json.NewDecoder(r.Body).Decode(&request.Body)
+	if err != nil {
+		(w).WriteHeader(http.StatusBadRequest)
+		var response = utils.FieldValidateErrorType{
+			Field:   "id",
+			Message: fmt.Sprintf(`Ошибка %s`, err.Error()),
+		}
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+	response, err := request.QuerySpots()
+	if err != nil {
+		(w).WriteHeader(http.StatusBadRequest)
+		var response = utils.FieldValidateErrorType{
+			Field:   "request",
+			Message: fmt.Sprintf(`Ошибка %s`, err.Error()),
+		}
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+	(w).WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(response)
+}
+
+// PostSpotsOrderBlockQuery godoc
+// @Summary Загрузка сохраненных спотов.
+// @Description Динамический запрос на загрузку сохраненных данных. Логические операторы: eq ==, ne !=, gt >, lt <, ge >=, le <=, in in, isnil is nil.
+// @ID routes-query-spots-order-block
+// @Tags Споты
+// @Param body body models.QuerySpotsOrderBlockQuery true  "Запрос"
+// @Accept json
+// @Produce json
+// @Success 200 {object} models.CommonResponse
+// @Router /api/v1/spot/order-block/query [post]
+func PostSpotsOrderBlockQuery(w http.ResponseWriter, r *http.Request) {
+	setupResponse(&w, r)
+	if (*r).Method == "OPTIONS" {
+		(w).WriteHeader(http.StatusOK)
+		return
+	}
+	var request models.Any
+	err := json.NewDecoder(r.Body).Decode(&request.Body)
+	if err != nil {
+		(w).WriteHeader(http.StatusBadRequest)
+		var response = utils.FieldValidateErrorType{
+			Field:   "id",
+			Message: fmt.Sprintf(`Ошибка %s`, err.Error()),
+		}
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+	response, err := request.QuerySpotsOrderBlock()
+	if err != nil {
+		(w).WriteHeader(http.StatusBadRequest)
+		var response = utils.FieldValidateErrorType{
+			Field:   "request",
+			Message: fmt.Sprintf(`Ошибка %s`, err.Error()),
+		}
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+	(w).WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(response)
+}

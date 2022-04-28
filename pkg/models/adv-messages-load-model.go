@@ -1,8 +1,9 @@
 package models
 
 import (
-	"fmt"
+	"encoding/json"
 	goConvert "github.com/advancemg/go-convert"
+	log "github.com/advancemg/vimb-loader/pkg/logging"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/utils"
 	"time"
@@ -21,6 +22,15 @@ type AdvMessagesLoadRequest struct {
 	AdvertisingMessageIDs []struct {
 		Id string `json:"ID"`
 	} `json:"AdvertisingMessageIDs"`
+}
+
+type AdvMessageQuery struct {
+	AdtID struct {
+		Eq int64 `json:"eq" example:"700061957"`
+	} `json:"AdtID"`
+	BrandID struct {
+		Eq int64 `json:"eq" example:"44362"`
+	} `json:"BrandID"`
 }
 
 func (request *AdvMessagesLoadRequest) InitTasks() (CommonResponse, error) {
@@ -49,7 +59,7 @@ func (request *AdvMessagesLoadRequest) InitTasks() (CommonResponse, error) {
 		req.Set("AdvertisingMessageIDs", []struct{}{})
 		err := amqpConfig.PublishJson(qName, req)
 		if err != nil {
-			fmt.Printf("Q:%s - err:%s", qName, err.Error())
+			log.PrintLog("vimb-loader", "AdvMessages InitTasks", "error", "Q:", qName, "err:", err.Error())
 			return nil, err
 		}
 	}
@@ -60,4 +70,18 @@ func (request *AdvMessagesLoadRequest) InitTasks() (CommonResponse, error) {
 
 func (request *AdvMessagesLoadRequest) getDays() ([]time.Time, error) {
 	return utils.GetDaysByPeriod(request.CreationDateStart, request.CreationDateEnd)
+}
+
+func (request *Any) QueryAdvMessages() ([]Advertiser, error) {
+	var result []Advertiser
+	query := AdvertiserBadgerQuery{}
+	marshal, err := json.Marshal(request.Body)
+	if err != nil {
+		return nil, err
+	}
+	err = query.FindJson(&result, marshal)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
 }

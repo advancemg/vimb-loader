@@ -3,6 +3,7 @@ package models
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/advancemg/badgerhold"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
 	"github.com/advancemg/vimb-loader/pkg/storage"
@@ -11,21 +12,15 @@ import (
 	"time"
 )
 
-const BudgetTable = "budgets"
-
-type internalMQuality struct {
-	Item map[string]interface{} `json:"item"`
-}
-
 type Budget struct {
-	Month                 *int         `json:"Month"`
-	CnlID                 *int         `json:"CnlID"`
-	AdtID                 *int         `json:"AdtID"`
-	AgrID                 *int         `json:"AgrID"`
-	InventoryUnitDuration *int         `json:"InventoryUnitDuration"`
-	DealChannelStatus     *int         `json:"DealChannelStatus"`
-	FixPercent            *int         `json:"FixPercent"`
-	GRPFix                *int         `json:"GRPFix"`
+	Month                 *int64       `json:"Month"`
+	CnlID                 *int64       `json:"CnlID"`
+	AdtID                 *int64       `json:"AdtID"`
+	AgrID                 *int64       `json:"AgrID"`
+	InventoryUnitDuration *int64       `json:"InventoryUnitDuration"`
+	DealChannelStatus     *int64       `json:"DealChannelStatus"`
+	FixPercent            *int64       `json:"FixPercent"`
+	GRPFix                *int64       `json:"GRPFix"`
 	AdtName               *string      `json:"AdtName"`
 	AgrName               *string      `json:"AgrName"`
 	CmpName               *string      `json:"CmpName"`
@@ -44,7 +39,7 @@ type Budget struct {
 }
 
 type BudgetItem struct {
-	RankID            *int     `json:"RankID"`
+	RankID            *int64   `json:"RankID"`
 	Percent           *float64 `json:"Percent"`
 	BudgetOffprime    *float64 `json:"BudgetOffprime"`
 	BudgetPrime       *float64 `json:"BudgetPrime"`
@@ -61,17 +56,17 @@ func (budget *Budget) Key() string {
 	return fmt.Sprintf("%d-%d-%d-%d", *budget.Month, *budget.CnlID, *budget.AdtID, *budget.AgrID)
 }
 
-func (m *internalMQuality) Convert() (*BudgetItem, error) {
-	item := &BudgetItem{
-		RankID:            utils.IntI(m.Item["RankID"]),
-		Percent:           utils.FloatI(m.Item["Percent"]),
-		BudgetOffprime:    utils.FloatI(m.Item["BudgetOffprime"]),
-		BudgetPrime:       utils.FloatI(m.Item["BudgetPrime"]),
-		InventoryOffprime: utils.FloatI(m.Item["InventoryOffprime"]),
-		InventoryPrime:    utils.FloatI(m.Item["InventoryPrime"]),
-		PercentPrime:      utils.FloatI(m.Item["PercentPrime"]),
+func (item *internalItem) Convert() (*BudgetItem, error) {
+	items := &BudgetItem{
+		RankID:            utils.Int64I(item.Item["RankID"]),
+		Percent:           utils.FloatI(item.Item["Percent"]),
+		BudgetOffprime:    utils.FloatI(item.Item["BudgetOffprime"]),
+		BudgetPrime:       utils.FloatI(item.Item["BudgetPrime"]),
+		InventoryOffprime: utils.FloatI(item.Item["InventoryOffprime"]),
+		InventoryPrime:    utils.FloatI(item.Item["InventoryPrime"]),
+		PercentPrime:      utils.FloatI(item.Item["PercentPrime"]),
 	}
-	return item, nil
+	return items, nil
 }
 
 func (m *internalM) ConvertBudget() (*Budget, error) {
@@ -84,7 +79,7 @@ func (m *internalM) ConvertBudget() (*Budget, error) {
 		}
 		switch reflect.TypeOf(m.M["Quality"]).Kind() {
 		case reflect.Array, reflect.Slice:
-			var internalQualityData []internalMQuality
+			var internalQualityData []internalItem
 			err = json.Unmarshal(marshalData, &internalQualityData)
 			if err != nil {
 				return nil, err
@@ -97,7 +92,7 @@ func (m *internalM) ConvertBudget() (*Budget, error) {
 				qualities = append(qualities, *quality)
 			}
 		case reflect.Map, reflect.Struct:
-			var internalQualityData internalMQuality
+			var internalQualityData internalItem
 			err = json.Unmarshal(marshalData, &internalQualityData)
 			if err != nil {
 				return nil, err
@@ -110,14 +105,14 @@ func (m *internalM) ConvertBudget() (*Budget, error) {
 		}
 	}
 	budget := &Budget{
-		Month:                 utils.IntI(m.M["Month"]),
-		CnlID:                 utils.IntI(m.M["CnlID"]),
-		AdtID:                 utils.IntI(m.M["AdtID"]),
-		AgrID:                 utils.IntI(m.M["AgrID"]),
-		InventoryUnitDuration: utils.IntI(m.M["InventoryUnitDuration"]),
-		DealChannelStatus:     utils.IntI(m.M["DealChannelStatus"]),
-		FixPercent:            utils.IntI(m.M["FixPercent"]),
-		GRPFix:                utils.IntI(m.M["GRPFix"]),
+		Month:                 utils.Int64I(m.M["Month"]),
+		CnlID:                 utils.Int64I(m.M["CnlID"]),
+		AdtID:                 utils.Int64I(m.M["AdtID"]),
+		AgrID:                 utils.Int64I(m.M["AgrID"]),
+		InventoryUnitDuration: utils.Int64I(m.M["InventoryUnitDuration"]),
+		DealChannelStatus:     utils.Int64I(m.M["DealChannelStatus"]),
+		FixPercent:            utils.Int64I(m.M["FixPercent"]),
+		GRPFix:                utils.Int64I(m.M["GRPFix"]),
 		AdtName:               utils.StringI(m.M["AdtName"]),
 		AgrName:               utils.StringI(m.M["AgrName"]),
 		CmpName:               utils.StringI(m.M["CmpName"]),
@@ -150,6 +145,7 @@ func BudgetStartJob() chan error {
 		if err != nil {
 			errorCh <- err
 		}
+		defer ch.Close()
 		err = ch.Qos(1, 0, false)
 		messages, err := ch.Consume(qName, "",
 			false,
@@ -211,6 +207,19 @@ func (request *BudgetsUpdateRequest) loadFromFile() error {
 		budget, err := dataM.ConvertBudget()
 		if err != nil {
 			return err
+		}
+		var budgets []Budget
+		if budget.Month != nil {
+			err = badgerBudgets.Find(&budgets, badgerhold.Where("Month").Eq(*budget.Month))
+			if err != nil {
+				return err
+			}
+		}
+		for _, item := range budgets {
+			err = badgerBudgets.Delete(item.Key(), item)
+			if err != nil {
+				return err
+			}
 		}
 		err = badgerBudgets.Upsert(budget.Key(), budget)
 		if err != nil {

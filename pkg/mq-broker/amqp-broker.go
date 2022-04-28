@@ -3,6 +3,7 @@ package mq_broker
 import (
 	"encoding/json"
 	"fmt"
+	log "github.com/advancemg/vimb-loader/pkg/logging"
 	"github.com/pkg/errors"
 	"github.com/streadway/amqp"
 	"github.com/valinurovam/garagemq/config"
@@ -53,11 +54,10 @@ func loadConfig() *Config {
 func (c *Config) Ping() bool {
 	for {
 		endpoint := fmt.Sprintf("%s:%s", c.MqHost, c.MqPort)
-
 		conn, err := net.DialTimeout("tcp", endpoint, time.Second*1)
 		if err != nil {
 			time.Sleep(time.Second * 2)
-			fmt.Printf("ping amqp endpoint %s ...\n", endpoint)
+			log.PrintLog("vimb-loader", "amqp", "info", "ping amqp endpoint", endpoint, "...")
 			continue
 		}
 		if conn != nil {
@@ -71,6 +71,7 @@ func (c *Config) Ping() bool {
 func (c *Config) ServerStart() error {
 	cfg, _ := config.CreateDefault()
 	cfg.Queue.MaxMessagesInRAM = 1000
+	cfg.Connection.ChannelsMax = 2000
 	metrics.NewTrackRegistry(15, time.Second, false)
 	srv := server.NewServer(c.MqHost, c.MqPort, cfg.Proto, cfg)
 	srv.Start()

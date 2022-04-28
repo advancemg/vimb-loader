@@ -90,6 +90,129 @@ func PostLoadProgramBreaks(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
+// PostProgramBreaksQuery godoc
+// @Summary Загрузка сохраненных сеток.
+// @Description Динамический запрос на загрузку сохраненных данных. Логические операторы: eq ==, ne !=, gt >, lt <, ge >=, le <=, in in, isnil is nil.
+// @ID routes-query-program-breaks
+// @Tags Блоки
+// @Param body body models.ProgramBreaksQuery true  "Запрос"
+// @Accept json
+// @Produce json
+// @Success 200 {object} models.CommonResponse
+// @Router /api/v1/program-breaks/query [post]
+func PostProgramBreaksQuery(w http.ResponseWriter, r *http.Request) {
+	setupResponse(&w, r)
+	if (*r).Method == "OPTIONS" {
+		(w).WriteHeader(http.StatusOK)
+		return
+	}
+	var request models.Any
+	err := json.NewDecoder(r.Body).Decode(&request.Body)
+	if err != nil {
+		(w).WriteHeader(http.StatusBadRequest)
+		var response = utils.FieldValidateErrorType{
+			Field:   "id",
+			Message: fmt.Sprintf(`Ошибка %s`, err.Error()),
+		}
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+	response, err := request.QueryProgramBreaks()
+	if err != nil {
+		(w).WriteHeader(http.StatusBadRequest)
+		var response = utils.FieldValidateErrorType{
+			Field:   "request",
+			Message: fmt.Sprintf(`Ошибка %s`, err.Error()),
+		}
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+	(w).WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(response)
+}
+
+// PostProgramBreaksProMasterQuery godoc
+// @Summary Загрузка сохраненных сеток.
+// @Description Динамический запрос на загрузку сохраненных данных. Логические операторы: eq ==, ne !=, gt >, lt <, ge >=, le <=, in in, isnil is nil.
+// @ID routes-query-program-breaks-pro-master
+// @Tags Блоки
+// @Param body body models.ProMasterQuery true  "Запрос"
+// @Accept json
+// @Produce json
+// @Success 200 {object} models.CommonResponse
+// @Router /api/v1/program-breaks/pro-master/query [post]
+func PostProgramBreaksProMasterQuery(w http.ResponseWriter, r *http.Request) {
+	setupResponse(&w, r)
+	if (*r).Method == "OPTIONS" {
+		(w).WriteHeader(http.StatusOK)
+		return
+	}
+	var request models.Any
+	err := json.NewDecoder(r.Body).Decode(&request.Body)
+	if err != nil {
+		(w).WriteHeader(http.StatusBadRequest)
+		var response = utils.FieldValidateErrorType{
+			Field:   "id",
+			Message: fmt.Sprintf(`Ошибка %s`, err.Error()),
+		}
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+	response, err := request.QueryProgramBreaksProMaster()
+	if err != nil {
+		(w).WriteHeader(http.StatusBadRequest)
+		var response = utils.FieldValidateErrorType{
+			Field:   "request",
+			Message: fmt.Sprintf(`Ошибка %s`, err.Error()),
+		}
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+	(w).WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(response)
+}
+
+// PostProgramLightModeBreaksQuery godoc
+// @Summary Загрузка сохраненных сеток Light Mode.
+// @Description Динамический запрос на загрузку сохраненных данных. Логические операторы: eq ==, ne !=, gt >, lt <, ge >=, le <=, in in, isnil is nil.
+// @ID routes-query-program-breaks-light-mode
+// @Tags Блоки
+// @Param body body models.ProgramBreaksLightModeQuery true  "Запрос"
+// @Accept json
+// @Produce json
+// @Success 200 {object} models.CommonResponse
+// @Router /api/v1/program-breaks-light/query [post]
+func PostProgramLightModeBreaksQuery(w http.ResponseWriter, r *http.Request) {
+	setupResponse(&w, r)
+	if (*r).Method == "OPTIONS" {
+		(w).WriteHeader(http.StatusOK)
+		return
+	}
+	var request models.Any
+	err := json.NewDecoder(r.Body).Decode(&request.Body)
+	if err != nil {
+		(w).WriteHeader(http.StatusBadRequest)
+		var response = utils.FieldValidateErrorType{
+			Field:   "id",
+			Message: fmt.Sprintf(`Ошибка %s`, err.Error()),
+		}
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+	response, err := request.QueryProgramBreaksLightMode()
+	if err != nil {
+		(w).WriteHeader(http.StatusBadRequest)
+		var response = utils.FieldValidateErrorType{
+			Field:   "request",
+			Message: fmt.Sprintf(`Ошибка %s`, err.Error()),
+		}
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+	(w).WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(response)
+}
+
 // PostLoadProgramLightModeBreaks godoc
 // @Summary Создание задач, на загрузку сеток Light Mode.
 // @Description Создание задач, на загрузку сеток Light Mode, за выбранный период.

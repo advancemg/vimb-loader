@@ -151,6 +151,9 @@ func changeModel(input []byte, model string) ([]byte, error) {
 }
 
 func TestAddMPlan_GetData(t *testing.T) {
+	if testing.Short() {
+		t.SkipNow()
+	}
 	tests := []struct {
 		name    string
 		input   []byte

@@ -2,12 +2,16 @@ package models
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
+	"github.com/advancemg/badgerhold"
 	goConvert "github.com/advancemg/go-convert"
+	log "github.com/advancemg/vimb-loader/pkg/logging"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
 	"github.com/advancemg/vimb-loader/pkg/storage"
 	"github.com/advancemg/vimb-loader/pkg/utils"
+	"time"
 )
 
 type SwaggerGetAdvMessagesRequest struct {
@@ -47,6 +51,7 @@ func (cfg *AdvMessagesConfiguration) StartJob() chan error {
 		if err != nil {
 			errorCh <- err
 		}
+		defer ch.Close()
 		err = ch.Qos(1, 0, false)
 		messages, err := ch.Consume(qName, "",
 			false,
@@ -60,7 +65,11 @@ func (cfg *AdvMessagesConfiguration) StartJob() chan error {
 			if err != nil {
 				errorCh <- err
 			}
-			err = bodyJson.UploadToS3()
+			s3Message, err := bodyJson.UploadToS3()
+			if err != nil {
+				errorCh <- err
+			}
+			err = amqpConfig.PublishJson(AdvMessagesUpdateQueue, s3Message)
 			if err != nil {
 				errorCh <- err
 			}
@@ -81,12 +90,12 @@ func (cfg *AdvMessagesConfiguration) InitJob() func() {
 		amqpConfig := mq_broker.InitConfig()
 		err := amqpConfig.DeclareSimpleQueue(qName)
 		if err != nil {
-			fmt.Printf("Q:%s - err:%s", qName, err.Error())
+			log.PrintLog("vimb-loader", "AdvMessages InitJob", "error", "Q:", qName, "err:", err.Error())
 			return
 		}
 		qInfo, err := amqpConfig.GetQueueInfo(qName)
 		if err != nil {
-			fmt.Printf("Q:%s - err:%s", qName, err.Error())
+			log.PrintLog("vimb-loader", "AdvMessages InitJob", "error", "Q:", qName, "err:", err.Error())
 			return
 		}
 		if qInfo.Messages > 0 {
@@ -99,22 +108,21 @@ func (cfg *AdvMessagesConfiguration) InitJob() func() {
 			Id string `json:"ID"`
 		}
 		var budgets []Budget
-		var months []string
-		badgerBudgets := storage.NewBadger(DbBudgets)
-		badgerBudgets.Iterate(func(key []byte, value []byte) {
-			var budget Budget
-			json.Unmarshal(value, &budget)
-			budgets = append(budgets, budget)
-		})
-		for _, budget := range budgets {
-			month := fmt.Sprintf("%d", *budget.Month)
-			months = append(months, month)
+		months := map[int64][]time.Time{}
+		badgerBudgets := storage.Open(DbBudgets)
+		err = badgerBudgets.Find(&budgets, badgerhold.Where("Month").Ge(int64(-1)))
+		if err != nil {
+			log.PrintLog("vimb-loader", "AdvMessages InitJob", "error", "Q:", qName, "err:", err.Error())
+			return
 		}
-		for _, month := range months {
-			days, err := utils.GetDaysFromYearMonth(month)
+		for _, budget := range budgets {
+			days, err := utils.GetDaysFromYearMonthInt(*budget.Month)
 			if err != nil {
 				panic(err)
 			}
+			months[*budget.Month] = days
+		}
+		for _, days := range months {
 			request := goConvert.New()
 			request.Set("CreationDateStart", days[0].String()[:10])
 			request.Set("CreationDateEnd", days[len(days)-1].String()[:10])
@@ -124,7 +132,7 @@ func (cfg *AdvMessagesConfiguration) InitJob() func() {
 			request.Set("FillMaterialTags", "true")
 			err = amqpConfig.PublishJson(qName, request)
 			if err != nil {
-				fmt.Printf("Q:%s - err:%s", qName, err.Error())
+				log.PrintLog("vimb-loader", "AdvMessages InitJob", "error", "Q:", qName, "err:", err.Error())
 				return
 			}
 		}
@@ -152,6 +160,24 @@ func (request *GetAdvMessages) GetDataJson() (*JsonResponse, error) {
 }
 
 func (request *GetAdvMessages) GetDataXmlZip() (*StreamResponse, error) {
+	for {
+		var isTimeout utils.Timeout
+		err := storage.Open(DbTimeout).Get("vimb-timeout", &isTimeout)
+		if err != nil {
+			if errors.Is(err, badgerhold.ErrNotFound) {
+				isTimeout.IsTimeout = false
+			} else {
+				return nil, err
+			}
+		}
+		if isTimeout.IsTimeout {
+			time.Sleep(1 * time.Second)
+			continue
+		}
+		if !isTimeout.IsTimeout {
+			break
+		}
+	}
 	req, err := request.getXml()
 	if err != nil {
 		return nil, err
@@ -166,24 +192,26 @@ func (request *GetAdvMessages) GetDataXmlZip() (*StreamResponse, error) {
 	}, nil
 }
 
-func (request *GetAdvMessages) UploadToS3() error {
+func (request *GetAdvMessages) UploadToS3() (*MqUpdateMessage, error) {
 	for {
 		typeName := GetAdvMessagesType
 		data, err := request.GetDataXmlZip()
 		if err != nil {
 			if vimbError, ok := err.(*utils.VimbError); ok {
-				vimbError.CheckTimeout()
+				vimbError.CheckTimeout("GetAdvMessages")
 				continue
 			}
-			return err
+			return nil, err
 		}
 		month, _ := request.Get("CreationDateStart")
 		var newS3Key = fmt.Sprintf("vimb/%s/%s/%v/%s-%s.gz", utils.Actions.Client, typeName, month, utils.DateTimeNowInt(), typeName)
 		_, err = s3.UploadBytesWithBucket(newS3Key, data.Body)
 		if err != nil {
-			return err
+			return nil, err
 		}
-		return nil
+		return &MqUpdateMessage{
+			Key: newS3Key,
+		}, nil
 	}
 }
 

@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/timshannon/badgerhold"
+	"github.com/advancemg/badgerhold"
 	"testing"
 )
 
