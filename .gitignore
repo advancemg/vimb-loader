@@ -2,7 +2,13 @@
 config.json
 default-config.json
 /db_old/
+/dist/
+/db/
+/logs/
+/tests/
 pkg/models/db/
+pkg/models/logs/
+pkg/utils/logs/
 pkg/storage/db/
 /zipdir/
 /s3-data/

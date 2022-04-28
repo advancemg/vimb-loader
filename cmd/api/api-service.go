@@ -18,8 +18,12 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"strings"
+	"regexp"
 	"time"
+)
+
+var (
+	localHostRegex, _ = regexp.Compile("localhost|127.0.0.1|0.0.0.0")
 )
 
 // @title ВИМБ API
@@ -100,7 +104,7 @@ func main() {
 	}()
 	/* s3 server start*/
 	s3Config := s3.InitConfig()
-	if strings.Contains(s3Config.S3Endpoint, "127.0.0.1") || strings.Contains(s3Config.S3Endpoint, "localhost") {
+	if localHostRegex.MatchString(s3Config.S3Endpoint) {
 		err = os.Mkdir(s3Config.S3LocalDir, os.ModePerm)
 		if err != nil && !os.IsExist(err) {
 			panic(err.Error())
@@ -121,7 +125,7 @@ func main() {
 	}()
 	/* amqp server */
 	mqConfig := mq.InitConfig()
-	if strings.Contains(mqConfig.MqHost, "127.0.0.1") || strings.Contains(mqConfig.MqHost, "localhost") {
+	if localHostRegex.MatchString(mqConfig.MqHost) {
 		go func() {
 			utils.CheckErr(mqConfig.ServerStart())
 		}()

@@ -6,3 +6,14 @@ Content-Type: application/json
 }
 
 ###
+
+POST {{base-url}}/api/v1/channels/query
+Content-Type: application/json
+
+{
+  "ShortName": {
+    "eq": "РБК Санкт-Петербург"
+  }
+}
+
+###
