@@ -1,0 +1,70 @@
+{
+  "budget": {
+    "cron": "0 0/46 * * *",
+    "sellingDirection": "23",
+    "loading": false
+  },
+  "programBreaks": {
+    "cron": "0 0 0/8 * *",
+    "sellingDirection": "23",
+    "loading": false
+  },
+  "mediaplan": {
+    "cron": "0 0/20 * * *",
+    "sellingDirection": "23",
+    "loading": false
+  },
+  "advMessages": {
+    "cron": "0 0/2 * * *",
+    "loading": false
+  },
+  "spots": {
+    "cron": "0 0/59 * * *",
+    "sellingDirection": "23",
+    "loading": false
+  },
+  "deletedSpotInfo": {
+    "cron": "0 0 0/12 * *",
+    "sellingDirection": "23",
+    "loading": false
+  },
+  "channel": {
+    "cron": "0 0/16 * * *",
+    "sellingDirection": "23",
+    "loading": false
+  },
+  "customersWithAdvertisers": {
+    "cron": "0 0/59 * * *",
+    "sellingDirection": "23",
+    "loading": false
+  },
+  "rank": {
+    "cron": "0 0 0/23 * *",
+    "loading": false
+  },
+  "programBreaksLight": {
+    "cron": "0/2 * * * *",
+    "sellingDirection": "23",
+    "loading": false
+  },
+  "amqp": {
+    "Host": "localhost",
+    "Port": "5555",
+    "Username": "guest",
+    "Password": "guest"
+  },
+  "s3": {
+    "s3AccessKeyId": "minioadmin",
+    "s3SecretAccessKey": "minioadmin",
+    "s3Region": "us-west-0",
+    "s3Endpoint": "127.0.0.1:9999",
+    "s3Debug": "true",
+    "s3Bucket": "storage",
+    "s3LocalDir": "s3-buckets"
+  },
+  "url": "https://vimb-svc.vitpc.com:435/VIMBService.asmx",
+  "cert": "",
+  "password": "",
+  "client": "test_client",
+  "timeout": "120s"
+}
