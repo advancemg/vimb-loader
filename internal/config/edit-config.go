@@ -61,21 +61,21 @@ func enterConfig() {
 	checkErr(err)
 	if n == "y" || n == "Y" || n == "yes" || n == "Yes" {
 		/*Budget*/
-		fmt.Printf("%s", "Enter Budget cron(default 0 0/46 * * *):")
+		fmt.Printf("%s", "Enter Budget cron(docker 0 0/46 * * *):")
 		line, err := readLine()
 		checkErr(err)
 		if line == "" {
 			line = "0 0/46 * * *"
 		}
 		cfg.Budget.Cron = line
-		fmt.Printf("%s", "Enter Budget sellingDirection(default 23):")
+		fmt.Printf("%s", "Enter Budget sellingDirection(docker 23):")
 		line, err = readLine()
 		checkErr(err)
 		if line == "" {
 			line = "23"
 		}
 		cfg.Budget.SellingDirection = line
-		fmt.Printf("%s", "Budget loading? (default false):")
+		fmt.Printf("%s", "Budget loading? (docker false):")
 		line, err = readLine()
 		checkErr(err)
 		if line != "true" {
@@ -85,21 +85,21 @@ func enterConfig() {
 		checkErr(err)
 		cfg.Budget.Loading = loading
 		/*ProgramBreaks*/
-		fmt.Printf("%s", "Enter ProgramBreaks cron(default 0 0 0/8 * *):")
+		fmt.Printf("%s", "Enter ProgramBreaks cron(docker 0 0 0/8 * *):")
 		line, err = readLine()
 		checkErr(err)
 		if line == "" {
 			line = "0 0 0/8 * *"
 		}
 		cfg.ProgramBreaks.Cron = line
-		fmt.Printf("%s", "Enter ProgramBreaks sellingDirection(default 23):")
+		fmt.Printf("%s", "Enter ProgramBreaks sellingDirection(docker 23):")
 		line, err = readLine()
 		checkErr(err)
 		if line == "" {
 			line = "23"
 		}
 		cfg.ProgramBreaks.SellingDirection = line
-		fmt.Printf("%s", "ProgramBreaks loading? (default false):")
+		fmt.Printf("%s", "ProgramBreaks loading? (docker false):")
 		line, err = readLine()
 		checkErr(err)
 		if line != "true" {
@@ -109,21 +109,21 @@ func enterConfig() {
 		checkErr(err)
 		cfg.ProgramBreaks.Loading = loading
 		/*ProgramBreaksLight*/
-		fmt.Printf("%s", "Enter ProgramBreaksLight cron(default 0/2 * * * *):")
+		fmt.Printf("%s", "Enter ProgramBreaksLight cron(docker 0/2 * * * *):")
 		line, err = readLine()
 		checkErr(err)
 		if line == "" {
 			line = "0/2 * * * *"
 		}
 		cfg.ProgramBreaksLight.Cron = line
-		fmt.Printf("%s", "Enter ProgramBreaksLight sellingDirection(default 23):")
+		fmt.Printf("%s", "Enter ProgramBreaksLight sellingDirection(docker 23):")
 		line, err = readLine()
 		checkErr(err)
 		if line == "" {
 			line = "23"
 		}
 		cfg.ProgramBreaksLight.SellingDirection = line
-		fmt.Printf("%s", "ProgramBreaksLight loading? (default false):")
+		fmt.Printf("%s", "ProgramBreaksLight loading? (docker false):")
 		line, err = readLine()
 		checkErr(err)
 		if line != "true" {
@@ -133,21 +133,21 @@ func enterConfig() {
 		checkErr(err)
 		cfg.ProgramBreaksLight.Loading = loading
 		/*Mediaplan*/
-		fmt.Printf("%s", "Enter Mediaplan cron(default 0 0/20 * * *):")
+		fmt.Printf("%s", "Enter Mediaplan cron(docker 0 0/20 * * *):")
 		line, err = readLine()
 		checkErr(err)
 		if line == "" {
 			line = "0 0/20 * * *"
 		}
 		cfg.Mediaplan.Cron = line
-		fmt.Printf("%s", "Enter Mediaplan sellingDirection(default 23):")
+		fmt.Printf("%s", "Enter Mediaplan sellingDirection(docker 23):")
 		line, err = readLine()
 		checkErr(err)
 		if line == "" {
 			line = "23"
 		}
 		cfg.Mediaplan.SellingDirection = line
-		fmt.Printf("%s", "Mediaplan loading? (default false):")
+		fmt.Printf("%s", "Mediaplan loading? (docker false):")
 		line, err = readLine()
 		checkErr(err)
 		if line != "true" {
@@ -157,14 +157,14 @@ func enterConfig() {
 		checkErr(err)
 		cfg.Mediaplan.Loading = loading
 		/*AdvMessages*/
-		fmt.Printf("%s", "Enter AdvMessages cron(default 0 0/2 * * *):")
+		fmt.Printf("%s", "Enter AdvMessages cron(docker 0 0/2 * * *):")
 		line, err = readLine()
 		checkErr(err)
 		if line == "" {
 			line = "0 0/2 * * *"
 		}
 		cfg.AdvMessages.Cron = line
-		fmt.Printf("%s", "AdvMessages loading? (default false):")
+		fmt.Printf("%s", "AdvMessages loading? (docker false):")
 		line, err = readLine()
 		checkErr(err)
 		if line != "true" {
@@ -174,21 +174,21 @@ func enterConfig() {
 		checkErr(err)
 		cfg.AdvMessages.Loading = loading
 		/*Spots*/
-		fmt.Printf("%s", "Enter Spots cron(default 0 0/59 * * *):")
+		fmt.Printf("%s", "Enter Spots cron(docker 0 0/59 * * *):")
 		line, err = readLine()
 		checkErr(err)
 		if line == "" {
 			line = "0 0/59 * * *"
 		}
 		cfg.Spots.Cron = line
-		fmt.Printf("%s", "Enter Spots sellingDirection(default 23):")
+		fmt.Printf("%s", "Enter Spots sellingDirection(docker 23):")
 		line, err = readLine()
 		checkErr(err)
 		if line == "" {
 			line = "23"
 		}
 		cfg.Spots.SellingDirection = line
-		fmt.Printf("%s", "Spots loading? (default false):")
+		fmt.Printf("%s", "Spots loading? (docker false):")
 		line, err = readLine()
 		checkErr(err)
 		if line != "true" {
@@ -198,14 +198,14 @@ func enterConfig() {
 		checkErr(err)
 		cfg.Spots.Loading = loading
 		/*DeletedSpotInfo*/
-		fmt.Printf("%s", "Enter DeletedSpotInfo cron(default 0 0 0/12 * *):")
+		fmt.Printf("%s", "Enter DeletedSpotInfo cron(docker 0 0 0/12 * *):")
 		line, err = readLine()
 		checkErr(err)
 		if line == "" {
 			line = "0 0 0/12 * *"
 		}
 		cfg.DeletedSpotInfo.Cron = line
-		fmt.Printf("%s", "DeletedSpotInfo loading? (default false):")
+		fmt.Printf("%s", "DeletedSpotInfo loading? (docker false):")
 		line, err = readLine()
 		checkErr(err)
 		if line != "true" {
@@ -215,21 +215,21 @@ func enterConfig() {
 		checkErr(err)
 		cfg.DeletedSpotInfo.Loading = loading
 		/*Channel*/
-		fmt.Printf("%s", "Enter Channels cron(default 0 0/18 * * *):")
+		fmt.Printf("%s", "Enter Channels cron(docker 0 0/18 * * *):")
 		line, err = readLine()
 		checkErr(err)
 		if line == "" {
 			line = "0 0/18 * * *"
 		}
 		cfg.Channel.Cron = line
-		fmt.Printf("%s", "Enter Channels sellingDirection(default 23):")
+		fmt.Printf("%s", "Enter Channels sellingDirection(docker 23):")
 		line, err = readLine()
 		checkErr(err)
 		if line == "" {
 			line = "23"
 		}
 		cfg.Channel.SellingDirection = line
-		fmt.Printf("%s", "Channels loading? (default false):")
+		fmt.Printf("%s", "Channels loading? (docker false):")
 		line, err = readLine()
 		checkErr(err)
 		if line != "true" {
@@ -239,21 +239,21 @@ func enterConfig() {
 		checkErr(err)
 		cfg.Channel.Loading = loading
 		/*CustomersWithAdvertisers*/
-		fmt.Printf("%s", "Enter CustomersWithAdvertisers cron(default 0 0/16 * * *):")
+		fmt.Printf("%s", "Enter CustomersWithAdvertisers cron(docker 0 0/16 * * *):")
 		line, err = readLine()
 		checkErr(err)
 		if line == "" {
 			line = "0 0/16 * * *"
 		}
 		cfg.CustomersWithAdvertisers.Cron = line
-		fmt.Printf("%s", "Enter CustomersWithAdvertisers sellingDirection(default 23):")
+		fmt.Printf("%s", "Enter CustomersWithAdvertisers sellingDirection(docker 23):")
 		line, err = readLine()
 		checkErr(err)
 		if line == "" {
 			line = "23"
 		}
 		cfg.CustomersWithAdvertisers.SellingDirection = line
-		fmt.Printf("%s", "CustomersWithAdvertisers loading? (default false):")
+		fmt.Printf("%s", "CustomersWithAdvertisers loading? (docker false):")
 		line, err = readLine()
 		checkErr(err)
 		if line != "true" {
@@ -263,14 +263,14 @@ func enterConfig() {
 		checkErr(err)
 		cfg.CustomersWithAdvertisers.Loading = loading
 		/*Rank*/
-		fmt.Printf("%s", "Enter Rank cron(default 0 0 0/23 * *):")
+		fmt.Printf("%s", "Enter Rank cron(docker 0 0 0/23 * *):")
 		line, err = readLine()
 		checkErr(err)
 		if line == "" {
 			line = "0 0 0/23 * *"
 		}
 		cfg.Rank.Cron = line
-		fmt.Printf("%s", "Rank loading? (default false):")
+		fmt.Printf("%s", "Rank loading? (docker false):")
 		line, err = readLine()
 		checkErr(err)
 		if line != "true" {
@@ -280,28 +280,28 @@ func enterConfig() {
 		checkErr(err)
 		cfg.Rank.Loading = loading
 		/*AMQP*/
-		fmt.Printf("%s", "Enter amqp host(default localhost):")
+		fmt.Printf("%s", "Enter amqp host(docker localhost):")
 		line, err = readLine()
 		checkErr(err)
 		if line == "" {
 			line = "localhost"
 		}
 		cfg.AmqpConfig.MqHost = line
-		fmt.Printf("%s", "Enter amqp port(default 5555):")
+		fmt.Printf("%s", "Enter amqp port(docker 5555):")
 		line, err = readLine()
 		checkErr(err)
 		if line == "" {
 			line = "5555"
 		}
 		cfg.AmqpConfig.MqPort = line
-		fmt.Printf("%s", "Enter amqp username(default guest):")
+		fmt.Printf("%s", "Enter amqp username(docker guest):")
 		line, err = readLine()
 		checkErr(err)
 		if line == "" {
 			line = "guest"
 		}
 		cfg.AmqpConfig.MqUsername = line
-		fmt.Printf("%s", "Enter amqp password(default guest):")
+		fmt.Printf("%s", "Enter amqp password(docker guest):")
 		line, err = readLine()
 		checkErr(err)
 		if line == "" {
@@ -309,49 +309,49 @@ func enterConfig() {
 		}
 		cfg.AmqpConfig.MqPassword = line
 		/*S3*/
-		fmt.Printf("%s", "Enter S3 AccessKeyId(default minioadmin):")
+		fmt.Printf("%s", "Enter S3 AccessKeyId(docker minioadmin):")
 		line, err = readLine()
 		checkErr(err)
 		if line == "" {
 			line = "minioadmin"
 		}
 		cfg.S3Cfg.S3AccessKeyId = line
-		fmt.Printf("%s", "Enter S3 SecretAccessKey(default minioadmin):")
+		fmt.Printf("%s", "Enter S3 SecretAccessKey(docker minioadmin):")
 		line, err = readLine()
 		checkErr(err)
 		if line == "" {
 			line = "minioadmin"
 		}
 		cfg.S3Cfg.S3SecretAccessKey = line
-		fmt.Printf("%s", "Enter S3 Region(default us-west-0):")
+		fmt.Printf("%s", "Enter S3 Region(docker us-west-0):")
 		line, err = readLine()
 		checkErr(err)
 		if line == "" {
 			line = "us-west-0"
 		}
 		cfg.S3Cfg.S3Region = line
-		fmt.Printf("%s", "Enter S3 Endpoint(default 127.0.0.1:9999):")
+		fmt.Printf("%s", "Enter S3 Endpoint(docker 127.0.0.1:9999):")
 		line, err = readLine()
 		checkErr(err)
 		if line == "" {
 			line = "127.0.0.1:9999"
 		}
 		cfg.S3Cfg.S3Endpoint = line
-		fmt.Printf("%s", "Enter S3 Debug(default true):")
+		fmt.Printf("%s", "Enter S3 Debug(docker true):")
 		line, err = readLine()
 		checkErr(err)
 		if line != "false" {
 			line = "true"
 		}
 		cfg.S3Cfg.S3Debug = line
-		fmt.Printf("%s", "Enter S3 Bucket(default storage):")
+		fmt.Printf("%s", "Enter S3 Bucket(docker storage):")
 		line, err = readLine()
 		checkErr(err)
 		if line == "" {
 			line = "storage"
 		}
 		cfg.S3Cfg.S3Bucket = line
-		fmt.Printf("%s", "Enter S3 LocalDir(default s3-buckets):")
+		fmt.Printf("%s", "Enter S3 LocalDir(docker s3-buckets):")
 		line, err = readLine()
 		checkErr(err)
 		if line == "" {
@@ -359,7 +359,7 @@ func enterConfig() {
 		}
 		cfg.S3Cfg.S3LocalDir = line
 		/*VIMB*/
-		fmt.Printf("%s", "Enter url(default https://vimb-svc.vitpc.com:436/VIMBService.asmx):")
+		fmt.Printf("%s", "Enter url(docker https://vimb-svc.vitpc.com:436/VIMBService.asmx):")
 		line, err = readLine()
 		checkErr(err)
 		if line == "" {
@@ -373,14 +373,14 @@ func enterConfig() {
 		fmt.Printf("%s", "Enter password:")
 		line, err = readLine()
 		checkErr(err)
-		fmt.Printf("%s", "Enter client(default test_client):")
+		fmt.Printf("%s", "Enter client(docker test_client):")
 		line, err = readLine()
 		checkErr(err)
 		if line == "" {
 			line = "test_client"
 		}
 		cfg.Client = line
-		fmt.Printf("%s", "Enter timeout(default 120s):")
+		fmt.Printf("%s", "Enter timeout(docker 120s):")
 		line, err = readLine()
 		checkErr(err)
 		if line == "" {
