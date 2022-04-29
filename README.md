@@ -76,16 +76,21 @@
     * Введите пароль MinIO. ``Enter S3 SecretAccessKey(default minioadmin):``
     * Введите адрес хоста MinIO (если указать локальный хост запустится встроенный MinIO). ``Enter S3 Endpoint(
       default 127.0.0.1:9999):``
-    * Выберите режим соядинения, true без шифрования. ``Enter S3 Debug(default true):``
+    * Выберите режим соединения, true без шифрования. ``Enter S3 Debug(default true):``
     * Введите название бакета. ``Enter S3 Bucket(default storage):``
     * Укажите локальную директорию для хранения данных MinIO. ``Enter S3 LocalDir(default s3-buckets):``
     * Введите адрес ВИМБ сервиса. 435 боевой, 436
       тестовый. ``Enter url(default https://vimb-svc.vitpc.com:436/VIMBService.asmx):``
-    * Введите сертификат выданный ВИМБ. ``Enter cert:``
+    * Введите сертификат выданный ВИМБ в формате base64. ``Enter cert:``
+    * для преобразовая сертификата в base64 выволните команду:
+    * "Certificate_file=путь к сертификату"
+    ``` bash
+     echo | base64 $Certificate_file | tr -d '\r\n'
+    ```
     * Введите пароль выданный ВИМБ. ``Enter password:``
     * Введите клиента, используется при нейминге s3Key. ``Enter client(default test_client):``
     * Введите timeout на соединения с сервисом ВИМБ, обязателен суффикс времени s или
-      m. ``Enter timeout(default 120s):``
+   m. ``Enter timeout(default 120s):``
 
 7. Vimb-loader начнет работу согласно заданной конфигурации. По
    адрсу [localhost:8000/api/v1/docs/index.html](http://localhost:8000/api/v1/docs/index.html) можно ознакомиться с
