@@ -14,14 +14,3 @@ type SwaggerChangeFilmsRequest struct {
 type ChangeFilms struct {
 	goConvert.UnsortedMap
 }
-
-func (request *ChangeFilms) GetData() (*StreamResponse, error) {
-	xml, err := request.ToXml()
-	if err != nil {
-		return nil, err
-	}
-	return &StreamResponse{
-		Body:    nil,
-		Request: string(xml),
-	}, nil
-}
