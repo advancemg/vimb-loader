@@ -77,3 +77,43 @@ jobs:
             zipdir/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - uses: actions/setup-go@v2
+        with:
+          go-version: 1.18
+      - name: Swag install
+        run: go install github.com/swaggo/swag/cmd/swag@latest
+      - name: Http-swagger
+        run: go get github.com/swaggo/http-swagger
+      - name: Swagger template
+        run: go get github.com/alecthomas/template
+      - name: Swagger init
+        run: swag init -g cmd/api/api-service.go
+      - name: Tidy
+        run: go mod tidy -compat=1.17
+      - name: Build
+        run: |
+          mkdir -p dist
+          CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -ldflags '-extldflags "-static"' -o dist/lin cmd/api/api-service.go
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          file: Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ghcr.io/user/vimb-loader:1.0.0
