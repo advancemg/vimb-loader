@@ -98,7 +98,7 @@ jobs:
       - name: Build
         run: |
           mkdir -p dist
-          CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -ldflags '-extldflags "-static"' -o lin cmd/api/api-service.go
+          CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -ldflags '-extldflags "-static"' -o dist/lin cmd/api/api-service.go
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
       - name: Set up Docker Buildx
