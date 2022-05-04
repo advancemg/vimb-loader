@@ -1,5 +1,5 @@
 ## Общая информация о проекте
-![GitHub](https://img.shields.io/github/license/advancemg/vimb-loader)
+[![License](http://img.shields.io/badge/Licence-MIT-blue.svg)](LICENSE)
 ![GitHub contributors](https://img.shields.io/github/contributors/advancemg/vimb-loader)
 [![GoDoc](https://godoc.org/github.com/advancemg/vimb-loader?status.svg)](https://godoc.org/github.com/advancemg/vimb-loader)
 [![Go Report Card](https://goreportcard.com/badge/github.com/advancemg/vimb-loader)](https://goreportcard.com/report/github.com/advancemg/vimb-loader)
