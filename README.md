@@ -1,4 +1,14 @@
-![GitHub top language](https://img.shields.io/github/languages/top/advancemg/vimb-loader) ![GitHub go.mod Go version (subdirectory of monorepo)](https://img.shields.io/github/go-mod/go-version/advancemg/vimb-loader) ![GitHub all releases](https://img.shields.io/github/downloads/advancemg/vimb-loader/releases/vimb-loader-linux-amd64.zip) ![GitHub](https://img.shields.io/github/license/advancemg/vimb-loader)
+## Общая информация о проекте
+![GitHub](https://img.shields.io/github/license/advancemg/vimb-loader)
+![GitHub contributors](https://img.shields.io/github/contributors/advancemg/vimb-loader)
+[![GoDoc](https://godoc.org/github.com/advancemg/vimb-loader?status.svg)](https://godoc.org/github.com/advancemg/vimb-loader)
+[![Go Report Card](https://goreportcard.com/badge/github.com/advancemg/vimb-loader)](https://goreportcard.com/report/github.com/advancemg/vimb-loader)
+
+## CI/CD
+[![Go](https://github.com/advancemg/vimb-loader/actions/workflows/project-go-action.yml/badge.svg)](https://github.com/advancemg/vimb-loader/actions/workflows/project-go-action.yml)
+![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20Win-blue)
+![GitHub go.mod Go version (subdirectory of monorepo)](https://img.shields.io/github/go-mod/go-version/advancemg/vimb-loader)
+[![GitHub release](https://img.shields.io/github/v/release/advancemg/vimb-loader)](https://github.com/advancemg/vimb-loader/releases/latest)
 
 ## Основные возможности:
 
@@ -14,8 +24,8 @@
 ## 🚀 Запуск сервиса
 
 1. Скачать исполняемый
-   файл [Linux](https://github.com/advancemg/vimb-loader/releases/download/untagged-1a1083e2fdbf15f8e9f9/vimb-loader-linux-amd64.zip)
-   , [Windows](https://github.com/advancemg/vimb-loader/releases/download/untagged-1a1083e2fdbf15f8e9f9/vimb-loader-windows-amd64.zip)
+   файл [Linux](https://github.com/advancemg/vimb-loader/releases/download/v1.0.0/vimb-loader-linux-amd64.zip)
+   , [Windows](https://github.com/advancemg/vimb-loader/releases/download/v1.0.0/vimb-loader-windows-amd64.zip)
    под Вашу ОС.
 2. Распаковать скачанный zip файл, открыть терминал и выполниь команду:
    ``` bash 
