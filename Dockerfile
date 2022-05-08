@@ -1,6 +1,4 @@
-FROM scratch
-COPY --from=alpine:latest /tmp /tmp
-COPY --from=alpine:latest /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+FROM alpine
 COPY dist/lin app
 COPY docs docs
 COPY default-config.json config.json

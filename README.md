@@ -124,6 +124,9 @@
    docker run -d \
   -it \
   --name vimb-loader \
-  --v $PWD/config.json:/config.json. \
+  -v $(pwd)/config.json:/config.json \
+  -p 8000:8000 \
+  -p 5555:5555 \
+  -p 9999:9999 \
   ghcr.io/advancemg/vimb-loader:1.0.0
    ```
