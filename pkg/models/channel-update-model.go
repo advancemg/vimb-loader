@@ -5,7 +5,7 @@ import (
 	"fmt"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
-	"github.com/advancemg/vimb-loader/pkg/storage"
+	"github.com/advancemg/vimb-loader/pkg/storage/badger"
 	"github.com/advancemg/vimb-loader/pkg/utils"
 	"reflect"
 	"time"
@@ -181,7 +181,7 @@ func (request *ChannelsUpdateRequest) loadFromFile() error {
 	if err != nil {
 		return err
 	}
-	badgerChannels := storage.Open(DbChannels)
+	badgerChannels := badger.Open(DbChannels)
 	sellingDirectionID := utils.Int64(request.SellingDirectionID)
 	for _, dataM := range internalData {
 		channel, err := dataM.Convert()

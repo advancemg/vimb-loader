@@ -6,7 +6,7 @@ import (
 	"github.com/advancemg/badgerhold"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
-	"github.com/advancemg/vimb-loader/pkg/storage"
+	"github.com/advancemg/vimb-loader/pkg/storage/badger"
 	"github.com/advancemg/vimb-loader/pkg/utils"
 	"strconv"
 	"time"
@@ -195,7 +195,7 @@ func (request *SpotsUpdateRequest) loadFromFile() error {
 	if err != nil {
 		return err
 	}
-	badgerSpotsOrderBlock := storage.Open(DbSpotsOrderBlock)
+	badgerSpotsOrderBlock := badger.Open(DbSpotsOrderBlock)
 	for _, dataO := range orderBlocks {
 		spot, err := dataO.ConvertOrderBlock()
 		if err != nil {
@@ -233,7 +233,7 @@ func (request *SpotsUpdateRequest) loadFromFile() error {
 	if err != nil {
 		return err
 	}
-	badgerSpots := storage.Open(DbSpots)
+	badgerSpots := badger.Open(DbSpots)
 	month, err := strconv.Atoi(request.Month)
 	if err != nil {
 		return err

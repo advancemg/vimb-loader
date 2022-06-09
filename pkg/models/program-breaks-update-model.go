@@ -6,7 +6,7 @@ import (
 	"github.com/advancemg/badgerhold"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
-	"github.com/advancemg/vimb-loader/pkg/storage"
+	"github.com/advancemg/vimb-loader/pkg/storage/badger"
 	"github.com/advancemg/vimb-loader/pkg/utils"
 	"reflect"
 	"time"
@@ -362,7 +362,7 @@ func (request *ProgramBreaksUpdateRequest) loadFromFile() error {
 	if err != nil {
 		return err
 	}
-	badgerProgramBreaks := storage.Open(DbProgramBreaks)
+	badgerProgramBreaks := badger.Open(DbProgramBreaks)
 	month := utils.Int64(request.Month)
 	for _, dataB := range internalData {
 		programBreaks, err := dataB.ConvertProgramBreaks()
@@ -404,7 +404,7 @@ func (request *ProgramBreaksUpdateRequest) loadFromFile() error {
 		if err != nil {
 			return err
 		}
-		badgerProgramBreaksProMaster := storage.Open(DbProgramBreaksProMaster)
+		badgerProgramBreaksProMaster := badger.Open(DbProgramBreaksProMaster)
 		for _, dataItem := range internalData {
 			data, err := dataItem.Convert()
 			if err != nil {
@@ -434,7 +434,7 @@ func (request *ProgramBreaksUpdateRequest) loadFromFile() error {
 		if err != nil {
 			return err
 		}
-		badgerProgramBreaksProMaster := storage.Open(DbProgramBreaksProMaster)
+		badgerProgramBreaksProMaster := badger.Open(DbProgramBreaksProMaster)
 		data, err := internalData.Convert()
 		if err != nil {
 			return err
@@ -473,7 +473,7 @@ func (request *ProgramBreaksUpdateRequest) loadFromFile() error {
 		if err != nil {
 			return err
 		}
-		badgerProgramBreaksBlockForecast := storage.Open(DbProgramBreaksBlockForecast)
+		badgerProgramBreaksBlockForecast := badger.Open(DbProgramBreaksBlockForecast)
 		for _, dataItem := range internalData {
 			data, err := dataItem.Convert()
 			if err != nil {
@@ -503,7 +503,7 @@ func (request *ProgramBreaksUpdateRequest) loadFromFile() error {
 		if err != nil {
 			return err
 		}
-		badgerProgramBreaksBlockForecast := storage.Open(DbProgramBreaksBlockForecast)
+		badgerProgramBreaksBlockForecast := badger.Open(DbProgramBreaksBlockForecast)
 		data, err := internalData.Convert()
 		if err != nil {
 			return err
@@ -542,7 +542,7 @@ func (request *ProgramBreaksUpdateRequest) loadFromFile() error {
 		if err != nil {
 			return err
 		}
-		badgerProgramBreaksBlockForecastTgr := storage.Open(DbProgramBreaksBlockForecastTgr)
+		badgerProgramBreaksBlockForecastTgr := badger.Open(DbProgramBreaksBlockForecastTgr)
 		for _, dataItem := range internalData {
 			data, err := dataItem.Convert()
 			if err != nil {
@@ -572,7 +572,7 @@ func (request *ProgramBreaksUpdateRequest) loadFromFile() error {
 		if err != nil {
 			return err
 		}
-		badgerProgramBreaksBlockForecastTgr := storage.Open(DbProgramBreaksBlockForecastTgr)
+		badgerProgramBreaksBlockForecastTgr := badger.Open(DbProgramBreaksBlockForecastTgr)
 		data, err := internalData.Convert()
 		if err != nil {
 			return err

@@ -1,4 +1,4 @@
-package storage
+package badger
 
 import (
 	"bytes"
@@ -71,6 +71,14 @@ func DefaultDecode(data []byte, value interface{}) error {
 		return err
 	}
 	return de.Decode(value)
+}
+
+type Badger struct {
+	Store *badgerhold.Store
+}
+
+func New(storageDir string) *badgerhold.Store {
+	return Open(storageDir)
 }
 
 func Open(storageDir string) *badgerhold.Store {

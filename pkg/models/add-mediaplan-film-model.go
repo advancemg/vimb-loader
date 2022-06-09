@@ -7,7 +7,7 @@ import (
 	"github.com/advancemg/badgerhold"
 	goConvert "github.com/advancemg/go-convert"
 	"github.com/advancemg/vimb-loader/pkg/s3"
-	"github.com/advancemg/vimb-loader/pkg/storage"
+	"github.com/advancemg/vimb-loader/pkg/storage/badger"
 	"github.com/advancemg/vimb-loader/pkg/utils"
 	"time"
 )
@@ -46,7 +46,7 @@ func (request *AddMPlanFilm) GetDataJson() (*JsonResponse, error) {
 func (request *AddMPlanFilm) GetDataXmlZip() (*StreamResponse, error) {
 	for {
 		var isTimeout utils.Timeout
-		err := storage.Open(DbTimeout).Get("vimb-timeout", &isTimeout)
+		err := badger.Open(DbTimeout).Get("vimb-timeout", &isTimeout)
 		if err != nil {
 			if errors.Is(err, badgerhold.ErrNotFound) {
 				isTimeout.IsTimeout = false

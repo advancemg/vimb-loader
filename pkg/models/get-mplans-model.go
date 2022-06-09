@@ -9,7 +9,7 @@ import (
 	log "github.com/advancemg/vimb-loader/pkg/logging"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
-	"github.com/advancemg/vimb-loader/pkg/storage"
+	"github.com/advancemg/vimb-loader/pkg/storage/badger"
 	"github.com/advancemg/vimb-loader/pkg/utils"
 	"time"
 )
@@ -101,7 +101,7 @@ func (cfg *MediaplanConfiguration) InitJob() func() {
 		}
 		months := map[int64]struct{}{}
 		var budgets []Budget
-		badgerBudgets := storage.Open(DbBudgets)
+		badgerBudgets := badger.Open(DbBudgets)
 		err = badgerBudgets.Find(&budgets, badgerhold.Where("Month").Ge(int64(-1)))
 		if err != nil {
 			log.PrintLog("vimb-loader", "Mediaplans InitJob", "error", "Q:", qName, "err:", err.Error())
@@ -151,7 +151,7 @@ func (request *GetMPLans) GetDataJson() (*JsonResponse, error) {
 func (request *GetMPLans) GetDataXmlZip() (*StreamResponse, error) {
 	for {
 		var isTimeout utils.Timeout
-		err := storage.Open(DbTimeout).Get("vimb-timeout", &isTimeout)
+		err := badger.Open(DbTimeout).Get("vimb-timeout", &isTimeout)
 		if err != nil {
 			if errors.Is(err, badgerhold.ErrNotFound) {
 				isTimeout.IsTimeout = false

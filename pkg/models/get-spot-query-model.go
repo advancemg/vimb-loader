@@ -4,14 +4,14 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/advancemg/badgerhold"
-	"github.com/advancemg/vimb-loader/pkg/storage"
+	"github.com/advancemg/vimb-loader/pkg/storage/badger"
 )
 
 type SpotBadgerQuery struct {
 }
 
 func (query *SpotBadgerQuery) connect() *badgerhold.Store {
-	return storage.Open(DbSpots)
+	return badger.Open(DbSpots)
 }
 
 func (query *SpotBadgerQuery) Find(result interface{}, filter *badgerhold.Query) error {
@@ -34,7 +34,7 @@ type SpotsOrderBlockQuery struct {
 }
 
 func (query *SpotsOrderBlockQuery) connect() *badgerhold.Store {
-	return storage.Open(DbSpotsOrderBlock)
+	return badger.Open(DbSpotsOrderBlock)
 }
 
 func (query *SpotsOrderBlockQuery) Find(result interface{}, filter *badgerhold.Query) error {

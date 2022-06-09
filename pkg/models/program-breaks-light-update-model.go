@@ -6,7 +6,7 @@ import (
 	"github.com/advancemg/badgerhold"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
-	"github.com/advancemg/vimb-loader/pkg/storage"
+	"github.com/advancemg/vimb-loader/pkg/storage/badger"
 	"github.com/advancemg/vimb-loader/pkg/utils"
 	"reflect"
 	"time"
@@ -167,7 +167,7 @@ func (request *ProgramBreaksLightUpdateRequest) loadFromFile() error {
 	if err != nil {
 		return err
 	}
-	badgerProgramBreaksLight := storage.Open(DbProgramBreaksLightMode)
+	badgerProgramBreaksLight := badger.Open(DbProgramBreaksLightMode)
 	for _, dataB := range internalData {
 		programBreaksLight, err := dataB.Convert()
 		if err != nil {

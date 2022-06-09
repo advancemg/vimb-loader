@@ -5,7 +5,7 @@ import (
 	"fmt"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
-	"github.com/advancemg/vimb-loader/pkg/storage"
+	"github.com/advancemg/vimb-loader/pkg/storage/badger"
 	"github.com/advancemg/vimb-loader/pkg/utils"
 	"reflect"
 	"time"
@@ -128,7 +128,7 @@ func (request *CustomersWithAdvertisersUpdateRequest) loadFromFile() error {
 		if err != nil {
 			return err
 		}
-		badgerCustomersWithAdvertisers := storage.Open(DbCustomersWithAdvertisers)
+		badgerCustomersWithAdvertisers := badger.Open(DbCustomersWithAdvertisers)
 		for _, dataItem := range internalData {
 			data, err := dataItem.ConvertCustomerAdvertiser()
 			if err != nil {
@@ -145,7 +145,7 @@ func (request *CustomersWithAdvertisersUpdateRequest) loadFromFile() error {
 		if err != nil {
 			return err
 		}
-		badgerCustomersWithAdvertisers := storage.Open(DbCustomersWithAdvertisers)
+		badgerCustomersWithAdvertisers := badger.Open(DbCustomersWithAdvertisers)
 		data, err := internalData.ConvertCustomerAdvertiser()
 		if err != nil {
 			return err
@@ -171,7 +171,7 @@ func (request *CustomersWithAdvertisersUpdateRequest) loadFromFile() error {
 		if err != nil {
 			return err
 		}
-		badgerCustomersWithAdvertisersData := storage.Open(DbCustomersWithAdvertisersData)
+		badgerCustomersWithAdvertisersData := badger.Open(DbCustomersWithAdvertisersData)
 		for _, dataItem := range internalData {
 			data, err := dataItem.ConvertCustomerAdvertiserData()
 			if err != nil {
@@ -188,7 +188,7 @@ func (request *CustomersWithAdvertisersUpdateRequest) loadFromFile() error {
 		if err != nil {
 			return err
 		}
-		badgerCustomersWithAdvertisersData := storage.Open(DbCustomersWithAdvertisersData)
+		badgerCustomersWithAdvertisersData := badger.Open(DbCustomersWithAdvertisersData)
 		data, err := internalData.ConvertCustomerAdvertiserData()
 		if err != nil {
 			return err

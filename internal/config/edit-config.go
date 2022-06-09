@@ -8,12 +8,13 @@ import (
 	"github.com/advancemg/vimb-loader/pkg/models"
 	mq "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
+	"github.com/advancemg/vimb-loader/pkg/storage/mongodb"
 	"io/ioutil"
 	"os"
 	"strconv"
 )
 
-type configuration struct {
+type Configuration struct {
 	Mediaplan                models.MediaplanConfiguration                `json:"mediaplan"`
 	Budget                   models.BudgetConfiguration                   `json:"budget"`
 	Channel                  models.ChannelConfiguration                  `json:"channel"`
@@ -24,13 +25,27 @@ type configuration struct {
 	ProgramBreaks            models.ProgramBreaksConfiguration            `json:"programBreaks"`
 	ProgramBreaksLight       models.ProgramBreaksLightConfiguration       `json:"programBreaksLight"`
 	Spots                    models.SpotsConfiguration                    `json:"spots"`
-	S3Cfg                    s3.Config                                    `json:"s3"`
-	AmqpConfig               mq.Config                                    `json:"amqp"`
+	S3                       s3.Config                                    `json:"s3"`
+	Mongo                    mongodb.Config                               `json:"mongodb"`
+	Amqp                     mq.Config                                    `json:"amqp"`
+	Database                 string                                       `json:"database"`
 	Url                      string                                       `json:"url"`
 	Cert                     string                                       `json:"cert"`
 	Password                 string                                       `json:"password"`
 	Client                   string                                       `json:"client"`
 	Timeout                  string                                       `json:"timeout"`
+}
+
+func LoadConfig() *Configuration {
+	var config Configuration
+	configFile, err := os.Open("config.json")
+	if err != nil {
+		panic(err)
+	}
+	defer configFile.Close()
+	jsonParser := json.NewDecoder(configFile)
+	jsonParser.Decode(&config)
+	return &config
 }
 
 func EditConfig() {
@@ -42,7 +57,7 @@ func EditConfig() {
 }
 
 func enterConfig() {
-	cfg := &configuration{}
+	cfg := &Configuration{}
 	open, err := ioutil.ReadFile("config.json")
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -286,28 +301,28 @@ func enterConfig() {
 		if line == "" {
 			line = "localhost"
 		}
-		cfg.AmqpConfig.MqHost = line
+		cfg.Amqp.MqHost = line
 		fmt.Printf("%s", "Enter amqp port(docker 5555):")
 		line, err = readLine()
 		checkErr(err)
 		if line == "" {
 			line = "5555"
 		}
-		cfg.AmqpConfig.MqPort = line
+		cfg.Amqp.MqPort = line
 		fmt.Printf("%s", "Enter amqp username(docker guest):")
 		line, err = readLine()
 		checkErr(err)
 		if line == "" {
 			line = "guest"
 		}
-		cfg.AmqpConfig.MqUsername = line
+		cfg.Amqp.MqUsername = line
 		fmt.Printf("%s", "Enter amqp password(docker guest):")
 		line, err = readLine()
 		checkErr(err)
 		if line == "" {
 			line = "guest"
 		}
-		cfg.AmqpConfig.MqPassword = line
+		cfg.Amqp.MqPassword = line
 		/*S3*/
 		fmt.Printf("%s", "Enter S3 AccessKeyId(docker minioadmin):")
 		line, err = readLine()
@@ -315,49 +330,101 @@ func enterConfig() {
 		if line == "" {
 			line = "minioadmin"
 		}
-		cfg.S3Cfg.S3AccessKeyId = line
+		cfg.S3.S3AccessKeyId = line
 		fmt.Printf("%s", "Enter S3 SecretAccessKey(docker minioadmin):")
 		line, err = readLine()
 		checkErr(err)
 		if line == "" {
 			line = "minioadmin"
 		}
-		cfg.S3Cfg.S3SecretAccessKey = line
+		cfg.S3.S3SecretAccessKey = line
 		fmt.Printf("%s", "Enter S3 Region(docker us-west-0):")
 		line, err = readLine()
 		checkErr(err)
 		if line == "" {
 			line = "us-west-0"
 		}
-		cfg.S3Cfg.S3Region = line
+		cfg.S3.S3Region = line
 		fmt.Printf("%s", "Enter S3 Endpoint(docker 127.0.0.1:9999):")
 		line, err = readLine()
 		checkErr(err)
 		if line == "" {
 			line = "127.0.0.1:9999"
 		}
-		cfg.S3Cfg.S3Endpoint = line
+		cfg.S3.S3Endpoint = line
 		fmt.Printf("%s", "Enter S3 Debug(docker true):")
 		line, err = readLine()
 		checkErr(err)
 		if line != "false" {
 			line = "true"
 		}
-		cfg.S3Cfg.S3Debug = line
+		cfg.S3.S3Debug = line
 		fmt.Printf("%s", "Enter S3 Bucket(docker storage):")
 		line, err = readLine()
 		checkErr(err)
 		if line == "" {
 			line = "storage"
 		}
-		cfg.S3Cfg.S3Bucket = line
+		cfg.S3.S3Bucket = line
 		fmt.Printf("%s", "Enter S3 LocalDir(docker s3-buckets):")
 		line, err = readLine()
 		checkErr(err)
 		if line == "" {
 			line = "s3-buckets"
 		}
-		cfg.S3Cfg.S3LocalDir = line
+		cfg.S3.S3LocalDir = line
+
+		/*Mongodb*/
+		fmt.Printf("%s", "Enter MongoDB Host(docker localhost):")
+		line, err = readLine()
+		checkErr(err)
+		if line == "" {
+			line = "localhost"
+		}
+		cfg.Mongo.Host = line
+		fmt.Printf("%s", "Enter MongoDB Port(docker 27017):")
+		line, err = readLine()
+		checkErr(err)
+		if line == "" {
+			line = "27017"
+		}
+		cfg.Mongo.Port = line
+		fmt.Printf("%s", "Enter MongoDB DB(docker admin):")
+		line, err = readLine()
+		checkErr(err)
+		if line == "" {
+			line = "admin"
+		}
+		cfg.Mongo.DB = line
+		fmt.Printf("%s", "Enter MongoDB Username(docker root):")
+		line, err = readLine()
+		checkErr(err)
+		if line == "" {
+			line = "root"
+		}
+		cfg.Mongo.Username = line
+		fmt.Printf("%s", "Enter MongoDB Password(docker qwerty):")
+		line, err = readLine()
+		checkErr(err)
+		if line != "" {
+			line = "qwerty"
+		}
+		cfg.Mongo.Password = line
+		fmt.Printf("%s", "Enter S3 Debug(docker true):")
+		line, err = readLine()
+		checkErr(err)
+		if line != "false" {
+			line = "true"
+		}
+		cfg.Mongo.Debug = line
+		/*Choose database*/
+		fmt.Printf("%s", "Enter database, mongodb or badger(default badger):")
+		line, err = readLine()
+		checkErr(err)
+		if line == "" {
+			line = "badger"
+		}
+		cfg.Database = line
 		/*VIMB*/
 		fmt.Printf("%s", "Enter url(docker https://vimb-svc.vitpc.com:436/VIMBService.asmx):")
 		line, err = readLine()

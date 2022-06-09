@@ -4,14 +4,14 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/advancemg/badgerhold"
-	"github.com/advancemg/vimb-loader/pkg/storage"
+	"github.com/advancemg/vimb-loader/pkg/storage/badger"
 )
 
 type ProgramBreaksBadgerQuery struct {
 }
 
 func (query *ProgramBreaksBadgerQuery) connect() *badgerhold.Store {
-	return storage.Open(DbProgramBreaks)
+	return badger.Open(DbProgramBreaks)
 }
 
 func (query *ProgramBreaksBadgerQuery) Find(result interface{}, filter *badgerhold.Query) error {
@@ -34,7 +34,7 @@ type ProgramBreaksProMasterBadgerQuery struct {
 }
 
 func (query *ProgramBreaksProMasterBadgerQuery) connect() *badgerhold.Store {
-	return storage.Open(DbProgramBreaksProMaster)
+	return badger.Open(DbProgramBreaksProMaster)
 }
 
 func (query *ProgramBreaksProMasterBadgerQuery) Find(result interface{}, filter *badgerhold.Query) error {

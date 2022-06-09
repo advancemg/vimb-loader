@@ -4,14 +4,14 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/advancemg/badgerhold"
-	"github.com/advancemg/vimb-loader/pkg/storage"
+	"github.com/advancemg/vimb-loader/pkg/storage/badger"
 )
 
 type ChannelBadgerQuery struct {
 }
 
 func (query *ChannelBadgerQuery) connect() *badgerhold.Store {
-	return storage.Open(DbChannels)
+	return badger.Open(DbChannels)
 }
 
 func (query *ChannelBadgerQuery) Find(result interface{}, filter *badgerhold.Query) error {

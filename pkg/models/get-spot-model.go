@@ -9,7 +9,7 @@ import (
 	log "github.com/advancemg/vimb-loader/pkg/logging"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
-	"github.com/advancemg/vimb-loader/pkg/storage"
+	"github.com/advancemg/vimb-loader/pkg/storage/badger"
 	"github.com/advancemg/vimb-loader/pkg/utils"
 	"time"
 )
@@ -114,13 +114,13 @@ func (cfg *SpotsConfiguration) InitJob() func() {
 		channelList := map[int64]Cnl{}
 		months := map[int64][]time.Time{}
 		advertisers := map[int64]int64{}
-		badgerBudgets := storage.Open(DbBudgets)
+		badgerBudgets := badger.Open(DbBudgets)
 		err = badgerBudgets.Find(&budgets, badgerhold.Where("Month").Ge(int64(-1)))
 		if err != nil {
 			log.PrintLog("vimb-loader", "Spots InitJob", "error", "Q:", qName, "err:", err.Error())
 			return
 		}
-		badgerChannels := storage.Open(DbChannels)
+		badgerChannels := badger.Open(DbChannels)
 		err = badgerChannels.Find(&channels, badgerhold.Where("ID").Ge(int64(-1)))
 		for _, budget := range budgets {
 			advertisers[*budget.AdtID] = *budget.AdtID
@@ -196,7 +196,7 @@ func (request *GetSpots) GetDataJson() (*JsonResponse, error) {
 func (request *GetSpots) GetDataXmlZip() (*StreamResponse, error) {
 	for {
 		var isTimeout utils.Timeout
-		err := storage.Open(DbTimeout).Get("vimb-timeout", &isTimeout)
+		err := badger.Open(DbTimeout).Get("vimb-timeout", &isTimeout)
 		if err != nil {
 			if errors.Is(err, badgerhold.ErrNotFound) {
 				isTimeout.IsTimeout = false

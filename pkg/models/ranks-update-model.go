@@ -5,7 +5,7 @@ import (
 	"fmt"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
-	"github.com/advancemg/vimb-loader/pkg/storage"
+	"github.com/advancemg/vimb-loader/pkg/storage/badger"
 	"github.com/advancemg/vimb-loader/pkg/utils"
 	"reflect"
 	"time"
@@ -166,7 +166,7 @@ func (request *RanksUpdateRequest) loadFromFile() error {
 	if err != nil {
 		return err
 	}
-	badgerRanks := storage.Open(DbRanks)
+	badgerRanks := badger.Open(DbRanks)
 	for _, dataM := range internalData {
 		rank, err := dataM.Convert()
 		if err != nil {

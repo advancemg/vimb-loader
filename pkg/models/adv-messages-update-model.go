@@ -5,7 +5,7 @@ import (
 	"fmt"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
-	"github.com/advancemg/vimb-loader/pkg/storage"
+	"github.com/advancemg/vimb-loader/pkg/storage/badger"
 	"github.com/advancemg/vimb-loader/pkg/utils"
 	"time"
 )
@@ -136,7 +136,7 @@ func (request *AdvertiserUpdateRequest) loadFromFile() error {
 	if err != nil {
 		return err
 	}
-	badgerAdvertiser := storage.Open(DbAdvertisers)
+	badgerAdvertiser := badger.Open(DbAdvertisers)
 	for _, dataRow := range internalData {
 		advertiser, err := dataRow.ConvertAdvertiser()
 		if err != nil {

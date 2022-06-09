@@ -6,7 +6,7 @@ import (
 	"github.com/advancemg/badgerhold"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
-	"github.com/advancemg/vimb-loader/pkg/storage"
+	"github.com/advancemg/vimb-loader/pkg/storage/badger"
 	"github.com/advancemg/vimb-loader/pkg/utils"
 	"reflect"
 	"time"
@@ -315,7 +315,7 @@ func (request *MediaplanUpdateRequest) Update() error {
 	if err != nil {
 		return err
 	}
-	badgerMediaplans := storage.Open(DbMediaplans)
+	badgerMediaplans := badger.Open(DbMediaplans)
 	aggTasks := map[string]MediaplanAggUpdateRequest{}
 	for _, dataM := range internalData {
 		mediaplan, err := dataM.ConvertMediaplan()
@@ -365,7 +365,7 @@ func (request *MediaplanUpdateRequest) loadFromFile() error {
 		return err
 	}
 	aggTasks := map[string]MediaplanAggUpdateRequest{}
-	badgerMediaplans := storage.Open(DbMediaplans)
+	badgerMediaplans := badger.Open(DbMediaplans)
 	for _, dataM := range internalData {
 		mediaplan, err := dataM.ConvertMediaplan()
 		if err != nil {

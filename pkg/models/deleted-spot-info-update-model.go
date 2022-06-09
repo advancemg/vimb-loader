@@ -5,7 +5,7 @@ import (
 	"fmt"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
-	"github.com/advancemg/vimb-loader/pkg/storage"
+	"github.com/advancemg/vimb-loader/pkg/storage/badger"
 	"github.com/advancemg/vimb-loader/pkg/utils"
 	"time"
 )
@@ -140,7 +140,7 @@ func (request *DeletedSpotInfoUpdateRequest) loadFromFile() error {
 	if err != nil {
 		return err
 	}
-	badgerDeletedSpotInfo := storage.Open(DbDeletedSpotInfo)
+	badgerDeletedSpotInfo := badger.Open(DbDeletedSpotInfo)
 	for _, dataI := range internalData {
 		deletedSpotInfo, err := dataI.ConvertDeletedSpotInfo()
 		if err != nil {

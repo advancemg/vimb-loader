@@ -8,7 +8,7 @@ import (
 	"fmt"
 	convert "github.com/advancemg/go-convert"
 	log "github.com/advancemg/vimb-loader/pkg/logging"
-	"github.com/advancemg/vimb-loader/pkg/storage"
+	"github.com/advancemg/vimb-loader/pkg/storage/badger"
 	"github.com/buger/jsonparser"
 	"golang.org/x/crypto/pkcs12"
 	"io"
@@ -208,7 +208,7 @@ type Timeout struct {
 
 func wait(method string, code int, msg string, waitTime time.Duration) {
 	log.PrintLog("vimb-loader", "soap-client", "error", method, " ", "timeout code:", code, " ", msg)
-	db := storage.Open("db/timeout")
+	db := badger.Open("db/timeout")
 	err := db.UpsertTTL("vimb-timeout", Timeout{IsTimeout: true}, waitTime)
 	if err != nil {
 		panic(err)

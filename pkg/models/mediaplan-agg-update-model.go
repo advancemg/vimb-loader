@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/advancemg/badgerhold"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
-	"github.com/advancemg/vimb-loader/pkg/storage"
+	"github.com/advancemg/vimb-loader/pkg/storage/badger"
 	"github.com/advancemg/vimb-loader/pkg/utils"
 	"time"
 )
@@ -106,7 +106,7 @@ func (request *MediaplanAggUpdateRequest) Update() error {
 	if err != nil {
 		return err
 	}
-	badgerAggMediaplans := storage.Open(DbAggMediaplans)
+	badgerAggMediaplans := badger.Open(DbAggMediaplans)
 	for _, mediaplan := range mediaplans {
 		var cppOffPrimeWithDiscount float64
 		var cppPrimeWithDiscount float64
