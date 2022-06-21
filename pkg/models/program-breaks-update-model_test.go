@@ -21,7 +21,7 @@ func TestProgramBreaksUpdateRequest_loadFromFile(t *testing.T) {
 	}{
 		{
 			name:    "loadFromFile-ProgramBreaks",
-			fields:  fields{"../../dev-test-data/networks.gz", "201903"},
+			fields:  fields{"../../dev-test-data/networks2.gz", "201903"},
 			wantErr: false,
 		},
 	}

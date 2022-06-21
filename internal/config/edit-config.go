@@ -8,7 +8,7 @@ import (
 	"github.com/advancemg/vimb-loader/pkg/models"
 	mq "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
-	"github.com/advancemg/vimb-loader/pkg/storage/mongodb"
+	"github.com/advancemg/vimb-loader/pkg/storage/mongodb-client"
 	"io/ioutil"
 	"os"
 	"strconv"
@@ -26,7 +26,7 @@ type Configuration struct {
 	ProgramBreaksLight       models.ProgramBreaksLightConfiguration       `json:"programBreaksLight"`
 	Spots                    models.SpotsConfiguration                    `json:"spots"`
 	S3                       s3.Config                                    `json:"s3"`
-	Mongo                    mongodb.Config                               `json:"mongodb"`
+	Mongo                    mongodb_client.Config                        `json:"mongodb"`
 	Amqp                     mq.Config                                    `json:"amqp"`
 	Database                 string                                       `json:"database"`
 	Url                      string                                       `json:"url"`
@@ -36,7 +36,7 @@ type Configuration struct {
 	Timeout                  string                                       `json:"timeout"`
 }
 
-func LoadConfig() *Configuration {
+func Load() *Configuration {
 	var config Configuration
 	configFile, err := os.Open("config.json")
 	if err != nil {

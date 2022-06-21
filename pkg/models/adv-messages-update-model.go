@@ -3,9 +3,9 @@ package models
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/advancemg/vimb-loader/internal/usecase"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
-	"github.com/advancemg/vimb-loader/pkg/storage/badger"
 	"github.com/advancemg/vimb-loader/pkg/utils"
 	"time"
 )
@@ -136,13 +136,14 @@ func (request *AdvertiserUpdateRequest) loadFromFile() error {
 	if err != nil {
 		return err
 	}
-	badgerAdvertiser := badger.Open(DbAdvertisers)
+	db, table := utils.SplitDbAndTable(DbAdvertisers)
+	repo := usecase.OpenDb(db, table)
 	for _, dataRow := range internalData {
 		advertiser, err := dataRow.ConvertAdvertiser()
 		if err != nil {
 			return err
 		}
-		err = badgerAdvertiser.Upsert(advertiser.Key(), advertiser)
+		err = repo.AddOrUpdate(advertiser.Key(), advertiser)
 		if err != nil {
 			return err
 		}

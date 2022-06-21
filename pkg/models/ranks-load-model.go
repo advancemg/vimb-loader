@@ -3,8 +3,10 @@ package models
 import (
 	"encoding/json"
 	goConvert "github.com/advancemg/go-convert"
+	"github.com/advancemg/vimb-loader/internal/usecase"
 	log "github.com/advancemg/vimb-loader/pkg/logging"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
+	"github.com/advancemg/vimb-loader/pkg/utils"
 )
 
 type RanksLoadRequest struct{}
@@ -35,12 +37,13 @@ func (request *RanksLoadRequest) InitTasks() (CommonResponse, error) {
 
 func (request *Any) QueryRanks() ([]Ranks, error) {
 	var result []Ranks
-	query := RanksBadgerQuery{}
+	db, table := utils.SplitDbAndTable(DbRanks)
+	dbRanks := usecase.OpenDb(db, table)
 	marshal, err := json.Marshal(request.Body)
 	if err != nil {
 		return nil, err
 	}
-	err = query.FindJson(&result, marshal)
+	err = dbRanks.FindJson(&result, marshal)
 	if err != nil {
 		return nil, err
 	}

@@ -3,10 +3,9 @@ package models
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/advancemg/badgerhold"
+	"github.com/advancemg/vimb-loader/internal/usecase"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
-	"github.com/advancemg/vimb-loader/pkg/storage/badger"
 	"github.com/advancemg/vimb-loader/pkg/utils"
 	"strconv"
 	"time"
@@ -195,7 +194,8 @@ func (request *SpotsUpdateRequest) loadFromFile() error {
 	if err != nil {
 		return err
 	}
-	badgerSpotsOrderBlock := badger.Open(DbSpotsOrderBlock)
+	db, table := utils.SplitDbAndTable(DbSpotsOrderBlock)
+	repoSpotsOrderBlock := usecase.OpenDb(db, table)
 	for _, dataO := range orderBlocks {
 		spot, err := dataO.ConvertOrderBlock()
 		if err != nil {
@@ -203,18 +203,18 @@ func (request *SpotsUpdateRequest) loadFromFile() error {
 		}
 		var orders []SpotOrderBlock
 		if spot.OrdID != nil {
-			err = badgerSpotsOrderBlock.Find(&orders, badgerhold.Where("OrdID").Eq(*spot.OrdID))
+			err = repoSpotsOrderBlock.FindWhereEq(&orders, "OrdID", *spot.OrdID)
 			if err != nil {
 				return err
 			}
 		}
 		for _, item := range orders {
-			err = badgerSpotsOrderBlock.Delete(item.Key(), item)
+			err = repoSpotsOrderBlock.Delete(item.Key(), item)
 			if err != nil {
 				return err
 			}
 		}
-		err = badgerSpotsOrderBlock.Upsert(spot.Key(), spot)
+		err = repoSpotsOrderBlock.AddOrUpdate(spot.Key(), spot)
 		if err != nil {
 			return err
 		}
@@ -233,7 +233,8 @@ func (request *SpotsUpdateRequest) loadFromFile() error {
 	if err != nil {
 		return err
 	}
-	badgerSpots := badger.Open(DbSpots)
+	db, table = utils.SplitDbAndTable(DbSpots)
+	repoSpots := usecase.OpenDb(db, table)
 	month, err := strconv.Atoi(request.Month)
 	if err != nil {
 		return err
@@ -247,11 +248,11 @@ func (request *SpotsUpdateRequest) loadFromFile() error {
 			continue
 		}
 		/*load from networks*/
-		networksQuery := ProgramBreaksBadgerQuery{}
+		db, table = utils.SplitDbAndTable(DbProgramBreaks)
+		dbProgramBreaks := usecase.OpenDb(db, table)
 		var networks []ProgramBreaks
 		if spot.SptChnlPTR != nil {
-			filterNetwork := badgerhold.Where("CnlID").Eq(*spot.SptChnlPTR).And("Month").Eq(int64(month))
-			err = networksQuery.Find(&networks, filterNetwork)
+			err = dbProgramBreaks.FindWhereAnd2Eq(&networks, "CnlID", *spot.SptChnlPTR, "Month", int64(month))
 			if err != nil {
 				return err
 			}
@@ -267,11 +268,11 @@ func (request *SpotsUpdateRequest) loadFromFile() error {
 			}
 		}
 		/*load from mediaplans*/
-		mediaplanQuery := MediaplanBadgerQuery{}
+		db, table = utils.SplitDbAndTable(DbMediaplans)
+		repoMediaplans := usecase.OpenDb(db, table)
 		var mediaplans []Mediaplan
 		if spot.CommInMplID != nil {
-			filterMediplan := badgerhold.Where("ComplimentId").Eq(*spot.CommInMplID)
-			err = mediaplanQuery.Find(&mediaplans, filterMediplan)
+			err = repoMediaplans.FindWhereEq(&mediaplans, "ComplimentId", *spot.CommInMplID)
 			if err != nil {
 				return err
 			}
@@ -305,18 +306,18 @@ func (request *SpotsUpdateRequest) loadFromFile() error {
 		}
 		var spotItems []Spot
 		if spot.SpotID != nil {
-			err = badgerSpots.Find(&spotItems, badgerhold.Where("SpotID").Eq(*spot.SpotID))
+			err = repoSpots.FindWhereEq(&spotItems, "SpotID", *spot.SpotID)
 			if err != nil {
 				return err
 			}
 		}
 		for _, item := range spotItems {
-			err = badgerSpots.Delete(item.Key(), item)
+			err = repoSpots.Delete(item.Key(), item)
 			if err != nil {
 				return err
 			}
 		}
-		err = badgerSpots.Upsert(spot.Key(), spot)
+		err = repoSpots.AddOrUpdate(spot.Key(), spot)
 		if err != nil {
 			return err
 		}

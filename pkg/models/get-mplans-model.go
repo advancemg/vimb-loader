@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"github.com/advancemg/badgerhold"
 	goConvert "github.com/advancemg/go-convert"
+	"github.com/advancemg/vimb-loader/internal/usecase"
 	log "github.com/advancemg/vimb-loader/pkg/logging"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
-	"github.com/advancemg/vimb-loader/pkg/storage/badger"
 	"github.com/advancemg/vimb-loader/pkg/utils"
 	"time"
 )
@@ -101,8 +101,9 @@ func (cfg *MediaplanConfiguration) InitJob() func() {
 		}
 		months := map[int64]struct{}{}
 		var budgets []Budget
-		badgerBudgets := badger.Open(DbBudgets)
-		err = badgerBudgets.Find(&budgets, badgerhold.Where("Month").Ge(int64(-1)))
+		db, table := utils.SplitDbAndTable(DbBudgets)
+		repoBudgets := usecase.OpenDb(db, table)
+		err = repoBudgets.FindWhereGe(&budgets, "Month", int64(-1))
 		if err != nil {
 			log.PrintLog("vimb-loader", "Mediaplans InitJob", "error", "Q:", qName, "err:", err.Error())
 			return
@@ -151,7 +152,9 @@ func (request *GetMPLans) GetDataJson() (*JsonResponse, error) {
 func (request *GetMPLans) GetDataXmlZip() (*StreamResponse, error) {
 	for {
 		var isTimeout utils.Timeout
-		err := badger.Open(DbTimeout).Get("vimb-timeout", &isTimeout)
+		db, table := utils.SplitDbAndTable(DbTimeout)
+		repo := usecase.OpenDb(db, table)
+		err := repo.Get("vimb-timeout", &isTimeout)
 		if err != nil {
 			if errors.Is(err, badgerhold.ErrNotFound) {
 				isTimeout.IsTimeout = false

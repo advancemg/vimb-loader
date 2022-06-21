@@ -3,10 +3,9 @@ package models
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/advancemg/badgerhold"
+	"github.com/advancemg/vimb-loader/internal/usecase"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
-	"github.com/advancemg/vimb-loader/pkg/storage/badger"
 	"github.com/advancemg/vimb-loader/pkg/utils"
 	"reflect"
 	"time"
@@ -315,7 +314,8 @@ func (request *MediaplanUpdateRequest) Update() error {
 	if err != nil {
 		return err
 	}
-	badgerMediaplans := badger.Open(DbMediaplans)
+	db, table := utils.SplitDbAndTable(DbMediaplans)
+	dbMediaplans := usecase.OpenDb(db, table)
 	aggTasks := map[string]MediaplanAggUpdateRequest{}
 	for _, dataM := range internalData {
 		mediaplan, err := dataM.ConvertMediaplan()
@@ -334,7 +334,7 @@ func (request *MediaplanUpdateRequest) Update() error {
 			AdvertiserId: *advertiserId,
 			AgreementId:  *agreementId,
 		}
-		err = badgerMediaplans.Upsert(mediaplan.Key(), mediaplan)
+		err = dbMediaplans.AddOrUpdate(mediaplan.Key(), mediaplan)
 		if err != nil {
 			return err
 		}
@@ -365,7 +365,8 @@ func (request *MediaplanUpdateRequest) loadFromFile() error {
 		return err
 	}
 	aggTasks := map[string]MediaplanAggUpdateRequest{}
-	badgerMediaplans := badger.Open(DbMediaplans)
+	db, table := utils.SplitDbAndTable(DbMediaplans)
+	dbMediaplans := usecase.OpenDb(db, table)
 	for _, dataM := range internalData {
 		mediaplan, err := dataM.ConvertMediaplan()
 		if err != nil {
@@ -386,18 +387,18 @@ func (request *MediaplanUpdateRequest) loadFromFile() error {
 		}
 		var mediaplans []Mediaplan
 		if mediaplan.MediaplanId != nil {
-			err = badgerMediaplans.Find(&mediaplans, badgerhold.Where("MediaplanId").Eq(*mediaplan.MediaplanId))
+			err = dbMediaplans.FindWhereEq(&mediaplans, "MediaplanId", *mediaplan.MediaplanId)
 			if err != nil {
 				return err
 			}
 		}
 		for _, item := range mediaplans {
-			err = badgerMediaplans.Delete(item.Key(), item)
+			err = dbMediaplans.Delete(item.Key(), item)
 			if err != nil {
 				return err
 			}
 		}
-		err = badgerMediaplans.Upsert(mediaplan.Key(), mediaplan)
+		err = dbMediaplans.AddOrUpdate(mediaplan.Key(), mediaplan)
 		if err != nil {
 			return err
 		}

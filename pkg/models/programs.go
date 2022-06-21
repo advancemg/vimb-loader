@@ -3,9 +3,9 @@ package models
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/advancemg/badgerhold"
+	"github.com/advancemg/vimb-loader/internal/usecase"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
-	"github.com/advancemg/vimb-loader/pkg/storage/badger"
+	"github.com/advancemg/vimb-loader/pkg/utils"
 	"time"
 )
 
@@ -68,14 +68,13 @@ func ProgramStartJob() chan error {
 
 func (request *ProgramUpdateRequest) Update() error {
 	timestamp := time.Now()
-	query := ProgramBreaksBadgerQuery{}
+	db, table := utils.SplitDbAndTable(DbPrograms)
+	dbPrograms := usecase.OpenDb(db, table)
 	var programBreaks []ProgramBreaks
-	filter := badgerhold.Where("ProgID").Ge(int64(-1))
-	err := query.Find(&programBreaks, filter)
+	err := dbPrograms.FindWhereGe(&programBreaks, "ProgID", int64(-1))
 	if err != nil {
 		return err
 	}
-	badgerPrograms := badger.Open(DbPrograms)
 	for _, programBreak := range programBreaks {
 		program := &Program{
 			CnlID:        programBreak.CnlID,
@@ -88,7 +87,7 @@ func (request *ProgramUpdateRequest) Update() error {
 			PrgNameShort: programBreak.PrgNameShort,
 			Timestamp:    timestamp,
 		}
-		err = badgerPrograms.Upsert(program.Key(), program)
+		err = dbPrograms.AddOrUpdate(program.Key(), program)
 		if err != nil {
 			return err
 		}

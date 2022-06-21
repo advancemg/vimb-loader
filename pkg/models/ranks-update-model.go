@@ -3,9 +3,9 @@ package models
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/advancemg/vimb-loader/internal/usecase"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
-	"github.com/advancemg/vimb-loader/pkg/storage/badger"
 	"github.com/advancemg/vimb-loader/pkg/utils"
 	"reflect"
 	"time"
@@ -166,13 +166,14 @@ func (request *RanksUpdateRequest) loadFromFile() error {
 	if err != nil {
 		return err
 	}
-	badgerRanks := badger.Open(DbRanks)
+	db, table := utils.SplitDbAndTable(DbRanks)
+	dbRanks := usecase.OpenDb(db, table)
 	for _, dataM := range internalData {
 		rank, err := dataM.Convert()
 		if err != nil {
 			return err
 		}
-		err = badgerRanks.Upsert(rank.Key(), rank)
+		err = dbRanks.AddOrUpdate(rank.Key(), rank)
 		if err != nil {
 			return err
 		}

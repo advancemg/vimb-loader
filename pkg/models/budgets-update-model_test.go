@@ -2,7 +2,7 @@ package models
 
 import (
 	"github.com/advancemg/badgerhold"
-	"github.com/advancemg/vimb-loader/pkg/storage/badger"
+	"github.com/advancemg/vimb-loader/pkg/storage/badger-client"
 	"testing"
 )
 
@@ -49,9 +49,9 @@ func TestQueryBudgets(t *testing.T) {
 	var allChannels []Cnl
 	advertisers := map[int64]int64{}
 	channelList := map[int64]Cnl{}
-	badgerBudgets := badger.Open(DbBudgets)
+	badgerBudgets := badger_client.Open(DbBudgets)
 	_ = badgerBudgets.Find(&budgets, badgerhold.Where("Month").Ge(int64(-1)))
-	badgerChannels := badger.Open(DbChannels)
+	badgerChannels := badger_client.Open(DbChannels)
 	_ = badgerChannels.Find(&channels, badgerhold.Where("ID").Ge(int64(-1)))
 	for _, budget := range budgets {
 		advertisers[*budget.AdtID] = *budget.AdtID

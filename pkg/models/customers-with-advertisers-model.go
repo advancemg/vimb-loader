@@ -6,10 +6,12 @@ import (
 	"fmt"
 	"github.com/advancemg/badgerhold"
 	goConvert "github.com/advancemg/go-convert"
+	"github.com/advancemg/vimb-loader/internal/usecase"
+	"github.com/advancemg/vimb-loader/internal/usecase/repo/badger"
 	log "github.com/advancemg/vimb-loader/pkg/logging"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
-	"github.com/advancemg/vimb-loader/pkg/storage/badger"
+	"github.com/advancemg/vimb-loader/pkg/storage/badger-client"
 	"github.com/advancemg/vimb-loader/pkg/utils"
 	"time"
 )
@@ -123,7 +125,9 @@ func (request *GetCustomersWithAdvertisers) GetDataJson() (*JsonResponse, error)
 func (request *GetCustomersWithAdvertisers) GetDataXmlZip() (*StreamResponse, error) {
 	for {
 		var isTimeout utils.Timeout
-		err := badger.Open(DbTimeout).Get("vimb-timeout", &isTimeout)
+		db := badger.New(badger_client.Open(DbTimeout))
+		repo := usecase.New(db)
+		err := repo.Get("vimb-timeout", &isTimeout)
 		if err != nil {
 			if errors.Is(err, badgerhold.ErrNotFound) {
 				isTimeout.IsTimeout = false

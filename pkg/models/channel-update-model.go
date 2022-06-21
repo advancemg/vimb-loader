@@ -3,9 +3,9 @@ package models
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/advancemg/vimb-loader/internal/usecase"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
-	"github.com/advancemg/vimb-loader/pkg/storage/badger"
 	"github.com/advancemg/vimb-loader/pkg/utils"
 	"reflect"
 	"time"
@@ -181,7 +181,8 @@ func (request *ChannelsUpdateRequest) loadFromFile() error {
 	if err != nil {
 		return err
 	}
-	badgerChannels := badger.Open(DbChannels)
+	db, table := utils.SplitDbAndTable(DbChannels)
+	repo := usecase.OpenDb(db, table)
 	sellingDirectionID := utils.Int64(request.SellingDirectionID)
 	for _, dataM := range internalData {
 		channel, err := dataM.Convert()
@@ -189,7 +190,7 @@ func (request *ChannelsUpdateRequest) loadFromFile() error {
 			return err
 		}
 		channel.SellingDirectionID = &sellingDirectionID
-		err = badgerChannels.Upsert(channel.Key(), channel)
+		err = repo.AddOrUpdate(channel.Key(), channel)
 		if err != nil {
 			return err
 		}

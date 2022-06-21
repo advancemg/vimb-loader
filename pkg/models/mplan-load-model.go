@@ -3,6 +3,7 @@ package models
 import (
 	"encoding/json"
 	goConvert "github.com/advancemg/go-convert"
+	"github.com/advancemg/vimb-loader/internal/usecase"
 	log "github.com/advancemg/vimb-loader/pkg/logging"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/utils"
@@ -72,12 +73,13 @@ type AggMediaplanQuery struct {
 
 func (request *Any) QueryMediaplans() ([]Mediaplan, error) {
 	var result []Mediaplan
-	query := MediaplanBadgerQuery{}
 	marshal, err := json.Marshal(request.Body)
 	if err != nil {
 		return nil, err
 	}
-	err = query.FindJson(&result, marshal)
+	db, table := utils.SplitDbAndTable(DbMediaplans)
+	dbMediaplans := usecase.OpenDb(db, table)
+	err = dbMediaplans.FindJson(&result, marshal)
 	if err != nil {
 		return nil, err
 	}
@@ -86,12 +88,13 @@ func (request *Any) QueryMediaplans() ([]Mediaplan, error) {
 
 func (request *Any) QueryAggMediaplans() ([]MediaplanAgg, error) {
 	var result []MediaplanAgg
-	query := MediaplanAggBadgerQuery{}
 	marshal, err := json.Marshal(request.Body)
 	if err != nil {
 		return nil, err
 	}
-	err = query.FindJson(&result, marshal)
+	db, table := utils.SplitDbAndTable(DbAggMediaplans)
+	dbAggMediaplans := usecase.OpenDb(db, table)
+	err = dbAggMediaplans.FindJson(&result, marshal)
 	if err != nil {
 		return nil, err
 	}

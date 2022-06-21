@@ -10,7 +10,7 @@ import (
 	"github.com/advancemg/vimb-loader/pkg/routes"
 	"github.com/advancemg/vimb-loader/pkg/s3"
 	"github.com/advancemg/vimb-loader/pkg/services"
-	"github.com/advancemg/vimb-loader/pkg/storage/badger"
+	"github.com/advancemg/vimb-loader/pkg/storage/badger-client"
 	"github.com/advancemg/vimb-loader/pkg/utils"
 	"github.com/gorilla/mux"
 	"github.com/swaggo/http-swagger"
@@ -121,7 +121,7 @@ func main() {
 	}
 	/* Clean BadgerGC every 15 min*/
 	go func() {
-		badger.CleanGC()
+		badger_client.CleanGC()
 	}()
 	/* amqp server */
 	mqConfig := mq.InitConfig()

@@ -3,6 +3,7 @@ package models
 import (
 	"encoding/json"
 	goConvert "github.com/advancemg/go-convert"
+	"github.com/advancemg/vimb-loader/internal/usecase"
 	log "github.com/advancemg/vimb-loader/pkg/logging"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/utils"
@@ -60,12 +61,13 @@ func (request *BudgetLoadRequest) getMonths() ([]utils.YearMonth, error) {
 
 func (request *Any) QueryBudgets() ([]Budget, error) {
 	var result []Budget
-	query := BudgetsBadgerQuery{}
+	db, table := utils.SplitDbAndTable(DbBudgets)
+	repo := usecase.OpenDb(db, table)
 	marshal, err := json.Marshal(request.Body)
 	if err != nil {
 		return nil, err
 	}
-	err = query.FindJson(&result, marshal)
+	err = repo.FindJson(&result, marshal)
 	if err != nil {
 		return nil, err
 	}

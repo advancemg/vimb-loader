@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	log "github.com/advancemg/vimb-loader/pkg/logging"
-	"github.com/advancemg/vimb-loader/pkg/storage/mongodb"
+	"github.com/advancemg/vimb-loader/pkg/storage/mongodb-client"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -12,12 +12,8 @@ import (
 )
 
 type DbRepo struct {
-	*mongodb.Mongo
-}
-
-func (c *DbRepo) Find(result interface{}, filter interface{}) error {
-	//TODO implement me
-	panic("implement me")
+	*mongodb_client.Mongo
+	table string
 }
 
 func (c *DbRepo) FindJson(result interface{}, filter []byte) error {
@@ -26,18 +22,8 @@ func (c *DbRepo) FindJson(result interface{}, filter []byte) error {
 }
 
 func (c *DbRepo) AddOrUpdate(key interface{}, data interface{}) error {
-	c.AddOrUpdateMany()
-	//func (cfg *MongoDB) AddOrUpdateMany(database, table string, list []mongo_client.MongoKeyValue, upsert bool) ([]byte, error) {
-	bytes, err := json.Marshal(list)
-	if err != nil {
-		return nil, err
-	}
-	data, err := cfg.Config.AddOrUpdateMany(database, table, bytes, upsert)
-	if err != nil {
-		return nil, err
-	}
-	return data, nil
-	//}
+	//TODO implement me
+	panic("implement me")
 }
 
 func (c *DbRepo) Get(key interface{}, result interface{}) error {
@@ -50,8 +36,48 @@ func (c *DbRepo) Delete(key interface{}, dataType interface{}) error {
 	panic("implement me")
 }
 
-func New(db *mongodb.Mongo) *DbRepo {
-	return &DbRepo{db}
+func (c *DbRepo) FindWhereEq(result interface{}, filed string, value interface{}) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (c *DbRepo) FindWhereNe(result interface{}, filed string, value interface{}) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (c *DbRepo) FindWhereGt(result interface{}, filed string, value interface{}) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (c *DbRepo) FindWhereLt(result interface{}, filed string, value interface{}) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (c *DbRepo) FindWhereGe(result interface{}, filed string, value interface{}) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (c *DbRepo) FindWhereLe(result interface{}, filed string, value interface{}) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (c *DbRepo) FindWhereAnd2Eq(result interface{}, filed1 string, value1 interface{}, filed2 string, value2 interface{}) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (c *DbRepo) FindWhereAnd4Eq(result interface{}, filed1 string, value1 interface{}, filed2 string, value2 interface{}, filed3 string, value3 interface{}, filed4 string, value4 interface{}) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func New(db *mongodb_client.Mongo, table string) *DbRepo {
+	return &DbRepo{db, table}
 }
 
 const service = "mongodb"

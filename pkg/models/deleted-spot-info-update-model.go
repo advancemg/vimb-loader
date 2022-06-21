@@ -3,9 +3,9 @@ package models
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/advancemg/vimb-loader/internal/usecase"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
-	"github.com/advancemg/vimb-loader/pkg/storage/badger"
 	"github.com/advancemg/vimb-loader/pkg/utils"
 	"time"
 )
@@ -140,13 +140,14 @@ func (request *DeletedSpotInfoUpdateRequest) loadFromFile() error {
 	if err != nil {
 		return err
 	}
-	badgerDeletedSpotInfo := badger.Open(DbDeletedSpotInfo)
+	db, table := utils.SplitDbAndTable(DbDeletedSpotInfo)
+	repo := usecase.OpenDb(db, table)
 	for _, dataI := range internalData {
 		deletedSpotInfo, err := dataI.ConvertDeletedSpotInfo()
 		if err != nil {
 			return err
 		}
-		err = badgerDeletedSpotInfo.Upsert(deletedSpotInfo.Key(), deletedSpotInfo)
+		err = repo.AddOrUpdate(deletedSpotInfo.Key(), deletedSpotInfo)
 		if err != nil {
 			return err
 		}

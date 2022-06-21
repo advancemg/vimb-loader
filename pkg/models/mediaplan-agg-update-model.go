@@ -3,9 +3,8 @@ package models
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/advancemg/badgerhold"
+	"github.com/advancemg/vimb-loader/internal/usecase"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
-	"github.com/advancemg/vimb-loader/pkg/storage/badger"
 	"github.com/advancemg/vimb-loader/pkg/utils"
 	"time"
 )
@@ -99,14 +98,15 @@ func (request *MediaplanAggUpdateRequest) Update() error {
 	timestamp := time.Now()
 	/*create week info*/
 	/*load from mediaplans*/
-	mediaplanQuery := MediaplanBadgerQuery{}
+	db, table := utils.SplitDbAndTable(DbMediaplans)
+	dbMediaplan := usecase.OpenDb(db, table)
 	var mediaplans []Mediaplan
-	filter := badgerhold.Where("MediaplanId").Eq(request.MediaplanId)
-	err := mediaplanQuery.Find(&mediaplans, filter)
+	err := dbMediaplan.FindWhereEq(&mediaplans, "MediaplanId", request.MediaplanId)
 	if err != nil {
 		return err
 	}
-	badgerAggMediaplans := badger.Open(DbAggMediaplans)
+	db, table = utils.SplitDbAndTable(DbAggMediaplans)
+	dbAggMediaplans := usecase.OpenDb(db, table)
 	for _, mediaplan := range mediaplans {
 		var cppOffPrimeWithDiscount float64
 		var cppPrimeWithDiscount float64
@@ -116,13 +116,15 @@ func (request *MediaplanAggUpdateRequest) Update() error {
 		/*load from budgets*/
 		var budget float64
 		var dealChannelStatus int64
-		budgetQuery := BudgetsBadgerQuery{}
+		db, table = utils.SplitDbAndTable(DbBudgets)
+		dbBudgets := usecase.OpenDb(db, table)
 		var budgets []Budget
-		filterBudgets := badgerhold.Where("Month").Eq(request.Month).
-			And("CnlID").Eq(*mediaplan.ChannelId).
-			And("AdtID").Eq(*mediaplan.AdtID).
-			And("AgrID").Eq(*mediaplan.AgreementId)
-		err = budgetQuery.Find(&budgets, filterBudgets)
+		err = dbBudgets.FindWhereAnd4Eq(&budgets,
+			"Month", request.Month,
+			"CnlID", *mediaplan.ChannelId,
+			"AdtID", *mediaplan.AdtID,
+			"AgrID", *mediaplan.AgreementId,
+		)
 		if err != nil {
 			return err
 		}
@@ -134,11 +136,11 @@ func (request *MediaplanAggUpdateRequest) Update() error {
 		var channelName string
 		var bcpName string
 		var bcpCentralID int64
-		channelQuery := ChannelBadgerQuery{}
+		db, table = utils.SplitDbAndTable(DbChannels)
+		dbChannels := usecase.OpenDb(db, table)
 		var channels []Channel
 		if mediaplan.ChannelId != nil {
-			filterChannels := badgerhold.Where("ID").Eq(*mediaplan.ChannelId)
-			err = channelQuery.Find(&channels, filterChannels)
+			err = dbChannels.FindWhereEq(&channels, "ID", *mediaplan.ChannelId)
 			if err != nil {
 				return err
 			}
@@ -149,11 +151,11 @@ func (request *MediaplanAggUpdateRequest) Update() error {
 			bcpCentralID = *channels[0].BcpCentralID
 		}
 		/*load from spots*/
-		spotQuery := SpotBadgerQuery{}
+		db, table = utils.SplitDbAndTable(DbSpots)
+		dbSpots := usecase.OpenDb(db, table)
 		var spots []Spot
 		if mediaplan.MplID != nil {
-			filterSpots := badgerhold.Where("MplID").Eq(*mediaplan.MplID)
-			err = spotQuery.Find(&spots, filterSpots)
+			err = dbSpots.FindWhereEq(&spots, "MplID", *mediaplan.MplID)
 			if err != nil {
 				return err
 			}
@@ -267,7 +269,7 @@ func (request *MediaplanAggUpdateRequest) Update() error {
 			BcpCentralID:            &bcpCentralID,
 			BcpName:                 &bcpName,
 		}
-		err = badgerAggMediaplans.Upsert(aggMediaplan.Key(), aggMediaplan)
+		err = dbAggMediaplans.AddOrUpdate(aggMediaplan.Key(), aggMediaplan)
 		if err != nil {
 			return err
 		}

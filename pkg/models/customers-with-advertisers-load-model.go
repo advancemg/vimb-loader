@@ -3,8 +3,10 @@ package models
 import (
 	"encoding/json"
 	goConvert "github.com/advancemg/go-convert"
+	"github.com/advancemg/vimb-loader/internal/usecase"
 	log "github.com/advancemg/vimb-loader/pkg/logging"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
+	"github.com/advancemg/vimb-loader/pkg/utils"
 )
 
 type CustomersWithAdvertisersLoadRequest struct {
@@ -44,12 +46,13 @@ func (request *CustomersWithAdvertisersLoadRequest) InitTasks() (CommonResponse,
 
 func (request *Any) QueryCustomersWithAdvertisers() ([]CustomersWithAdvertisers, error) {
 	var result []CustomersWithAdvertisers
-	query := CustomersWithAdvertisersBadgerQuery{}
+	db, table := utils.SplitDbAndTable(DbCustomersWithAdvertisers)
+	repo := usecase.OpenDb(db, table)
 	marshal, err := json.Marshal(request.Body)
 	if err != nil {
 		return nil, err
 	}
-	err = query.FindJson(&result, marshal)
+	err = repo.FindJson(&result, marshal)
 	if err != nil {
 		return nil, err
 	}
@@ -58,12 +61,13 @@ func (request *Any) QueryCustomersWithAdvertisers() ([]CustomersWithAdvertisers,
 
 func (request *Any) QueryCustomersWithAdvertisersData() ([]CustomersWithAdvertisersData, error) {
 	var result []CustomersWithAdvertisersData
-	query := CustomersWithAdvertisersDataBadgerQuery{}
+	db, table := utils.SplitDbAndTable(DbCustomersWithAdvertisersData)
+	repo := usecase.OpenDb(db, table)
 	marshal, err := json.Marshal(request.Body)
 	if err != nil {
 		return nil, err
 	}
-	err = query.FindJson(&result, marshal)
+	err = repo.FindJson(&result, marshal)
 	if err != nil {
 		return nil, err
 	}

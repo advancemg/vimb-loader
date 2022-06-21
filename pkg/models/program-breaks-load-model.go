@@ -3,6 +3,7 @@ package models
 import (
 	"encoding/json"
 	goConvert "github.com/advancemg/go-convert"
+	"github.com/advancemg/vimb-loader/internal/usecase"
 	log "github.com/advancemg/vimb-loader/pkg/logging"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/utils"
@@ -93,12 +94,13 @@ func (request *ProgramBreaksLoadRequest) getDays() ([]time.Time, error) {
 
 func (request *Any) QueryProgramBreaks() ([]ProgramBreaks, error) {
 	var result []ProgramBreaks
-	query := ProgramBreaksBadgerQuery{}
+	db, table := utils.SplitDbAndTable(DbProgramBreaks)
+	dbProgramBreaks := usecase.OpenDb(db, table)
 	marshal, err := json.Marshal(request.Body)
 	if err != nil {
 		return nil, err
 	}
-	err = query.FindJson(&result, marshal)
+	err = dbProgramBreaks.FindJson(&result, marshal)
 	if err != nil {
 		return nil, err
 	}
@@ -107,12 +109,13 @@ func (request *Any) QueryProgramBreaks() ([]ProgramBreaks, error) {
 
 func (request *Any) QueryProgramBreaksProMaster() ([]ProMaster, error) {
 	var result []ProMaster
-	query := ProgramBreaksProMasterBadgerQuery{}
+	db, table := utils.SplitDbAndTable(DbProgramBreaksProMaster)
+	dbProgramBreaksProMaster := usecase.OpenDb(db, table)
 	marshal, err := json.Marshal(request.Body)
 	if err != nil {
 		return nil, err
 	}
-	err = query.FindJson(&result, marshal)
+	err = dbProgramBreaksProMaster.FindJson(&result, marshal)
 	if err != nil {
 		return nil, err
 	}

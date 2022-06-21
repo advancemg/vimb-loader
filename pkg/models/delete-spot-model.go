@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"github.com/advancemg/badgerhold"
 	goConvert "github.com/advancemg/go-convert"
+	"github.com/advancemg/vimb-loader/internal/usecase"
 	"github.com/advancemg/vimb-loader/pkg/s3"
-	"github.com/advancemg/vimb-loader/pkg/storage/badger"
 	"github.com/advancemg/vimb-loader/pkg/utils"
 	"time"
 )
@@ -43,7 +43,9 @@ func (request *DeleteSpot) GetDataJson() (*JsonResponse, error) {
 func (request *DeleteSpot) GetDataXmlZip() (*StreamResponse, error) {
 	for {
 		var isTimeout utils.Timeout
-		err := badger.Open(DbTimeout).Get("vimb-timeout", &isTimeout)
+		db, table := utils.SplitDbAndTable(DbTimeout)
+		repo := usecase.OpenDb(db, table)
+		err := repo.Get("vimb-timeout", &isTimeout)
 		if err != nil {
 			if errors.Is(err, badgerhold.ErrNotFound) {
 				isTimeout.IsTimeout = false

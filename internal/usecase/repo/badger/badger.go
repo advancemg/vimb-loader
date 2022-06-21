@@ -16,8 +16,57 @@ func New(db *badgerhold.Store) *DbRepo {
 	return &DbRepo{db}
 }
 
-func (r *DbRepo) Find(result interface{}, filter interface{}) error {
-	return r.Find(result, filter)
+func (r *DbRepo) FindWhereEq(result interface{}, filed string, value interface{}) error {
+	var filter *badgerhold.Query
+	filter = badgerhold.Where(filed).Eq(value)
+	return r.Store.Find(result, filter)
+}
+
+func (r *DbRepo) FindWhereAnd2Eq(result interface{}, filed1 string, value1 interface{}, filed2 string, value2 interface{}) error {
+	var filter *badgerhold.Query
+	filter = badgerhold.Where(filed1).Eq(value1).And(filed2).Eq(value2)
+	return r.Store.Find(result, filter)
+}
+
+func (r *DbRepo) FindWhereAnd4Eq(result interface{}, filed1 string, value1 interface{}, filed2 string, value2 interface{}, filed3 string, value3 interface{}, filed4 string, value4 interface{}) error {
+	var filter *badgerhold.Query
+	filter = badgerhold.Where(filed1).Eq(value1).
+		And(filed2).Eq(value2).
+		And(filed3).Eq(value3).
+		And(filed4).Eq(value4)
+	return r.Store.Find(result, filter)
+}
+
+func (r *DbRepo) FindWhereNe(result interface{}, filed string, value interface{}) error {
+	var filter *badgerhold.Query
+	filter = badgerhold.Where(filed).Ne(value)
+	return r.Store.Find(result, filter)
+}
+
+func (r *DbRepo) FindWhereGt(result interface{}, filed string, value interface{}) error {
+	var filter *badgerhold.Query
+	filter = badgerhold.Where(filed).Gt(value)
+	return r.Store.Find(result, filter)
+}
+func (r *DbRepo) FindWhereLt(result interface{}, filed string, value interface{}) error {
+	var filter *badgerhold.Query
+	filter = badgerhold.Where(filed).Lt(value)
+	return r.Store.Find(result, filter)
+}
+func (r *DbRepo) FindWhereGe(result interface{}, filed string, value interface{}) error {
+	var filter *badgerhold.Query
+	filter = badgerhold.Where(filed).Ge(value)
+	return r.Store.Find(result, filter)
+}
+func (r *DbRepo) FindWhereLe(result interface{}, filed string, value interface{}) error {
+	var filter *badgerhold.Query
+	filter = badgerhold.Where(filed).Le(value)
+	return r.Store.Find(result, filter)
+}
+func (r *DbRepo) FindWhereIn(result interface{}, filed string, value interface{}) error {
+	var filter *badgerhold.Query
+	filter = badgerhold.Where(filed).In(value)
+	return r.Store.Find(result, filter)
 }
 
 func (r *DbRepo) FindJson(result interface{}, filter []byte) error {
@@ -28,7 +77,7 @@ func (r *DbRepo) FindJson(result interface{}, filter []byte) error {
 		return err
 	}
 	filterNetworks := HandleBadgerRequest(request)
-	return r.Find(result, filterNetworks)
+	return r.Store.Find(result, filterNetworks)
 }
 
 func (r *DbRepo) AddOrUpdate(key interface{}, data interface{}) error {
@@ -36,11 +85,11 @@ func (r *DbRepo) AddOrUpdate(key interface{}, data interface{}) error {
 }
 
 func (r *DbRepo) Get(key interface{}, result interface{}) error {
-	return r.Get(key, result)
+	return r.Store.Get(key, result)
 }
 
 func (r *DbRepo) Delete(key interface{}, dataType interface{}) error {
-	return r.Delete(key, dataType)
+	return r.Store.Delete(key, dataType)
 }
 
 func HandleBadgerRequest(request map[string]interface{}) *badgerhold.Query {

@@ -3,6 +3,7 @@ package models
 import (
 	"encoding/json"
 	goConvert "github.com/advancemg/go-convert"
+	"github.com/advancemg/vimb-loader/internal/usecase"
 	log "github.com/advancemg/vimb-loader/pkg/logging"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/utils"
@@ -78,12 +79,13 @@ func (request *ProgramBreaksLightModeLoadRequest) getDays() ([]time.Time, error)
 
 func (request *Any) QueryProgramBreaksLightMode() ([]ProgramBreaksLight, error) {
 	var result []ProgramBreaksLight
-	query := ProgramBreaksLightBadgerQuery{}
+	db, table := utils.SplitDbAndTable(DbProgramBreaksLightMode)
+	dbProgramBreaksLightMode := usecase.OpenDb(db, table)
 	marshal, err := json.Marshal(request.Body)
 	if err != nil {
 		return nil, err
 	}
-	err = query.FindJson(&result, marshal)
+	err = dbProgramBreaksLightMode.FindJson(&result, marshal)
 	if err != nil {
 		return nil, err
 	}

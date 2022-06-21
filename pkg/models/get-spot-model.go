@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"github.com/advancemg/badgerhold"
 	goConvert "github.com/advancemg/go-convert"
+	"github.com/advancemg/vimb-loader/internal/usecase"
 	log "github.com/advancemg/vimb-loader/pkg/logging"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
-	"github.com/advancemg/vimb-loader/pkg/storage/badger"
 	"github.com/advancemg/vimb-loader/pkg/utils"
 	"time"
 )
@@ -114,14 +114,16 @@ func (cfg *SpotsConfiguration) InitJob() func() {
 		channelList := map[int64]Cnl{}
 		months := map[int64][]time.Time{}
 		advertisers := map[int64]int64{}
-		badgerBudgets := badger.Open(DbBudgets)
-		err = badgerBudgets.Find(&budgets, badgerhold.Where("Month").Ge(int64(-1)))
+		db, table := utils.SplitDbAndTable(DbBudgets)
+		repoBudgets := usecase.OpenDb(db, table)
+		err = repoBudgets.FindWhereGe(&budgets, "Month", int64(-1))
 		if err != nil {
 			log.PrintLog("vimb-loader", "Spots InitJob", "error", "Q:", qName, "err:", err.Error())
 			return
 		}
-		badgerChannels := badger.Open(DbChannels)
-		err = badgerChannels.Find(&channels, badgerhold.Where("ID").Ge(int64(-1)))
+		db, table = utils.SplitDbAndTable(DbChannels)
+		repoChannels := usecase.OpenDb(db, table)
+		err = repoChannels.FindWhereGe(&channels, "ID", int64(-1))
 		for _, budget := range budgets {
 			advertisers[*budget.AdtID] = *budget.AdtID
 			channelList[*budget.CnlID] = Cnl{
@@ -196,7 +198,9 @@ func (request *GetSpots) GetDataJson() (*JsonResponse, error) {
 func (request *GetSpots) GetDataXmlZip() (*StreamResponse, error) {
 	for {
 		var isTimeout utils.Timeout
-		err := badger.Open(DbTimeout).Get("vimb-timeout", &isTimeout)
+		db, table := utils.SplitDbAndTable(DbTimeout)
+		repo := usecase.OpenDb(db, table)
+		err := repo.Get("vimb-timeout", &isTimeout)
 		if err != nil {
 			if errors.Is(err, badgerhold.ErrNotFound) {
 				isTimeout.IsTimeout = false

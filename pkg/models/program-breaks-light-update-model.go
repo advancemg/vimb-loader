@@ -3,10 +3,9 @@ package models
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/advancemg/badgerhold"
+	"github.com/advancemg/vimb-loader/internal/usecase"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
-	"github.com/advancemg/vimb-loader/pkg/storage/badger"
 	"github.com/advancemg/vimb-loader/pkg/utils"
 	"reflect"
 	"time"
@@ -167,7 +166,8 @@ func (request *ProgramBreaksLightUpdateRequest) loadFromFile() error {
 	if err != nil {
 		return err
 	}
-	badgerProgramBreaksLight := badger.Open(DbProgramBreaksLightMode)
+	db, table := utils.SplitDbAndTable(DbProgramBreaksLightMode)
+	dbProgramBreaksLightMode := usecase.OpenDb(db, table)
 	for _, dataB := range internalData {
 		programBreaksLight, err := dataB.Convert()
 		if err != nil {
@@ -175,18 +175,18 @@ func (request *ProgramBreaksLightUpdateRequest) loadFromFile() error {
 		}
 		var networksLight []ProgramBreaksLight
 		if programBreaksLight.BlockID != nil {
-			err = badgerProgramBreaksLight.Find(&networksLight, badgerhold.Where("BlockID").Eq(*programBreaksLight.BlockID))
+			err = dbProgramBreaksLightMode.FindWhereEq(&networksLight, "BlockID", *programBreaksLight.BlockID)
 			if err != nil {
 				return err
 			}
 		}
 		for _, item := range networksLight {
-			err = badgerProgramBreaksLight.Delete(item.Key(), item)
+			err = dbProgramBreaksLightMode.Delete(item.Key(), item)
 			if err != nil {
 				return err
 			}
 		}
-		err = badgerProgramBreaksLight.Upsert(programBreaksLight.Key(), programBreaksLight)
+		err = dbProgramBreaksLightMode.AddOrUpdate(programBreaksLight.Key(), programBreaksLight)
 		if err != nil {
 			return err
 		}

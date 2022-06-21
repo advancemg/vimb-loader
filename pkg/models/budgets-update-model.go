@@ -3,10 +3,9 @@ package models
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/advancemg/badgerhold"
+	"github.com/advancemg/vimb-loader/internal/usecase"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
-	"github.com/advancemg/vimb-loader/pkg/storage/badger"
 	"github.com/advancemg/vimb-loader/pkg/utils"
 	"reflect"
 	"time"
@@ -202,7 +201,8 @@ func (request *BudgetsUpdateRequest) loadFromFile() error {
 	if err != nil {
 		return err
 	}
-	badgerBudgets := badger.Open(DbBudgets)
+	db, table := utils.SplitDbAndTable(DbBudgets)
+	repo := usecase.OpenDb(db, table)
 	for _, dataM := range internalData {
 		budget, err := dataM.ConvertBudget()
 		if err != nil {
@@ -210,18 +210,18 @@ func (request *BudgetsUpdateRequest) loadFromFile() error {
 		}
 		var budgets []Budget
 		if budget.Month != nil {
-			err = badgerBudgets.Find(&budgets, badgerhold.Where("Month").Eq(*budget.Month))
+			err = repo.FindWhereEq(&budgets, "Month", *budget.Month)
 			if err != nil {
 				return err
 			}
 		}
 		for _, item := range budgets {
-			err = badgerBudgets.Delete(item.Key(), item)
+			err = repo.Delete(item.Key(), item)
 			if err != nil {
 				return err
 			}
 		}
-		err = badgerBudgets.Upsert(budget.Key(), budget)
+		err = repo.AddOrUpdate(budget.Key(), budget)
 		if err != nil {
 			return err
 		}
