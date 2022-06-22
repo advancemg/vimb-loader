@@ -12,39 +12,39 @@ import (
 )
 
 type Budget struct {
-	Month                 *int64       `json:"Month"`
-	CnlID                 *int64       `json:"CnlID"`
-	AdtID                 *int64       `json:"AdtID"`
-	AgrID                 *int64       `json:"AgrID"`
-	InventoryUnitDuration *int64       `json:"InventoryUnitDuration"`
-	DealChannelStatus     *int64       `json:"DealChannelStatus"`
-	FixPercent            *int64       `json:"FixPercent"`
-	GRPFix                *int64       `json:"GRPFix"`
-	AdtName               *string      `json:"AdtName"`
-	AgrName               *string      `json:"AgrName"`
-	CmpName               *string      `json:"CmpName"`
-	CnlName               *string      `json:"CnlName"`
-	TP                    *string      `json:"TP"`
-	Budget                *float64     `json:"Budget"`
-	CoordCost             *float64     `json:"CoordCost"`
-	Cost                  *float64     `json:"Cost"`
-	FixPercentPrime       *float64     `json:"FixPercentPrime"`
-	FloatPercent          *float64     `json:"FloatPercent"`
-	FloatPercentPrime     *float64     `json:"FloatPercentPrime"`
-	GRP                   *float64     `json:"GRP"`
-	GRPWithoutKF          *float64     `json:"GRPWithoutKF"`
-	Timestamp             time.Time    `json:"Timestamp"`
-	Quality               []BudgetItem `json:"Quality"`
+	Month                 *int64       `json:"Month" bson:"Month"`
+	CnlID                 *int64       `json:"CnlID" bson:"CnlID"`
+	AdtID                 *int64       `json:"AdtID" bson:"AdtID"`
+	AgrID                 *int64       `json:"AgrID" bson:"AgrID"`
+	InventoryUnitDuration *int64       `json:"InventoryUnitDuration" bson:"InventoryUnitDuration"`
+	DealChannelStatus     *int64       `json:"DealChannelStatus" bson:"DealChannelStatus"`
+	FixPercent            *int64       `json:"FixPercent" bson:"FixPercent"`
+	GRPFix                *int64       `json:"GRPFix" bson:"GRPFix"`
+	AdtName               *string      `json:"AdtName" bson:"AdtName"`
+	AgrName               *string      `json:"AgrName" bson:"AgrName"`
+	CmpName               *string      `json:"CmpName" bson:"CmpName"`
+	CnlName               *string      `json:"CnlName" bson:"CnlName"`
+	TP                    *string      `json:"TP" bson:"TP"`
+	Budget                *float64     `json:"Budget" bson:"Budget"`
+	CoordCost             *float64     `json:"CoordCost" bson:"CoordCost"`
+	Cost                  *float64     `json:"Cost" bson:"Cost"`
+	FixPercentPrime       *float64     `json:"FixPercentPrime" bson:"FixPercentPrime"`
+	FloatPercent          *float64     `json:"FloatPercent" bson:"FloatPercent"`
+	FloatPercentPrime     *float64     `json:"FloatPercentPrime" bson:"FloatPercentPrime"`
+	GRP                   *float64     `json:"GRP" bson:"GRP"`
+	GRPWithoutKF          *float64     `json:"GRPWithoutKF" bson:"GRPWithoutKF"`
+	Timestamp             time.Time    `json:"Timestamp" bson:"Timestamp"`
+	Quality               []BudgetItem `json:"Quality" bson:"Quality"`
 }
 
 type BudgetItem struct {
-	RankID            *int64   `json:"RankID"`
-	Percent           *float64 `json:"Percent"`
-	BudgetOffprime    *float64 `json:"BudgetOffprime"`
-	BudgetPrime       *float64 `json:"BudgetPrime"`
-	InventoryOffprime *float64 `json:"InventoryOffprime"`
-	InventoryPrime    *float64 `json:"InventoryPrime"`
-	PercentPrime      *float64 `json:"PercentPrime"`
+	RankID            *int64   `json:"RankID" bson:"RankID"`
+	Percent           *float64 `json:"Percent" bson:"Percent"`
+	BudgetOffprime    *float64 `json:"BudgetOffprime" bson:"BudgetOffprime"`
+	BudgetPrime       *float64 `json:"BudgetPrime" bson:"BudgetPrime"`
+	InventoryOffprime *float64 `json:"InventoryOffprime" bson:"InventoryOffprime"`
+	InventoryPrime    *float64 `json:"InventoryPrime" bson:"InventoryPrime"`
+	PercentPrime      *float64 `json:"PercentPrime" bson:"PercentPrime"`
 }
 
 type BudgetsUpdateRequest struct {

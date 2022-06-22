@@ -25,3 +25,6 @@ push-docker:
 	docker login -u emin790 -p f713bc5d-d100-4930-b555-b18741facffa
 	docker build -t emin790/testus . -f Dockerfile
 	docker push emin790/testus
+
+mongo:
+	docker run --name mongo -e MONGODB_DATABASE=db -e MONGO_INITDB_ROOT_USERNAME=root -e MONGO_INITDB_ROOT_PASSWORD=qwerty -p 27017:27017 -d arm64v8/mongo

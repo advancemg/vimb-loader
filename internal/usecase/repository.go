@@ -10,6 +10,8 @@ import (
 	"os"
 )
 
+const mongodb = "mongodb"
+
 type Repository struct {
 	repo DbInterface
 }
@@ -115,21 +117,24 @@ func New(r DbInterface) *Repository {
 }
 
 func OpenDb(database, table string) *Repository {
+	var repository *Repository
 	cfg := loadConfig()
-	db := badger.New(badger_client.Open(database + "/" + table))
-	repository := New(db)
-	if cfg.Database == "mongodb" {
+	switch cfg.Database {
+	case mongodb:
 		mongoClient, err := mongodb_client.New(
 			cfg.Mongo.Host,
 			cfg.Mongo.Port,
 			database,
 			cfg.Mongo.Username,
-			cfg.Mongo.Password,
-			cfg.Mongo.Debug)
+			cfg.Mongo.Password)
 		if err != nil {
 			panic(err)
 		}
-		repository = New(mongo.New(mongoClient, table))
+		db := mongo.New(mongoClient, database, table)
+		repository = New(db)
+	default:
+		db := badger.New(badger_client.Open(database + "/" + table))
+		repository = New(db)
 	}
 	return repository
 }

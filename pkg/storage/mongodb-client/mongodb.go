@@ -20,35 +20,22 @@ type Config struct {
 	Debug    string `json:"Debug"`
 }
 
-type Mongo struct {
-	Client *mongo.Client
+func New(host, port, db, username, password string) (*mongo.Client, error) {
+	return connect(host, port, db, username, password)
 }
 
-func New(host, port, db, username, password, debug string) (*Mongo, error) {
-	return connect(host, port, db, username, password, debug)
-}
-
-func connect(host, port, db, username, password, debug string) (*Mongo, error) {
+func connect(host, port, database, username, password string) (*mongo.Client, error) {
 	log.PrintLog("vimb-loader", service, "info", map[string]string{"MongodbClient": "start"})
-	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	credential := options.Credential{
-		AuthSource: db,
-		Username:   username,
-		Password:   password,
+		Username: username,
+		Password: password,
 	}
+	var url = fmt.Sprintf(`mongodb://%s:%s/%s`, host, port, database)
 	clientOptions := options.Client().
-		//SetAuth(credential).
-		ApplyURI(fmt.Sprintf(`mongodb://%s:%s/%s`, host, port, db)).
-		SetReplicaSet("rs0")
-	/*prod*/
-	if debug == `false` {
-		var url = fmt.Sprintf(`mongodb://%s:%s/%s`,
-			host, port, db)
-		clientOptions = options.Client().
-			SetAuth(credential).
-			ApplyURI(url)
-	}
+		SetAuth(credential).
+		ApplyURI(url)
 	client, err := mongo.Connect(ctx, clientOptions)
-	return &Mongo{Client: client}, err
+	return client, err
 }

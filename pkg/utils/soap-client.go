@@ -208,6 +208,8 @@ type Timeout struct {
 
 func wait(method string, code int, msg string, waitTime time.Duration) {
 	log.PrintLog("vimb-loader", "soap-client", "error", method, " ", "timeout code:", code, " ", msg)
+	//db := usecase.OpenDb("db", "timeout")
+	//TODO implement me
 	db := badger_client.Open("db/timeout")
 	err := db.UpsertTTL("vimb-timeout", Timeout{IsTimeout: true}, waitTime)
 	if err != nil {
