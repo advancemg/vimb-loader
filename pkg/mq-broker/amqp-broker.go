@@ -69,7 +69,10 @@ func (c *Config) Ping() bool {
 }
 
 func (c *Config) ServerStart() error {
-	cfg, _ := config.CreateDefault()
+	cfg, err := config.CreateDefault()
+	if err != nil {
+		return err
+	}
 	cfg.Queue.MaxMessagesInRAM = 1000
 	cfg.Connection.ChannelsMax = 2000
 	metrics.NewTrackRegistry(15, time.Second, false)

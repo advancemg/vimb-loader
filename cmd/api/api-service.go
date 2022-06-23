@@ -120,9 +120,11 @@ func main() {
 	for !s3Config.Ping() {
 	}
 	/* Clean BadgerGC every 15 min*/
-	go func() {
-		badger_client.CleanGC()
-	}()
+	if cfg.Load().Database != "mongodb" {
+		go func() {
+			badger_client.CleanGC()
+		}()
+	}
 	/* amqp server */
 	mqConfig := mq.InitConfig()
 	if localHostRegex.MatchString(mqConfig.MqHost) {

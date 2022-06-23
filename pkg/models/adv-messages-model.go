@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/advancemg/badgerhold"
 	goConvert "github.com/advancemg/go-convert"
 	"github.com/advancemg/vimb-loader/internal/usecase"
 	log "github.com/advancemg/vimb-loader/pkg/logging"
@@ -167,7 +166,7 @@ func (request *GetAdvMessages) GetDataXmlZip() (*StreamResponse, error) {
 		repo := usecase.OpenDb(db, table)
 		err := repo.Get("vimb-timeout", &isTimeout)
 		if err != nil {
-			if errors.Is(err, badgerhold.ErrNotFound) {
+			if errors.Is(err, usecase.ErrNotFound) {
 				isTimeout.IsTimeout = false
 			} else {
 				return nil, err

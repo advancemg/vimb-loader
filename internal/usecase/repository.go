@@ -2,16 +2,20 @@ package usecase
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/advancemg/vimb-loader/internal/usecase/repo/badger"
 	"github.com/advancemg/vimb-loader/internal/usecase/repo/mongo"
 	badger_client "github.com/advancemg/vimb-loader/pkg/storage/badger-client"
 	mongodb_client "github.com/advancemg/vimb-loader/pkg/storage/mongodb-client"
 	"os"
+	"strings"
 	"time"
 )
 
 const mongodb = "mongodb"
+
+var ErrNotFound = errors.New("No data found for this key")
 
 type Repository struct {
 	repo DbInterface
@@ -108,6 +112,9 @@ func (r *Repository) AddWithTTL(key, value interface{}, ttl time.Duration) error
 func (r *Repository) Get(key interface{}, result interface{}) error {
 	err := r.repo.Get(key, result)
 	if err != nil {
+		if strings.Contains(err.Error(), "No data found for this key") || strings.Contains(err.Error(), "mongo: no documents in result") {
+			return ErrNotFound
+		}
 		return fmt.Errorf("repository - Get - r.repo.Get: %w", err)
 	}
 	return nil
