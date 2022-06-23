@@ -1,8 +1,11 @@
 package usecase
 
+import "time"
+
 type DbInterface interface {
 	FindJson(result interface{}, filter []byte) error
 	AddOrUpdate(key interface{}, data interface{}) error
+	AddWithTTL(key, value interface{}, ttl time.Duration) error
 	Get(key interface{}, result interface{}) error
 	Delete(key interface{}, dataType interface{}) error
 	FindWhereEq(result interface{}, filed string, value interface{}) error

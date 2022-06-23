@@ -45,16 +45,65 @@ func (c *DbRepo) AddOrUpdate(key interface{}, data interface{}) error {
 	return nil
 }
 
+type Timeout struct {
+	IsTimeout bool          `json:"is_timeout" bson:"_id"`
+	CreatedAt time.Time     `json:"created_at" bson:"created_at"`
+	Ttl       time.Duration `json:"ttl" bson:"ttl"`
+}
+
 func (c *DbRepo) Get(key interface{}, result interface{}) error {
-	k := bson.M{key.(string): bson.M{"$gt": -1}}
+	k := bson.M{key.(string): bson.M{"$gt": false}}
 	c.connect()
 	log.PrintLog("vimb-loader", service, "info", map[string]string{"Get": "start"})
 	defer c.Client.Disconnect(context.Background())
-	col := c.Client.Database(c.database).Collection(c.table)
-	err := col.FindOne(context.TODO(), k).Decode(result)
+	var timeout Timeout
+	err := c.Client.Database(c.database).Collection(c.table).FindOne(context.TODO(), k).Decode(&timeout)
 	if err != nil {
 		return fmt.Errorf("mongodb - Get: %w", err)
 	}
+	currentTime := time.Now().UTC()
+	if currentTime.Sub(timeout.CreatedAt).Seconds() > timeout.Ttl.Seconds() {
+		_, err = c.DeleteOne(k)
+		if err != nil {
+			return err
+		}
+		timeout.IsTimeout = false
+	}
+	marshal, err := bson.Marshal(timeout)
+	if err != nil {
+		return err
+	}
+	err = bson.Unmarshal(marshal, result)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c *DbRepo) AddWithTTL(key, value interface{}, ttl time.Duration) error {
+	c.Get(key, value)
+	marshal, err := bson.Marshal(value)
+	if err != nil {
+		return err
+	}
+	var timeout Timeout
+	err = bson.Unmarshal(marshal, &timeout)
+	if err != nil {
+		return err
+	}
+	timeout.Ttl = ttl
+	timeout.CreatedAt = time.Now().UTC()
+	c.connect()
+	ctx := context.Background()
+	log.PrintLog("vimb-loader", service, "info", map[string]string{"AddWithTTL": "start"})
+	defer c.Client.Disconnect(ctx)
+	sessionCollection := c.Client.Database(c.database).Collection(c.table)
+	_, err = sessionCollection.InsertOne(ctx, bson.M{key.(string): timeout.IsTimeout, "created_at": timeout.CreatedAt, "ttl": timeout.Ttl})
+	if err != nil {
+		log.PrintLog("vimb-loader", service, "error", map[string]string{"MongoDBClient InsertOne": "error", "error": err.Error()})
+		return err
+	}
+	log.PrintLog("vimb-loader", service, "info", map[string]string{"MongoDBClient InsertOne": "OK"})
 	return nil
 }
 

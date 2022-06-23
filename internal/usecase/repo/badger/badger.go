@@ -6,6 +6,7 @@ import (
 	"github.com/advancemg/badgerhold"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type DbRepo struct {
@@ -82,6 +83,10 @@ func (r *DbRepo) FindJson(result interface{}, filter []byte) error {
 
 func (r *DbRepo) AddOrUpdate(key interface{}, data interface{}) error {
 	return r.Upsert(key, data)
+}
+
+func (r *DbRepo) AddWithTTL(key, value interface{}, ttl time.Duration) error {
+	return r.UpsertTTL(key, value, ttl)
 }
 
 func (r *DbRepo) Get(key interface{}, result interface{}) error {

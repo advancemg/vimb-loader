@@ -8,6 +8,7 @@ import (
 	badger_client "github.com/advancemg/vimb-loader/pkg/storage/badger-client"
 	mongodb_client "github.com/advancemg/vimb-loader/pkg/storage/mongodb-client"
 	"os"
+	"time"
 )
 
 const mongodb = "mongodb"
@@ -92,6 +93,14 @@ func (r *Repository) AddOrUpdate(key interface{}, data interface{}) error {
 	err := r.repo.AddOrUpdate(key, data)
 	if err != nil {
 		return fmt.Errorf("repository - AddOrUpdate - r.repo.AddOrUpdate: %w", err)
+	}
+	return nil
+}
+
+func (r *Repository) AddWithTTL(key, value interface{}, ttl time.Duration) error {
+	err := r.repo.AddWithTTL(key, value, ttl)
+	if err != nil {
+		return fmt.Errorf("repository - AddWithTTL - r.repo.AddWithTTL: %w", err)
 	}
 	return nil
 }

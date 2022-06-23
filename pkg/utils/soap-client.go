@@ -7,8 +7,8 @@ import (
 	"encoding/pem"
 	"fmt"
 	convert "github.com/advancemg/go-convert"
+	"github.com/advancemg/vimb-loader/internal/usecase"
 	log "github.com/advancemg/vimb-loader/pkg/logging"
-	"github.com/advancemg/vimb-loader/pkg/storage/badger-client"
 	"github.com/buger/jsonparser"
 	"golang.org/x/crypto/pkcs12"
 	"io"
@@ -203,15 +203,13 @@ func (e *VimbError) CheckTimeout(method string) {
 }
 
 type Timeout struct {
-	IsTimeout bool `json:"is_timeout"`
+	IsTimeout bool `json:"is_timeout" bson:"is_timeout"`
 }
 
 func wait(method string, code int, msg string, waitTime time.Duration) {
 	log.PrintLog("vimb-loader", "soap-client", "error", method, " ", "timeout code:", code, " ", msg)
-	//db := usecase.OpenDb("db", "timeout")
-	//TODO implement me
-	db := badger_client.Open("db/timeout")
-	err := db.UpsertTTL("vimb-timeout", Timeout{IsTimeout: true}, waitTime)
+	db := usecase.OpenDb("db", "timeout")
+	err := db.AddWithTTL("vimb-timeout", Timeout{IsTimeout: true}, waitTime)
 	if err != nil {
 		panic(err)
 	}
