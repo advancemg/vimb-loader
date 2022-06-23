@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func init() {
+func printLog(app, client, level, format string, v ...interface{}) {
 	LogFile := fmt.Sprintf("logs/%v", time.Now().Format(time.RFC3339))
 	logFile, err := os.OpenFile(LogFile, os.O_APPEND|os.O_RDWR|os.O_CREATE, 0644)
 	if err != nil {
@@ -26,9 +26,7 @@ func init() {
 		}
 	}
 	log.SetOutput(logFile)
-}
-
-func printLog(app, client, level, format string, v ...interface{}) {
+	defer logFile.Close()
 	setLogFormatter(format)
 	setLogLevel(level)
 	msg := map[string]interface{}{}
