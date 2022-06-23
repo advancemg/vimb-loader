@@ -15,27 +15,27 @@ type DeletedSpotInfoUpdateRequest struct {
 }
 
 type DeletedSpotInfo struct {
-	AgrID                  *int64     `json:"AgrID"`
-	OrdID                  *int64     `json:"OrdID"`
-	FilmID                 *int64     `json:"FilmID"`
-	FilmDur                *int64     `json:"FilmDur"`
-	BlockDate              *int64     `json:"BlockDate"`
-	BlockTime              *int64     `json:"BlockTime"`
-	Position               *int64     `json:"Position"`
-	BlockNumber            *int64     `json:"BlockNumber"`
-	Reason                 *int64     `json:"Reason"`
-	AffiliationType        *int64     `json:"AffiliationType"`
-	CurrentAuctionBidValue *int64     `json:"CurrentAuctionBidValue"`
-	BlockID                *int64     `json:"BlockID"`
-	SpotID                 *int64     `json:"SpotID"`
-	AgrName                *string    `json:"AgrName"`
-	CnlName                *string    `json:"CnlName"`
-	PrgName                *string    `json:"PrgName"`
-	OrdName                *string    `json:"OrdName"`
-	FilmName               *string    `json:"FilmName"`
-	FilmVersion            *string    `json:"FilmVersion"`
-	DeleteDateTime         *time.Time `json:"DeleteDateTime"`
-	Timestamp              time.Time  `json:"Timestamp"`
+	AgrID                  *int64     `json:"AgrID" bson:"AgrID"`
+	OrdID                  *int64     `json:"OrdID" bson:"OrdID"`
+	FilmID                 *int64     `json:"FilmID" bson:"FilmID"`
+	FilmDur                *int64     `json:"FilmDur" bson:"FilmDur"`
+	BlockDate              *int64     `json:"BlockDate" bson:"BlockDate"`
+	BlockTime              *int64     `json:"BlockTime" bson:"BlockTime"`
+	Position               *int64     `json:"Position" bson:"Position"`
+	BlockNumber            *int64     `json:"BlockNumber" bson:"BlockNumber"`
+	Reason                 *int64     `json:"Reason" bson:"Reason"`
+	AffiliationType        *int64     `json:"AffiliationType" bson:"AffiliationType"`
+	CurrentAuctionBidValue *int64     `json:"CurrentAuctionBidValue" bson:"CurrentAuctionBidValue"`
+	BlockID                *int64     `json:"BlockID" bson:"BlockID"`
+	SpotID                 *int64     `json:"SpotID" bson:"SpotID"`
+	AgrName                *string    `json:"AgrName" bson:"AgrName"`
+	CnlName                *string    `json:"CnlName" bson:"CnlName"`
+	PrgName                *string    `json:"PrgName" bson:"PrgName"`
+	OrdName                *string    `json:"OrdName" bson:"OrdName"`
+	FilmName               *string    `json:"FilmName" bson:"FilmName"`
+	FilmVersion            *string    `json:"FilmVersion" bson:"FilmVersion"`
+	DeleteDateTime         *time.Time `json:"DeleteDateTime" bson:"DeleteDateTime"`
+	Timestamp              time.Time  `json:"Timestamp" bson:"Timestamp"`
 }
 
 func (deletedSpotInfo *DeletedSpotInfo) Key() string {

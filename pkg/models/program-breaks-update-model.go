@@ -17,68 +17,68 @@ type ProgramBreaksUpdateRequest struct {
 }
 
 type ProgramBreaks struct {
-	Month                  *int64             `json:"Month"`
-	CnlID                  *int64             `json:"CnlID"`
-	ProgID                 *int64             `json:"ProgID"`
-	RCID                   *int64             `json:"RCID"`
-	RPID                   *int64             `json:"RPID"`
-	IssTime                *int64             `json:"IssTime"`
-	IssDuration            *int64             `json:"IssDuration"`
-	BlockTime              *int64             `json:"BlockTime"`
-	BlockNumber            *int64             `json:"BlockNumber"`
-	IsPrime                *int64             `json:"IsPrime"`
-	ProID                  *int64             `json:"ProID"`
-	ProOriginalPTR         *int64             `json:"ProOriginalPTR"`
-	BlockDistr             *int64             `json:"BlockDistr"`
-	SptOptions             *int64             `json:"SptOptions"`
-	TNSBlockFactTime       *int64             `json:"TNSBlockFactTime"`
-	TNSBlockFactDur        *int64             `json:"TNSBlockFactDur"`
-	Pro2                   *int64             `json:"Pro2"`
-	BlkAdvertTypePTR       *int64             `json:"BlkAdvertTypePTR"`
-	WeekDay                *int64             `json:"WeekDay"`
-	PrgBegTimeL            *int64             `json:"PrgBegTimeL"`
-	PrgEndMonthL           *int64             `json:"PrgEndMonthL"`
-	PrgBegMonthL           *int64             `json:"PrgBegMonthL"`
-	BlkAuc                 *int64             `json:"BlkAuc"`
-	AucRate                *int64             `json:"AucRate"`
-	NoRating               *int64             `json:"NoRating"`
-	AvailableAuctionVolume *int64             `json:"AvailableAuctionVolume"`
-	IsLocal                *int64             `json:"IsLocal"`
-	RootRCID               *int64             `json:"RootRCID"`
-	RootRPID               *int64             `json:"RootRPID"`
-	IsSpecialProject       *int64             `json:"IsSpecialProject"`
-	RankID                 *int64             `json:"RankID"`
-	IssID                  *int64             `json:"IssID"`
-	TNSBlockFactID         *int64             `json:"TNSBlockFactID"`
-	ForecastRateBase       *float64           `json:"ForecastRateBase"`
-	FactRateBase           *float64           `json:"FactRateBase"`
-	RateAll                *float64           `json:"RateAll"`
-	AuctionStepPrice       *float64           `json:"AuctionStepPrice"`
-	PrgName                *string            `json:"PrgName"`
-	CnlName                *string            `json:"CnlName"`
-	PrgNameShort           *string            `json:"PrgNameShort"`
-	TgrID                  *string            `json:"TgrID"`
-	TgrName                *string            `json:"TgrName"`
-	BlockDate              *int64             `json:"BlockDate"`
-	Booked                 []BookedAttributes `json:"Booked"`
-	BlockID                *int64             `json:"BlockID"`
-	VM                     *int64             `json:"VM"`
-	VR                     *int64             `json:"VR"`
-	DLDate                 *time.Time         `json:"DLDate"`
-	DLTrDate               *time.Time         `json:"DLTrDate"`
-	Timestamp              time.Time          `json:"Timestamp"`
+	Month                  *int64             `json:"Month" bson:"Month"`
+	CnlID                  *int64             `json:"CnlID" bson:"CnlID"`
+	ProgID                 *int64             `json:"ProgID" bson:"ProgID"`
+	RCID                   *int64             `json:"RCID" bson:"RCID"`
+	RPID                   *int64             `json:"RPID" bson:"RPID"`
+	IssTime                *int64             `json:"IssTime" bson:"IssTime"`
+	IssDuration            *int64             `json:"IssDuration" bson:"IssDuration"`
+	BlockTime              *int64             `json:"BlockTime" bson:"BlockTime"`
+	BlockNumber            *int64             `json:"BlockNumber" bson:"BlockNumber"`
+	IsPrime                *int64             `json:"IsPrime" bson:"IsPrime"`
+	ProID                  *int64             `json:"ProID" bson:"ProID"`
+	ProOriginalPTR         *int64             `json:"ProOriginalPTR" bson:"ProOriginalPTR"`
+	BlockDistr             *int64             `json:"BlockDistr" bson:"BlockDistr"`
+	SptOptions             *int64             `json:"SptOptions" bson:"SptOptions"`
+	TNSBlockFactTime       *int64             `json:"TNSBlockFactTime" bson:"TNSBlockFactTime"`
+	TNSBlockFactDur        *int64             `json:"TNSBlockFactDur" bson:"TNSBlockFactDur"`
+	Pro2                   *int64             `json:"Pro2" bson:"Pro2"`
+	BlkAdvertTypePTR       *int64             `json:"BlkAdvertTypePTR" bson:"BlkAdvertTypePTR"`
+	WeekDay                *int64             `json:"WeekDay" bson:"WeekDay"`
+	PrgBegTimeL            *int64             `json:"PrgBegTimeL" bson:"PrgBegTimeL"`
+	PrgEndMonthL           *int64             `json:"PrgEndMonthL" bson:"PrgEndMonthL"`
+	PrgBegMonthL           *int64             `json:"PrgBegMonthL" bson:"PrgBegMonthL"`
+	BlkAuc                 *int64             `json:"BlkAuc" bson:"BlkAuc"`
+	AucRate                *int64             `json:"AucRate" bson:"AucRate"`
+	NoRating               *int64             `json:"NoRating" bson:"NoRating"`
+	AvailableAuctionVolume *int64             `json:"AvailableAuctionVolume" bson:"AvailableAuctionVolume"`
+	IsLocal                *int64             `json:"IsLocal" bson:"IsLocal"`
+	RootRCID               *int64             `json:"RootRCID" bson:"RootRCID"`
+	RootRPID               *int64             `json:"RootRPID" bson:"RootRPID"`
+	IsSpecialProject       *int64             `json:"IsSpecialProject" bson:"IsSpecialProject"`
+	RankID                 *int64             `json:"RankID" bson:"RankID"`
+	IssID                  *int64             `json:"IssID" bson:"IssID"`
+	TNSBlockFactID         *int64             `json:"TNSBlockFactID" bson:"TNSBlockFactID"`
+	ForecastRateBase       *float64           `json:"ForecastRateBase" bson:"ForecastRateBase"`
+	FactRateBase           *float64           `json:"FactRateBase" bson:"FactRateBase"`
+	RateAll                *float64           `json:"RateAll" bson:"RateAll"`
+	AuctionStepPrice       *float64           `json:"AuctionStepPrice" bson:"AuctionStepPrice"`
+	PrgName                *string            `json:"PrgName" bson:"PrgName"`
+	CnlName                *string            `json:"CnlName" bson:"CnlName"`
+	PrgNameShort           *string            `json:"PrgNameShort" bson:"PrgNameShort"`
+	TgrID                  *string            `json:"TgrID" bson:"TgrID"`
+	TgrName                *string            `json:"TgrName" bson:"TgrName"`
+	BlockDate              *int64             `json:"BlockDate" bson:"BlockDate"`
+	Booked                 []BookedAttributes `json:"Booked" bson:"Booked"`
+	BlockID                *int64             `json:"BlockID" bson:"BlockID"`
+	VM                     *int64             `json:"VM" bson:"VM"`
+	VR                     *int64             `json:"VR" bson:"VR"`
+	DLDate                 *time.Time         `json:"DLDate" bson:"DLDate"`
+	DLTrDate               *time.Time         `json:"DLTrDate" bson:"DLTrDate"`
+	Timestamp              time.Time          `json:"Timestamp" bson:"Timestamp"`
 }
 
 type internalAttr struct {
-	BlockID string `json:"BlockID"`
-	VM      string `json:"VM"`
-	VR      string `json:"VR"`
+	BlockID string `json:"BlockID" bson:"BlockID"`
+	VM      string `json:"VM" bson:"VM"`
+	VR      string `json:"VR" bson:"VR"`
 }
 
 type Attributes struct {
-	BlockID *int64 `json:"BlockID"`
-	VM      *int64 `json:"VM"`
-	VR      *int64 `json:"VR"`
+	BlockID *int64 `json:"BlockID" bson:"BlockID"`
+	VM      *int64 `json:"VM" bson:"VM"`
+	VR      *int64 `json:"VR" bson:"VR"`
 }
 
 func (a *internalAttr) Convert() (*Attributes, error) {
@@ -91,9 +91,9 @@ func (a *internalAttr) Convert() (*Attributes, error) {
 }
 
 type BookedAttributes struct {
-	RankID *int64 `json:"RankID"`
-	VM     *int64 `json:"VM"`
-	VR     *int64 `json:"VR"`
+	RankID *int64 `json:"RankID" bson:"RankID"`
+	VM     *int64 `json:"VM" bson:"VM"`
+	VR     *int64 `json:"VR" bson:"VR"`
 }
 
 func (a *internalAttributes) Convert() (*BookedAttributes, error) {
@@ -106,10 +106,10 @@ func (a *internalAttributes) Convert() (*BookedAttributes, error) {
 }
 
 type ProMaster struct {
-	ProID     *int64    `json:"ProID"`
-	PropName  *string   `json:"PropName"`
-	PropValue *string   `json:"PropValue"`
-	Timestamp time.Time `json:"Timestamp"`
+	ProID     *int64    `json:"ProID" bson:"ProID"`
+	PropName  *string   `json:"PropName" bson:"PropName"`
+	PropValue *string   `json:"PropValue" bson:"PropValue"`
+	Timestamp time.Time `json:"Timestamp" bson:"Timestamp"`
 }
 
 func (p *internalP) Convert() (*ProMaster, error) {
@@ -124,13 +124,13 @@ func (p *internalP) Convert() (*ProMaster, error) {
 }
 
 type BlockForecast struct {
-	TgrID            *int64    `json:"TgrID"`
-	BlockID          *int64    `json:"BlockID"`
-	Forecast         *float64  `json:"Forecast"`
-	InternetForecast *float64  `json:"InternetForecast"`
-	Fact             *float64  `json:"Fact"`
-	ForecastQuality  *string   `json:"ForecastQuality"`
-	Timestamp        time.Time `json:"Timestamp"`
+	TgrID            *int64    `json:"TgrID" bson:"TgrID"`
+	BlockID          *int64    `json:"BlockID" bson:"BlockID"`
+	Forecast         *float64  `json:"Forecast" bson:"Forecast"`
+	InternetForecast *float64  `json:"InternetForecast" bson:"InternetForecast"`
+	Fact             *float64  `json:"Fact" bson:"Fact"`
+	ForecastQuality  *string   `json:"ForecastQuality" bson:"ForecastQuality"`
+	Timestamp        time.Time `json:"Timestamp" bson:"Timestamp"`
 }
 
 func (bb *internalBB) Convert() (*BlockForecast, error) {
@@ -148,9 +148,9 @@ func (bb *internalBB) Convert() (*BlockForecast, error) {
 }
 
 type BlockForecastTgr struct {
-	ID        *int64    `json:"ID"`
-	Name      *string   `json:"Name"`
-	Timestamp time.Time `json:"Timestamp"`
+	ID        *int64    `json:"ID" bson:"ID"`
+	Name      *string   `json:"Name" bson:"Name"`
+	Timestamp time.Time `json:"Timestamp" bson:"Timestamp"`
 }
 
 func (t *internalTgr) Convert() (*BlockForecastTgr, error) {

@@ -13,15 +13,15 @@ type ProgramUpdateRequest struct {
 }
 
 type Program struct {
-	CnlID        *int64    `json:"CnlID"`
-	ProgID       *int64    `json:"ProgID"`
-	ProID        *int64    `json:"ProID"`
-	Pro2         *int64    `json:"Pro2"`
-	RPID         *int64    `json:"RPID"`
-	PrgName      *string   `json:"PrgName"`
-	CnlName      *string   `json:"CnlName"`
-	PrgNameShort *string   `json:"PrgNameShort"`
-	Timestamp    time.Time `json:"Timestamp"`
+	CnlID        *int64    `json:"CnlID" bson:"CnlID"`
+	ProgID       *int64    `json:"ProgID" bson:"ProgID"`
+	ProID        *int64    `json:"ProID" bson:"ProID"`
+	Pro2         *int64    `json:"Pro2" bson:"Pro2"`
+	RPID         *int64    `json:"RPID" bson:"RPID""`
+	PrgName      *string   `json:"PrgName" bson:"PrgName"`
+	CnlName      *string   `json:"CnlName" bson:"CnlName"`
+	PrgNameShort *string   `json:"PrgNameShort" bson:"PrgNameShort"`
+	Timestamp    time.Time `json:"Timestamp" bson:"Timestamp"`
 }
 
 func (program *Program) Key() string {

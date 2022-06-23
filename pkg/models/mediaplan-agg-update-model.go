@@ -10,46 +10,46 @@ import (
 )
 
 type MediaplanAggUpdateRequest struct {
-	Month        int64 `json:"month"`
-	ChannelId    int64 `json:"channelId"`
-	MediaplanId  int64 `json:"mediaplanId"`
-	AdvertiserId int64 `json:"advertiserId"`
-	AgreementId  int64 `json:"agreementId"`
+	Month        int64 `json:"month" bson:"month"`
+	ChannelId    int64 `json:"channelId" bson:"channelId"`
+	MediaplanId  int64 `json:"mediaplanId" bson:"mediaplanId"`
+	AdvertiserId int64 `json:"advertiserId" bson:"advertiserId"`
+	AgreementId  int64 `json:"agreementId" bson:"agreementId"`
 }
 
 type MediaplanAgg struct {
-	AdtID                   *int64     `json:"AdtID"`
-	AdtName                 *string    `json:"AdtName"`
-	AgreementId             *int64     `json:"AgreementId"`
-	AllocationType          *int64     `json:"AllocationType"`
-	AmountFact              *float64   `json:"AmountFact"`
-	AmountPlan              *float64   `json:"AmountPlan"`
-	BrandName               *string    `json:"BrandName"`
-	Budget                  *float64   `json:"Budget"`
-	ChannelId               *int64     `json:"ChannelId"`
-	ChannelName             *string    `json:"ChannelName"`
-	CppOffPrime             *float64   `json:"CppOffPrime"`
-	CppOffPrimeWithDiscount *float64   `json:"CppOffPrimeWithDiscount"`
-	CppPrime                *float64   `json:"CppPrime"`
-	CppPrimeWithDiscount    *float64   `json:"CppPrimeWithDiscount"`
-	DealChannelStatus       *int64     `json:"DealChannelStatus"`
-	FactOff                 *float64   `json:"FactOff"`
-	FactPrime               *float64   `json:"FactPrime"`
-	FixPriority             *int64     `json:"FixPriority"`
-	GrpPlan                 *float64   `json:"GrpPlan"`
-	GrpTotal                *float64   `json:"GrpTotal"`
-	InventoryUnitDuration   *int64     `json:"InventoryUnitDuration"`
-	MediaplanState          *int64     `json:"MediaplanState"`
-	MplID                   *int64     `json:"MplID"`
-	MplMonth                *int64     `json:"MplMonth"`
-	MplName                 *string    `json:"MplName"`
-	SpotsPrimePercent       *float64   `json:"SpotsPrimePercent"`
-	SuperFix                *string    `json:"SuperFix"`
-	UpdateDate              *time.Time `json:"UpdateDate"`
-	UserGrpPlan             *string    `json:"UserGrpPlan"`
-	WeeksInfo               []WeekInfo `json:"WeeksInfo"`
-	BcpCentralID            *int64     `json:"bcpCentralID"`
-	BcpName                 *string    `json:"bcpName"`
+	AdtID                   *int64     `json:"AdtID" bson:"AdtID"`
+	AdtName                 *string    `json:"AdtName" bson:"AdtName"`
+	AgreementId             *int64     `json:"AgreementId" bson:"AgreementId"`
+	AllocationType          *int64     `json:"AllocationType" bson:"AllocationType"`
+	AmountFact              *float64   `json:"AmountFact" bson:"AmountFact"`
+	AmountPlan              *float64   `json:"AmountPlan" bson:"AmountPlan"`
+	BrandName               *string    `json:"BrandName" bson:"BrandName"`
+	Budget                  *float64   `json:"Budget" bson:"Budget"`
+	ChannelId               *int64     `json:"ChannelId" bson:"ChannelId"`
+	ChannelName             *string    `json:"ChannelName" bson:"ChannelName"`
+	CppOffPrime             *float64   `json:"CppOffPrime" bson:"CppOffPrime"`
+	CppOffPrimeWithDiscount *float64   `json:"CppOffPrimeWithDiscount" bson:"CppOffPrimeWithDiscount"`
+	CppPrime                *float64   `json:"CppPrime" bson:"CppPrime"`
+	CppPrimeWithDiscount    *float64   `json:"CppPrimeWithDiscount" bson:"CppPrimeWithDiscount"`
+	DealChannelStatus       *int64     `json:"DealChannelStatus" bson:"DealChannelStatus"`
+	FactOff                 *float64   `json:"FactOff" bson:"FactOff"`
+	FactPrime               *float64   `json:"FactPrime" bson:"FactPrime"`
+	FixPriority             *int64     `json:"FixPriority" bson:"FixPriority"`
+	GrpPlan                 *float64   `json:"GrpPlan" bson:"GrpPlan"`
+	GrpTotal                *float64   `json:"GrpTotal" bson:"GrpTotal"`
+	InventoryUnitDuration   *int64     `json:"InventoryUnitDuration" bson:"InventoryUnitDuration"`
+	MediaplanState          *int64     `json:"MediaplanState" bson:"MediaplanState"`
+	MplID                   *int64     `json:"MplID" bson:"MplID"`
+	MplMonth                *int64     `json:"MplMonth" bson:"MplMonth"`
+	MplName                 *string    `json:"MplName" bson:"MplName"`
+	SpotsPrimePercent       *float64   `json:"SpotsPrimePercent" bson:"SpotsPrimePercent"`
+	SuperFix                *string    `json:"SuperFix" bson:"SuperFix"`
+	UpdateDate              *time.Time `json:"UpdateDate" bson:"UpdateDate"`
+	UserGrpPlan             *string    `json:"UserGrpPlan" bson:"UserGrpPlan"`
+	WeeksInfo               []WeekInfo `json:"WeeksInfo" bson:"WeeksInfo"`
+	BcpCentralID            *int64     `json:"bcpCentralID" bson:"bcpCentralID"`
+	BcpName                 *string    `json:"bcpName" bson:"bcpName"`
 }
 
 func (mediaplan *MediaplanAgg) Key() string {

@@ -203,13 +203,13 @@ func (e *VimbError) CheckTimeout(method string) {
 }
 
 type Timeout struct {
-	IsTimeout bool `json:"is_timeout" bson:"is_timeout"`
+	IsTimeout bool `json:"id" bson:"_id"`
 }
 
 func wait(method string, code int, msg string, waitTime time.Duration) {
 	log.PrintLog("vimb-loader", "soap-client", "error", method, " ", "timeout code:", code, " ", msg)
 	db := usecase.OpenDb("db", "timeout")
-	err := db.AddWithTTL("vimb-timeout", Timeout{IsTimeout: true}, waitTime)
+	err := db.AddWithTTL("_id", Timeout{IsTimeout: true}, waitTime)
 	if err != nil {
 		panic(err)
 	}

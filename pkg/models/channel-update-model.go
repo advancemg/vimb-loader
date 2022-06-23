@@ -25,26 +25,26 @@ type internalChanelAspect struct {
 }
 
 type Channel struct {
-	ID                 *int64         `json:"ID"`
-	MainChnl           *int64         `json:"MainChnl"`
-	SellingDirectionID *int64         `json:"SellingDirectionID"`
-	CnlOrderNo         *int64         `json:"CnlOrderNo"`
-	CnlCentralID       *int64         `json:"cnlCentralID"`
-	IsDisabled         *int64         `json:"IsDisabled"`
-	BcpCentralID       *int64         `json:"bcpCentralID"`
-	ShortName          *string        `json:"ShortName"`
-	BcpName            *string        `json:"bcpName"`
-	StartTime          *string        `json:"StartTime"`
-	EndTime            *string        `json:"EndTime"`
-	TotalOffset        *string        `json:"TotalOffset"`
-	Timestamp          time.Time      `json:"Timestamp"`
-	Aspects            []ChanelAspect `json:"Aspects"`
+	ID                 *int64         `json:"ID" bson:"ID"`
+	MainChnl           *int64         `json:"MainChnl" bson:"MainChnl"`
+	SellingDirectionID *int64         `json:"SellingDirectionID" bson:"SellingDirectionID"`
+	CnlOrderNo         *int64         `json:"CnlOrderNo" bson:"CnlOrderNo"`
+	CnlCentralID       *int64         `json:"cnlCentralID" bson:"cnlCentralID"`
+	IsDisabled         *int64         `json:"IsDisabled" bson:"IsDisabled"`
+	BcpCentralID       *int64         `json:"bcpCentralID" bson:"bcpCentralID"`
+	ShortName          *string        `json:"ShortName" bson:"ShortName"`
+	BcpName            *string        `json:"bcpName" bson:"bcpName"`
+	StartTime          *string        `json:"StartTime" bson:"StartTime"`
+	EndTime            *string        `json:"EndTime" bson:"EndTime"`
+	TotalOffset        *string        `json:"TotalOffset" bson:"TotalOffset"`
+	Timestamp          time.Time      `json:"Timestamp" bson:"Timestamp"`
+	Aspects            []ChanelAspect `json:"Aspects" bson:"Aspects"`
 }
 
 type ChanelAspect struct {
-	StartDate *time.Time `json:"StartDate"`
-	EndDate   *time.Time `json:"EndDate"`
-	ID        *int64     `json:"ID"`
+	StartDate *time.Time `json:"StartDate" bson:"StartDate"`
+	EndDate   *time.Time `json:"EndDate" bson:"EndDate"`
+	ID        *int64     `json:"ID" bson:"ID"`
 }
 
 func (m *internalChanelAspect) Convert() (*ChanelAspect, error) {

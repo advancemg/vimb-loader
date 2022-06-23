@@ -49,7 +49,7 @@ func (request *ChangeMPlanFilmPlannedInventory) GetDataXmlZip() (*StreamResponse
 		var isTimeout utils.Timeout
 		db, table := utils.SplitDbAndTable(DbTimeout)
 		repo := usecase.OpenDb(db, table)
-		err := repo.Get("vimb-timeout", &isTimeout)
+		err := repo.Get("_id", &isTimeout)
 		if err != nil {
 			if errors.Is(err, usecase.ErrNotFound) {
 				isTimeout.IsTimeout = false

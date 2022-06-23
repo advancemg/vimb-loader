@@ -23,18 +23,18 @@ type internalDetail struct {
 }
 
 type Ranks struct {
-	ID        *int64    `json:"ID"`
-	Name      *string   `json:"Name"`
-	Timestamp time.Time `json:"Timestamp"`
-	Details   []Detail  `json:"Details"`
+	ID        *int64    `json:"ID" bson:"ID"`
+	Name      *string   `json:"Name" bson:"Name"`
+	Timestamp time.Time `json:"Timestamp" bson:"Timestamp"`
+	Details   []Detail  `json:"Details" bson:"Details"`
 }
 
 type Detail struct {
-	SellingDirectionID *int64     `json:"SellingDirectionID"`
-	OrderNo            *int64     `json:"OrderNo"`
-	UsesAuction        *bool      `json:"UsesAuction"`
-	StartDate          *time.Time `json:"StartDate"`
-	EndDate            *time.Time `json:"EndDate"`
+	SellingDirectionID *int64     `json:"SellingDirectionID" bson:"SellingDirectionID"`
+	OrderNo            *int64     `json:"OrderNo" bson:"OrderNo"`
+	UsesAuction        *bool      `json:"UsesAuction" bson:"UsesAuction"`
+	StartDate          *time.Time `json:"StartDate" bson:"StartDate"`
+	EndDate            *time.Time `json:"EndDate" bson:"EndDate"`
 }
 
 func (r *Ranks) Key() string {

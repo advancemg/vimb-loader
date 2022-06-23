@@ -16,92 +16,92 @@ type internalMDiscount struct {
 }
 
 type Mediaplan struct {
-	AdtID                 *int64                  `json:"AdtID"`
-	AdtName               *string                 `json:"AdtName"`
-	AdvID                 *int64                  `json:"AdvID"`
-	AgrID                 *int64                  `json:"AgrID"`
-	AgrName               *string                 `json:"AgrName"`
-	AllocationType        *int64                  `json:"AllocationType"`
-	AmountFact            *float64                `json:"AmountFact"`
-	AmountPlan            *float64                `json:"AmountPlan"`
-	BrandID               *int64                  `json:"BrandID"`
-	BrandName             *string                 `json:"BrandName"`
-	CPPoffprime           *float64                `json:"CPPoffprime"`
-	CPPprime              *float64                `json:"CPPprime"`
-	ComplimentId          *int64                  `json:"CommInMplID"`
-	ContractBeg           *int64                  `json:"ContractBeg"`
-	ContractEnd           *int64                  `json:"ContractEnd"`
-	DateFrom              *int64                  `json:"DateFrom"`
-	DateTo                *int64                  `json:"DateTo"`
-	DealChannelStatus     *int64                  `json:"DealChannelStatus"`
-	Discounts             []MediaplanDiscountItem `json:"Discounts"`
-	DoubleAdvertiser      *bool                   `json:"DoubleAdvertiser"`
-	DtpID                 *int64                  `json:"DtpID"`
-	DublSpot              *int64                  `json:"DublSpot"`
-	FbrName               *string                 `json:"FbrName"`
-	FilmDur               *int64                  `json:"FilmDur"`
-	FilmDurKoef           *float64                `json:"FilmDurKoef"`
-	FilmID                *int64                  `json:"FilmID"`
-	FilmName              *string                 `json:"FilmName"`
-	FilmVersion           *string                 `json:"FilmVersion"`
-	FixPriceAsFloat       *int64                  `json:"FixPriceAsFloat"`
-	FixPriority           *int64                  `json:"FixPriority"`
-	GRP                   *float64                `json:"GRP"`
-	GRPShift              *float64                `json:"GRPShift"`
-	GrpFact               *float64                `json:"GrpFact"`
-	GrpPlan               *float64                `json:"GrpPlan"`
-	GrpTotal              *float64                `json:"GrpTotal"`
-	GrpTotalPrime         *float64                `json:"GrpTotalPrime"`
-	HasReserve            *int64                  `json:"HasReserve"`
-	InventoryUnitDuration *int64                  `json:"InventoryUnitDuration"`
-	MplCbrID              *int64                  `json:"MplCbrID"`
-	MplCbrName            *string                 `json:"MplCbrName"`
-	MplCnlID              *int64                  `json:"MplCnlID"`
-	MplID                 *int64                  `json:"MplID"`
-	MplMonth              *string                 `json:"MplMonth"`
-	MplName               *string                 `json:"MplName"`
-	MplState              *int64                  `json:"MplState"`
-	Multiple              *int64                  `json:"Multiple"`
-	OBDPos                *int64                  `json:"OBDPos"`
-	OrdFrID               *int64                  `json:"OrdFrID"`
-	OrdID                 *int64                  `json:"OrdID"`
-	OrdIsTriggered        *int64                  `json:"OrdIsTriggered"`
-	OrdName               *string                 `json:"OrdName"`
-	PBACond               *string                 `json:"PBACond"`
-	PBAObjID              *int64                  `json:"PBAObjID"`
-	ProdClassID           *int64                  `json:"ProdClassID"`
-	SellingDirection      *int64                  `json:"SellingDirection"`
-	SplitMessageGroupID   *int64                  `json:"SplitMessageGroupID"`
-	SumShift              *float64                `json:"SumShift"`
-	TPName                *string                 `json:"TPName"`
-	TgrID                 *string                 `json:"TgrID"`
-	TgrName               *string                 `json:"TgrName"`
-	Timestamp             *time.Time              `json:"Timestamp"`
-	AdvertiserId          *int64                  `json:"AdvertiserId"`
-	AgreementId           *int64                  `json:"AgreementId"`
-	ChannelId             *int64                  `json:"ChannelId"`
-	FfoaAllocated         *int64                  `json:"ffoaAllocated"`
-	FfoaLawAcc            *int64                  `json:"ffoaLawAcc"`
-	FilmId                *int64                  `json:"FilmId"`
-	MediaplanId           *int64                  `json:"MediaplanId"`
-	Month                 *int64                  `json:"Month"`
-	OrdBegDate            *int64                  `json:"ordBegDate"`
-	OrdEndDate            *int64                  `json:"ordEndDate"`
-	OrdManager            *string                 `json:"ordManager"`
+	AdtID                 *int64                  `json:"AdtID" bson:"AdtID"`
+	AdtName               *string                 `json:"AdtName" bson:"AdtName"`
+	AdvID                 *int64                  `json:"AdvID" bson:"AdvID"`
+	AgrID                 *int64                  `json:"AgrID" bson:"AgrID"`
+	AgrName               *string                 `json:"AgrName" bson:"AgrName"`
+	AllocationType        *int64                  `json:"AllocationType" bson:"AllocationType"`
+	AmountFact            *float64                `json:"AmountFact" bson:"AmountFact"`
+	AmountPlan            *float64                `json:"AmountPlan" bson:"AmountPlan"`
+	BrandID               *int64                  `json:"BrandID" bson:"BrandID"`
+	BrandName             *string                 `json:"BrandName" bson:"BrandName"`
+	CPPoffprime           *float64                `json:"CPPoffprime" bson:"CPPoffprime"`
+	CPPprime              *float64                `json:"CPPprime" bson:"CPPprime"`
+	ComplimentId          *int64                  `json:"CommInMplID" bson:"ComplimentId"`
+	ContractBeg           *int64                  `json:"ContractBeg" bson:"ContractBeg"`
+	ContractEnd           *int64                  `json:"ContractEnd" bson:"ContractEnd"`
+	DateFrom              *int64                  `json:"DateFrom" bson:"DateFrom"`
+	DateTo                *int64                  `json:"DateTo" bson:"DateTo"`
+	DealChannelStatus     *int64                  `json:"DealChannelStatus" bson:"DealChannelStatus"`
+	Discounts             []MediaplanDiscountItem `json:"Discounts" bson:"Discounts"`
+	DoubleAdvertiser      *bool                   `json:"DoubleAdvertiser" bson:"DoubleAdvertiser"`
+	DtpID                 *int64                  `json:"DtpID" bson:"DtpID"`
+	DublSpot              *int64                  `json:"DublSpot" bson:"DublSpot"`
+	FbrName               *string                 `json:"FbrName" bson:"FbrName"`
+	FilmDur               *int64                  `json:"FilmDur" bson:"FilmDur"`
+	FilmDurKoef           *float64                `json:"FilmDurKoef" bson:"FilmDurKoef"`
+	FilmID                *int64                  `json:"FilmID" bson:"FilmID"`
+	FilmName              *string                 `json:"FilmName" bson:"FilmName"`
+	FilmVersion           *string                 `json:"FilmVersion" bson:"FilmVersion"`
+	FixPriceAsFloat       *int64                  `json:"FixPriceAsFloat" bson:"FixPriceAsFloat"`
+	FixPriority           *int64                  `json:"FixPriority" bson:"FixPriority"`
+	GRP                   *float64                `json:"GRP" bson:"GRP"`
+	GRPShift              *float64                `json:"GRPShift" bson:"GRPShift"`
+	GrpFact               *float64                `json:"GrpFact" bson:"GrpFact"`
+	GrpPlan               *float64                `json:"GrpPlan" bson:"GrpPlan"`
+	GrpTotal              *float64                `json:"GrpTotal" bson:"GrpTotal"`
+	GrpTotalPrime         *float64                `json:"GrpTotalPrime" bson:"GrpTotalPrime"`
+	HasReserve            *int64                  `json:"HasReserve" bson:"HasReserve"`
+	InventoryUnitDuration *int64                  `json:"InventoryUnitDuration" bson:"InventoryUnitDuration"`
+	MplCbrID              *int64                  `json:"MplCbrID" bson:"MplCbrID"`
+	MplCbrName            *string                 `json:"MplCbrName" bson:"MplCbrName"`
+	MplCnlID              *int64                  `json:"MplCnlID" bson:"MplCnlID"`
+	MplID                 *int64                  `json:"MplID" bson:"MplID"`
+	MplMonth              *string                 `json:"MplMonth" bson:"MplMonth"`
+	MplName               *string                 `json:"MplName" bson:"MplName"`
+	MplState              *int64                  `json:"MplState" bson:"MplState"`
+	Multiple              *int64                  `json:"Multiple" bson:"Multiple"`
+	OBDPos                *int64                  `json:"OBDPos" bson:"OBDPos"`
+	OrdFrID               *int64                  `json:"OrdFrID" bson:"OrdFrID"`
+	OrdID                 *int64                  `json:"OrdID" bson:"OrdID"`
+	OrdIsTriggered        *int64                  `json:"OrdIsTriggered" bson:"OrdIsTriggered"`
+	OrdName               *string                 `json:"OrdName" bson:"OrdName"`
+	PBACond               *string                 `json:"PBACond" bson:"PBACond"`
+	PBAObjID              *int64                  `json:"PBAObjID" bson:"PBAObjID"`
+	ProdClassID           *int64                  `json:"ProdClassID" bson:"ProdClassID"`
+	SellingDirection      *int64                  `json:"SellingDirection" bson:"SellingDirection"`
+	SplitMessageGroupID   *int64                  `json:"SplitMessageGroupID" bson:"SplitMessageGroupID"`
+	SumShift              *float64                `json:"SumShift" bson:"SumShift"`
+	TPName                *string                 `json:"TPName" bson:"TPName"`
+	TgrID                 *string                 `json:"TgrID" bson:"TgrID"`
+	TgrName               *string                 `json:"TgrName" bson:"TgrName"`
+	Timestamp             *time.Time              `json:"Timestamp" bson:"Timestamp"`
+	AdvertiserId          *int64                  `json:"AdvertiserId" bson:"AdvertiserId"`
+	AgreementId           *int64                  `json:"AgreementId" bson:"AgreementId"`
+	ChannelId             *int64                  `json:"ChannelId" bson:"ChannelId"`
+	FfoaAllocated         *int64                  `json:"ffoaAllocated" bson:"ffoaAllocated"`
+	FfoaLawAcc            *int64                  `json:"ffoaLawAcc" bson:"ffoaLawAcc"`
+	FilmId                *int64                  `json:"FilmId" bson:"FilmId"`
+	MediaplanId           *int64                  `json:"MediaplanId" bson:"MediaplanId"`
+	Month                 *int64                  `json:"Month" bson:"Month"`
+	OrdBegDate            *int64                  `json:"ordBegDate" bson:"ordBegDate"`
+	OrdEndDate            *int64                  `json:"ordEndDate" bson:"ordEndDate"`
+	OrdManager            *string                 `json:"ordManager" bson:"ordManager"`
 }
 type MediaplanDiscountItem struct {
-	DiscountFactor          *float64   `json:"DiscountFactor"`
-	TypeID                  *int64     `json:"TypeID"`
-	IsManual                *bool      `json:"IsManual"`
-	DicountEndDate          *time.Time `json:"DicountEndDate"`
-	IsSpotPositionDependent *bool      `json:"IsSpotPositionDependent"`
-	DiscountTypeName        *string    `json:"DiscountTypeName"`
-	DiscountStartDate       *time.Time `json:"DiscountStartDate"`
-	ValueID                 *int64     `json:"ValueID"`
-	ApplicableToDeals       *bool      `json:"ApplicableToDeals"`
-	ApplyingTypeID          *int64     `json:"ApplyingTypeID"`
-	IsDiscountAggregate     *bool      `json:"IsDiscountAggregate"`
-	AggregationMethodName   *string    `json:"AggregationMethodName"`
+	DiscountFactor          *float64   `json:"DiscountFactor" bson:"DiscountFactor"`
+	TypeID                  *int64     `json:"TypeID" bson:"TypeID"`
+	IsManual                *bool      `json:"IsManual" bson:"IsManual"`
+	DicountEndDate          *time.Time `json:"DicountEndDate" bson:"DicountEndDate"`
+	IsSpotPositionDependent *bool      `json:"IsSpotPositionDependent" bson:"IsSpotPositionDependent"`
+	DiscountTypeName        *string    `json:"DiscountTypeName" bson:"DiscountTypeName"`
+	DiscountStartDate       *time.Time `json:"DiscountStartDate" bson:"DiscountStartDate"`
+	ValueID                 *int64     `json:"ValueID" bson:"ValueID"`
+	ApplicableToDeals       *bool      `json:"ApplicableToDeals" bson:"ApplicableToDeals"`
+	ApplyingTypeID          *int64     `json:"ApplyingTypeID" bson:"ApplyingTypeID"`
+	IsDiscountAggregate     *bool      `json:"IsDiscountAggregate" bson:"IsDiscountAggregate"`
+	AggregationMethodName   *string    `json:"AggregationMethodName" bson:"AggregationMethodName"`
 }
 
 type MediaplanUpdateRequest struct {

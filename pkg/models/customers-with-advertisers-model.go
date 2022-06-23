@@ -126,7 +126,7 @@ func (request *GetCustomersWithAdvertisers) GetDataXmlZip() (*StreamResponse, er
 		var isTimeout utils.Timeout
 		db := badger.New(badger_client.Open(DbTimeout))
 		repo := usecase.New(db)
-		err := repo.Get("vimb-timeout", &isTimeout)
+		err := repo.Get("_id", &isTimeout)
 		if err != nil {
 			if errors.Is(err, usecase.ErrNotFound) {
 				isTimeout.IsTimeout = false

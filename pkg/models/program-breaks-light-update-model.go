@@ -16,11 +16,11 @@ type ProgramBreaksLightUpdateRequest struct {
 }
 
 type ProgramBreaksLight struct {
-	Booked    []BookedAttributes `json:"Booked"`
-	BlockID   *int64             `json:"BlockID"`
-	VM        *int64             `json:"VM"`
-	VR        *int64             `json:"VR"`
-	Timestamp time.Time          `json:"Timestamp"`
+	Booked    []BookedAttributes `json:"Booked" bson:"Booked"`
+	BlockID   *int64             `json:"BlockID" bson:"BlockID"`
+	VM        *int64             `json:"VM" bson:"VM"`
+	VR        *int64             `json:"VR" bson:"VR"`
+	Timestamp time.Time          `json:"Timestamp" bson:"Timestamp"`
 }
 
 func (program *ProgramBreaksLight) Key() string {

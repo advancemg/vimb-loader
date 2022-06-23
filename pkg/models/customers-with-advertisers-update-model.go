@@ -16,15 +16,15 @@ type CustomersWithAdvertisersUpdateRequest struct {
 }
 
 type CustomersWithAdvertisers struct {
-	Timestamp time.Time `json:"Timestamp"`
-	ID        *int64    `json:"ID"`
-	Name      *string   `json:"Name"`
+	Timestamp time.Time `json:"Timestamp" bson:"Timestamp"`
+	ID        *int64    `json:"ID" bson:"ID"`
+	Name      *string   `json:"Name" bson:"Name"`
 }
 
 type CustomersWithAdvertisersData struct {
-	Timestamp time.Time `json:"Timestamp"`
-	CustID    *int64    `json:"CustID"`
-	AdvID     *int64    `json:"AdvID"`
+	Timestamp time.Time `json:"Timestamp" bson:"Timestamp"`
+	CustID    *int64    `json:"CustID" bson:"CustID"`
+	AdvID     *int64    `json:"AdvID" bson:"AdvID"`
 }
 
 func (c *CustomersWithAdvertisers) Key() string {

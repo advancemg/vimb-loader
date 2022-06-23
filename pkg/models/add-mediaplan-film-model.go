@@ -12,10 +12,10 @@ import (
 )
 
 type SwaggerAddMPlanFilmRequest struct {
-	MplID     string `json:"MplID"`
-	FilmID    string `json:"FilmID"`
-	StartDate string `json:"StartDate"`
-	EndDate   string `json:"EndDate"`
+	MplID     string `json:"MplID" bson:"MplID"`
+	FilmID    string `json:"FilmID" bson:"FilmID"`
+	StartDate string `json:"StartDate" bson:"StartDate"`
+	EndDate   string `json:"EndDate" bson:"EndDate"`
 }
 
 type AddMPlanFilm struct {
@@ -47,7 +47,7 @@ func (request *AddMPlanFilm) GetDataXmlZip() (*StreamResponse, error) {
 		var isTimeout utils.Timeout
 		db, table := utils.SplitDbAndTable(DbTimeout)
 		repo := usecase.OpenDb(db, table)
-		err := repo.Get("vimb-timeout", &isTimeout)
+		err := repo.Get("_id", &isTimeout)
 		if err != nil {
 			if errors.Is(err, usecase.ErrNotFound) {
 				isTimeout.IsTimeout = false

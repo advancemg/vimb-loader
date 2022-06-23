@@ -17,52 +17,52 @@ type SpotsUpdateRequest struct {
 }
 
 type Spot struct {
-	Rating30               *float64   `json:"Rating30"`
-	IsPrime                *int64     `json:"IsPrime"`
-	FilmID                 *int64     `json:"FilmID"`
-	FilmVersion            *string    `json:"FilmVersion"`
-	FilmName               *string    `json:"FilmName"`
-	FilmDur                *int64     `json:"FilmDur"`
-	SpotPullRating         *float64   `json:"SpotPullRating"`
-	DLDate                 *time.Time `json:"DLDate"`
-	SptChnlPTR             *int64     `json:"sptChnlPTR"`
-	CommInMplID            *int64     `json:"CommInMplID"`
-	Positioning            *int64     `json:"Positioning"`
-	AgrID                  *int64     `json:"AgrID"`
-	MplID                  *int64     `json:"MplID"`
-	OrdID                  *int64     `json:"OrdID"`
-	AtpID                  *int64     `json:"AtpID"`
-	DtpID                  *int64     `json:"DtpID"`
-	TgrID                  *int64     `json:"TgrID"`
-	SptDateL               *int64     `json:"SptDateL"`
-	FloatPriority          *int64     `json:"FloatPriority"`
-	CurrentAuctionBidValue *int64     `json:"CurrentAuctionBidValue"`
-	SpotOrderNo            *int64     `json:"SpotOrderNo"`
-	SpotBroadcastTime      *int64     `json:"SpotBroadcastTime"`
-	SpotFactBroadcastTime  *int64     `json:"SpotFactBroadcastTime"`
-	AllocationType         *int64     `json:"AllocationType"`
-	FixPriority            *int64     `json:"FixPriority"`
-	SpotReserve            *int64     `json:"SpotReserve"`
-	RankID                 *int64     `json:"RankID"`
-	SpotID                 *int64     `json:"SpotID"`
-	BlockID                *int64     `json:"BlockID"`
-	TNSSpotsID             *int64     `json:"TNSSpotsID"`
-	TNSBlockID             *int64     `json:"TNSBlockID"`
-	Rating                 *float64   `json:"Rating"`
-	BaseRating             *float64   `json:"BaseRating"`
-	OTS                    *float64   `json:"OTS"`
-	IRating                *float64   `json:"IRating"`
-	IBaseRating            *float64   `json:"IBaseRating"`
-	IsHumanBeing           *bool      `json:"IsHumanBeing"`
-	Timestamp              time.Time  `json:"Timestamp"`
+	Rating30               *float64   `json:"Rating30" bson:"Rating30"`
+	IsPrime                *int64     `json:"IsPrime" bson:"IsPrime"`
+	FilmID                 *int64     `json:"FilmID" bson:"FilmID"`
+	FilmVersion            *string    `json:"FilmVersion" bson:"FilmVersion"`
+	FilmName               *string    `json:"FilmName" bson:"FilmName"`
+	FilmDur                *int64     `json:"FilmDur" bson:"FilmDur"`
+	SpotPullRating         *float64   `json:"SpotPullRating" bson:"SpotPullRating"`
+	DLDate                 *time.Time `json:"DLDate" bson:"DLDate"`
+	SptChnlPTR             *int64     `json:"sptChnlPTR" bson:"SptChnlPTR"`
+	CommInMplID            *int64     `json:"CommInMplID" bson:"CommInMplID"`
+	Positioning            *int64     `json:"Positioning" bson:"Positioning"`
+	AgrID                  *int64     `json:"AgrID" bson:"AgrID"`
+	MplID                  *int64     `json:"MplID" bson:"MplID"`
+	OrdID                  *int64     `json:"OrdID" bson:"OrdID"`
+	AtpID                  *int64     `json:"AtpID" bson:"AtpID"`
+	DtpID                  *int64     `json:"DtpID" bson:"DtpID"`
+	TgrID                  *int64     `json:"TgrID" bson:"TgrID"`
+	SptDateL               *int64     `json:"SptDateL" bson:"SptDateL"`
+	FloatPriority          *int64     `json:"FloatPriority" bson:"FloatPriority"`
+	CurrentAuctionBidValue *int64     `json:"CurrentAuctionBidValue" bson:"CurrentAuctionBidValue"`
+	SpotOrderNo            *int64     `json:"SpotOrderNo" bson:"SpotOrderNo"`
+	SpotBroadcastTime      *int64     `json:"SpotBroadcastTime" bson:"SpotBroadcastTime"`
+	SpotFactBroadcastTime  *int64     `json:"SpotFactBroadcastTime" bson:"SpotFactBroadcastTime"`
+	AllocationType         *int64     `json:"AllocationType" bson:"AllocationType"`
+	FixPriority            *int64     `json:"FixPriority" bson:"FixPriority"`
+	SpotReserve            *int64     `json:"SpotReserve" bson:"SpotReserve"`
+	RankID                 *int64     `json:"RankID" bson:"RankID"`
+	SpotID                 *int64     `json:"SpotID" bson:"SpotID"`
+	BlockID                *int64     `json:"BlockID" bson:"BlockID"`
+	TNSSpotsID             *int64     `json:"TNSSpotsID" bson:"TNSSpotsID"`
+	TNSBlockID             *int64     `json:"TNSBlockID" bson:"TNSBlockID"`
+	Rating                 *float64   `json:"Rating" bson:"Rating"`
+	BaseRating             *float64   `json:"BaseRating" bson:"BaseRating"`
+	OTS                    *float64   `json:"OTS" bson:"OTS"`
+	IRating                *float64   `json:"IRating" bson:"IRating"`
+	IBaseRating            *float64   `json:"IBaseRating" bson:"IBaseRating"`
+	IsHumanBeing           *bool      `json:"IsHumanBeing" bson:"IsHumanBeing"`
+	Timestamp              time.Time  `json:"Timestamp" bson:"Timestamp"`
 }
 
 type SpotOrderBlock struct {
-	OrdID     *int      `json:"OrdID"`
-	BlockID   *int64    `json:"BlockID"`
-	Rate      *float64  `json:"Rate"`
-	IRate     *float64  `json:"IRate"`
-	Timestamp time.Time `json:"Timestamp"`
+	OrdID     *int      `json:"OrdID" bson:"OrdID"`
+	BlockID   *int64    `json:"BlockID" bson:"BlockID"`
+	Rate      *float64  `json:"Rate" bson:"Rate"`
+	IRate     *float64  `json:"IRate" bson:"IRate"`
+	Timestamp time.Time `json:"Timestamp" bson:"Timestamp"`
 }
 
 func (orderBlock *SpotOrderBlock) Key() string {

@@ -15,25 +15,25 @@ type AdvertiserUpdateRequest struct {
 }
 
 type Advertiser struct {
-	AdtID                 *string   `json:"AdtID"`
-	GroupID               *string   `json:"GroupID"`
-	AdtName               *string   `json:"AdtName"`
-	FilmName              *string   `json:"FilmName"`
-	FilmVersion           *string   `json:"FilmVersion"`
-	BrandName             *string   `json:"BrandName"`
-	AspectName            *string   `json:"AspectName"`
-	FilmID                *int64    `json:"FilmID"`
-	FilmDur               *int64    `json:"FilmDur"`
-	BrandID               *int64    `json:"BrandID"`
-	ProdClassID           *int64    `json:"ProdClassID"`
-	FfoaAllocated         *int64    `json:"FfoaAllocated"`
-	FfoaLawAcc            *int64    `json:"FfoaLawAcc"`
-	AspectID              *int64    `json:"AspectID"`
-	DoubleAdvertiser      *bool     `json:"DoubleAdvertiser"`
-	HasSpots              *bool     `json:"HasSpots"`
-	HasBroadcastMaterials *bool     `json:"HasBroadcastMaterials"`
-	HasPreviewMaterials   *bool     `json:"HasPreviewMaterials"`
-	Timestamp             time.Time `json:"Timestamp"`
+	AdtID                 *string   `json:"AdtID" bson:"AdtID"`
+	GroupID               *string   `json:"GroupID" bson:"GroupID""`
+	AdtName               *string   `json:"AdtName" bson:"AdtName"`
+	FilmName              *string   `json:"FilmName" bson:"FilmName"`
+	FilmVersion           *string   `json:"FilmVersion" bson:"FilmVersion"`
+	BrandName             *string   `json:"BrandName" bson:"BrandName"`
+	AspectName            *string   `json:"AspectName" bson:"AspectName"`
+	FilmID                *int64    `json:"FilmID" bson:"FilmID"`
+	FilmDur               *int64    `json:"FilmDur" bson:"FilmDur"`
+	BrandID               *int64    `json:"BrandID" bson:"BrandID"`
+	ProdClassID           *int64    `json:"ProdClassID" bson:"ProdClassID"`
+	FfoaAllocated         *int64    `json:"FfoaAllocated" bson:"FfoaAllocated"`
+	FfoaLawAcc            *int64    `json:"FfoaLawAcc" bson:"FfoaLawAcc"`
+	AspectID              *int64    `json:"AspectID" bson:"AspectID"`
+	DoubleAdvertiser      *bool     `json:"DoubleAdvertiser" bson:"DoubleAdvertiser"`
+	HasSpots              *bool     `json:"HasSpots" bson:"HasSpots"`
+	HasBroadcastMaterials *bool     `json:"HasBroadcastMaterials" bson:"HasBroadcastMaterials"`
+	HasPreviewMaterials   *bool     `json:"HasPreviewMaterials" bson:"HasPreviewMaterials"`
+	Timestamp             time.Time `json:"Timestamp" bson:"Timestamp"`
 }
 
 func (adv *Advertiser) Key() string {

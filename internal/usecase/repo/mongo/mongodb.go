@@ -46,7 +46,7 @@ func (c *DbRepo) AddOrUpdate(key interface{}, data interface{}) error {
 }
 
 type Timeout struct {
-	IsTimeout bool          `json:"is_timeout" bson:"_id"`
+	IsTimeout bool          `json:"id" bson:"_id"`
 	CreatedAt time.Time     `json:"created_at" bson:"created_at"`
 	Ttl       time.Duration `json:"ttl" bson:"ttl"`
 }

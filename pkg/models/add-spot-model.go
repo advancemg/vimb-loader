@@ -12,11 +12,11 @@ import (
 )
 
 type SwaggerAddSpotRequest struct {
-	BlockID         string `json:"BlockID"`
-	FilmID          string `json:"FilmID"`
-	Position        string `json:"Position"`
-	FixedPosition   string `json:"FixedPosition"`
-	AuctionBidValue string `json:"AuctionBidValue"`
+	BlockID         string `json:"BlockID" bson:"BlockID"`
+	FilmID          string `json:"FilmID" bson:"FilmID"`
+	Position        string `json:"Position" bson:"Position"`
+	FixedPosition   string `json:"FixedPosition" bson:"FixedPosition"`
+	AuctionBidValue string `json:"AuctionBidValue" bson:"AuctionBidValue"`
 }
 
 type AddSpot struct {
@@ -48,7 +48,7 @@ func (request *AddSpot) GetDataXmlZip() (*StreamResponse, error) {
 		var isTimeout utils.Timeout
 		db, table := utils.SplitDbAndTable(DbTimeout)
 		repo := usecase.OpenDb(db, table)
-		err := repo.Get("vimb-timeout", &isTimeout)
+		err := repo.Get("_id", &isTimeout)
 		if err != nil {
 			if errors.Is(err, usecase.ErrNotFound) {
 				isTimeout.IsTimeout = false
