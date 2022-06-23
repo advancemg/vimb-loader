@@ -17,7 +17,6 @@ type Config struct {
 	DB       string `json:"Db"`
 	Username string `json:"Username"`
 	Password string `json:"Password"`
-	Debug    string `json:"Debug"`
 }
 
 func New(host, port, db, username, password string) (*mongo.Client, error) {

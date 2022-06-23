@@ -410,13 +410,6 @@ func enterConfig() {
 			line = "qwerty"
 		}
 		cfg.Mongo.Password = line
-		fmt.Printf("%s", "Enter S3 Debug(docker true):")
-		line, err = readLine()
-		checkErr(err)
-		if line != "false" {
-			line = "true"
-		}
-		cfg.Mongo.Debug = line
 		/*Choose database*/
 		fmt.Printf("%s", "Enter database, mongodb or badger(default badger):")
 		line, err = readLine()
