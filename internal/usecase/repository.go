@@ -166,8 +166,8 @@ func loadConfig() *config {
 	if err != nil {
 		panic(err)
 	}
-	defer configFile.Close()
 	jsonParser := json.NewDecoder(configFile)
 	jsonParser.Decode(&cfg)
+	configFile.Close()
 	return &cfg
 }
