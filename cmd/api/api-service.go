@@ -5,7 +5,7 @@ import (
 	"fmt"
 	_ "github.com/advancemg/vimb-loader/docs"
 	cfg "github.com/advancemg/vimb-loader/internal/config"
-	"github.com/advancemg/vimb-loader/pkg/models"
+	"github.com/advancemg/vimb-loader/internal/models"
 	mq "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/routes"
 	"github.com/advancemg/vimb-loader/pkg/s3"

@@ -96,7 +96,7 @@
     * Введите пароль MongoDB. ``Enter MongoDB Password(docker qwerty):``
     * Введите адрес ВИМБ сервиса. 435 боевой, 436
       тестовый. ``Enter url(default https://vimb-svc.vitpc.com:436/VIMBService.asmx):``
-    * Введите сертификат выданный ВИМБ в формате base64. ``Enter cert:``
+    * Введите сертификат выданный ВИМБ в формате base64 или укажите путь к сертификату. ``"Enter certificate format. 1 - cert file, 2 - cert base64?:"``
     * для преобразовая сертификата в base64 выволните команду:
     ``` bash
      # "Certificate_file=путь к сертификату"

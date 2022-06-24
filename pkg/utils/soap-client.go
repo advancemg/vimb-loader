@@ -7,7 +7,7 @@ import (
 	"encoding/pem"
 	"fmt"
 	convert "github.com/advancemg/go-convert"
-	"github.com/advancemg/vimb-loader/internal/usecase"
+	"github.com/advancemg/vimb-loader/internal/store"
 	log "github.com/advancemg/vimb-loader/pkg/logging"
 	"github.com/buger/jsonparser"
 	"golang.org/x/crypto/pkcs12"
@@ -22,6 +22,7 @@ import (
 type Config struct {
 	Url      string `json:"url"`
 	Cert     string `json:"cert"`
+	CertFile string `json:"certFile"`
 	Password string `json:"password"`
 	Client   string `json:"client"`
 	Timeout  string `json:"timeout"`
@@ -63,9 +64,18 @@ func (cfg *Config) newClient() *http.Client {
 	if err != nil {
 		panic(err)
 	}
-	dataCert, err := base64.StdEncoding.DecodeString(cfg.Cert)
-	if err != nil {
-		log.PrintLog("vimb-loader", "soap-client", "error", "base64.StdEncoding error", err.Error())
+	var dataCert []byte
+	if cfg.Cert != "" {
+		dataCert, err = base64.StdEncoding.DecodeString(cfg.Cert)
+		if err != nil {
+			log.PrintLog("vimb-loader", "soap-client", "error", "base64.StdEncoding error", err.Error())
+		}
+	}
+	if cfg.CertFile != "" {
+		dataCert, err = FileToBase64(cfg.CertFile)
+		if err != nil {
+			log.PrintLog("vimb-loader", "soap-client", "error", "base64.StdEncoding error", err.Error())
+		}
 	}
 	blocks, err := pkcs12.ToPEM(dataCert, cfg.Password)
 	if err != nil {
@@ -208,7 +218,7 @@ type Timeout struct {
 
 func wait(method string, code int, msg string, waitTime time.Duration) {
 	log.PrintLog("vimb-loader", "soap-client", "error", method, " ", "timeout code:", code, " ", msg)
-	db := usecase.OpenDb("db", "timeout")
+	db := store.OpenDb("db", "timeout")
 	err := db.AddWithTTL("_id", Timeout{IsTimeout: true}, waitTime)
 	if err != nil {
 		panic(err)

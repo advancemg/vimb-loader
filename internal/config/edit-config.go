@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/advancemg/vimb-loader/pkg/models"
+	"github.com/advancemg/vimb-loader/internal/models"
 	mq "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
 	"github.com/advancemg/vimb-loader/pkg/storage/mongodb-client"
@@ -31,6 +31,7 @@ type Configuration struct {
 	Database                 string                                       `json:"database"`
 	Url                      string                                       `json:"url"`
 	Cert                     string                                       `json:"cert"`
+	CertFile                 string                                       `json:"certFile"`
 	Password                 string                                       `json:"password"`
 	Client                   string                                       `json:"client"`
 	Timeout                  string                                       `json:"timeout"`
@@ -448,10 +449,20 @@ func enterConfig() {
 			line = "https://vimb-svc.vitpc.com:436/VIMBService.asmx"
 		}
 		cfg.Url = line
-		fmt.Printf("%s", "Enter cert:")
+		fmt.Printf("%s", "Enter certificate format. 1 - cert file, 2 - cert base64?:")
 		line, err = readLine()
 		checkErr(err)
-		cfg.Cert = line
+		if line == "1" {
+			fmt.Printf("%s", "Enter cert file:")
+			line, err = readLine()
+			checkErr(err)
+			cfg.CertFile = line
+		} else {
+			fmt.Printf("%s", "Enter base64 cert:")
+			line, err = readLine()
+			checkErr(err)
+			cfg.Cert = line
+		}
 		fmt.Printf("%s", "Enter password:")
 		line, err = readLine()
 		checkErr(err)

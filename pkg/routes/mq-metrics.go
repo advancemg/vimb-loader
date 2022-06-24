@@ -2,7 +2,7 @@ package routes
 
 import (
 	"encoding/json"
-	"github.com/advancemg/vimb-loader/pkg/models"
+	"github.com/advancemg/vimb-loader/internal/models"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"net/http"
 )
