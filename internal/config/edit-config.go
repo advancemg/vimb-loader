@@ -76,22 +76,8 @@ func enterConfig() {
 	checkErr(err)
 	if n == "y" || n == "Y" || n == "yes" || n == "Yes" {
 		/*Budget*/
-		fmt.Printf("%s", "Enter Budget cron(docker 0 0/46 * * *):")
-		line, err := readLine()
-		checkErr(err)
-		if line == "" {
-			line = "0 0/46 * * *"
-		}
-		cfg.Budget.Cron = line
-		fmt.Printf("%s", "Enter Budget sellingDirection(docker 23):")
-		line, err = readLine()
-		checkErr(err)
-		if line == "" {
-			line = "23"
-		}
-		cfg.Budget.SellingDirection = line
 		fmt.Printf("%s", "Budget loading? (docker false):")
-		line, err = readLine()
+		line, err := readLine()
 		checkErr(err)
 		if line != "true" {
 			line = "false"
@@ -99,21 +85,23 @@ func enterConfig() {
 		loading, err := strconv.ParseBool(line)
 		checkErr(err)
 		cfg.Budget.Loading = loading
-		/*ProgramBreaks*/
-		fmt.Printf("%s", "Enter ProgramBreaks cron(docker 0 0 0/8 * *):")
-		line, err = readLine()
-		checkErr(err)
-		if line == "" {
-			line = "0 0 0/8 * *"
+		if cfg.Budget.Loading {
+			fmt.Printf("%s", "Enter Budget cron(docker 0 0/46 * * *):")
+			line, err = readLine()
+			checkErr(err)
+			if line == "" {
+				line = "0 0/46 * * *"
+			}
+			cfg.Budget.Cron = line
 		}
-		cfg.ProgramBreaks.Cron = line
-		fmt.Printf("%s", "Enter ProgramBreaks sellingDirection(docker 23):")
+		fmt.Printf("%s", "Enter Budget sellingDirection(docker 23):")
 		line, err = readLine()
 		checkErr(err)
 		if line == "" {
 			line = "23"
 		}
-		cfg.ProgramBreaks.SellingDirection = line
+		cfg.Budget.SellingDirection = line
+		/*ProgramBreaks*/
 		fmt.Printf("%s", "ProgramBreaks loading? (docker false):")
 		line, err = readLine()
 		checkErr(err)
@@ -123,21 +111,23 @@ func enterConfig() {
 		loading, err = strconv.ParseBool(line)
 		checkErr(err)
 		cfg.ProgramBreaks.Loading = loading
-		/*ProgramBreaksLight*/
-		fmt.Printf("%s", "Enter ProgramBreaksLight cron(docker 0/2 * * * *):")
-		line, err = readLine()
-		checkErr(err)
-		if line == "" {
-			line = "0/2 * * * *"
+		if cfg.ProgramBreaks.Loading {
+			fmt.Printf("%s", "Enter ProgramBreaks cron(docker 0 0 0/8 * *):")
+			line, err = readLine()
+			checkErr(err)
+			if line == "" {
+				line = "0 0 0/8 * *"
+			}
+			cfg.ProgramBreaks.Cron = line
 		}
-		cfg.ProgramBreaksLight.Cron = line
-		fmt.Printf("%s", "Enter ProgramBreaksLight sellingDirection(docker 23):")
+		fmt.Printf("%s", "Enter ProgramBreaks sellingDirection(docker 23):")
 		line, err = readLine()
 		checkErr(err)
 		if line == "" {
 			line = "23"
 		}
-		cfg.ProgramBreaksLight.SellingDirection = line
+		cfg.ProgramBreaks.SellingDirection = line
+		/*ProgramBreaksLight*/
 		fmt.Printf("%s", "ProgramBreaksLight loading? (docker false):")
 		line, err = readLine()
 		checkErr(err)
@@ -147,20 +137,23 @@ func enterConfig() {
 		loading, err = strconv.ParseBool(line)
 		checkErr(err)
 		cfg.ProgramBreaksLight.Loading = loading
-		/*Mediaplan*/
-		fmt.Printf("%s", "Enter Mediaplan cron(docker 0 0/20 * * *):")
-		line, err = readLine()
-		checkErr(err)
-		if line == "" {
-			line = "0 0/20 * * *"
+		if cfg.ProgramBreaksLight.Loading {
+			fmt.Printf("%s", "Enter ProgramBreaksLight cron(docker 0/2 * * * *):")
+			line, err = readLine()
+			checkErr(err)
+			if line == "" {
+				line = "0/2 * * * *"
+			}
+			cfg.ProgramBreaksLight.Cron = line
 		}
-		cfg.Mediaplan.Cron = line
-		fmt.Printf("%s", "Enter Mediaplan sellingDirection(docker 23):")
+		fmt.Printf("%s", "Enter ProgramBreaksLight sellingDirection(docker 23):")
 		line, err = readLine()
 		checkErr(err)
 		if line == "" {
 			line = "23"
 		}
+		cfg.ProgramBreaksLight.SellingDirection = line
+		/*Mediaplan*/
 		cfg.Mediaplan.SellingDirection = line
 		fmt.Printf("%s", "Mediaplan loading? (docker false):")
 		line, err = readLine()
@@ -171,14 +164,23 @@ func enterConfig() {
 		loading, err = strconv.ParseBool(line)
 		checkErr(err)
 		cfg.Mediaplan.Loading = loading
-		/*AdvMessages*/
-		fmt.Printf("%s", "Enter AdvMessages cron(docker 0 0/2 * * *):")
+		if cfg.Mediaplan.Loading {
+			fmt.Printf("%s", "Enter Mediaplan cron(docker 0 0/20 * * *):")
+			line, err = readLine()
+			checkErr(err)
+			if line == "" {
+				line = "0 0/20 * * *"
+			}
+			cfg.Mediaplan.Cron = line
+		}
+		fmt.Printf("%s", "Enter Mediaplan sellingDirection(docker 23):")
 		line, err = readLine()
 		checkErr(err)
 		if line == "" {
-			line = "0 0/2 * * *"
+			line = "23"
 		}
-		cfg.AdvMessages.Cron = line
+		cfg.Mediaplan.SellingDirection = line
+		/*AdvMessages*/
 		fmt.Printf("%s", "AdvMessages loading? (docker false):")
 		line, err = readLine()
 		checkErr(err)
@@ -188,21 +190,16 @@ func enterConfig() {
 		loading, err = strconv.ParseBool(line)
 		checkErr(err)
 		cfg.AdvMessages.Loading = loading
+		if cfg.AdvMessages.Loading {
+			fmt.Printf("%s", "Enter AdvMessages cron(docker 0 0/2 * * *):")
+			line, err = readLine()
+			checkErr(err)
+			if line == "" {
+				line = "0 0/2 * * *"
+			}
+			cfg.AdvMessages.Cron = line
+		}
 		/*Spots*/
-		fmt.Printf("%s", "Enter Spots cron(docker 0 0/59 * * *):")
-		line, err = readLine()
-		checkErr(err)
-		if line == "" {
-			line = "0 0/59 * * *"
-		}
-		cfg.Spots.Cron = line
-		fmt.Printf("%s", "Enter Spots sellingDirection(docker 23):")
-		line, err = readLine()
-		checkErr(err)
-		if line == "" {
-			line = "23"
-		}
-		cfg.Spots.SellingDirection = line
 		fmt.Printf("%s", "Spots loading? (docker false):")
 		line, err = readLine()
 		checkErr(err)
@@ -212,14 +209,23 @@ func enterConfig() {
 		loading, err = strconv.ParseBool(line)
 		checkErr(err)
 		cfg.Spots.Loading = loading
-		/*DeletedSpotInfo*/
-		fmt.Printf("%s", "Enter DeletedSpotInfo cron(docker 0 0 0/12 * *):")
+		if cfg.Spots.Loading {
+			fmt.Printf("%s", "Enter Spots cron(docker 0 0/59 * * *):")
+			line, err = readLine()
+			checkErr(err)
+			if line == "" {
+				line = "0 0/59 * * *"
+			}
+			cfg.Spots.Cron = line
+		}
+		fmt.Printf("%s", "Enter Spots sellingDirection(docker 23):")
 		line, err = readLine()
 		checkErr(err)
 		if line == "" {
-			line = "0 0 0/12 * *"
+			line = "23"
 		}
-		cfg.DeletedSpotInfo.Cron = line
+		cfg.Spots.SellingDirection = line
+		/*DeletedSpotInfo*/
 		fmt.Printf("%s", "DeletedSpotInfo loading? (docker false):")
 		line, err = readLine()
 		checkErr(err)
@@ -229,21 +235,16 @@ func enterConfig() {
 		loading, err = strconv.ParseBool(line)
 		checkErr(err)
 		cfg.DeletedSpotInfo.Loading = loading
+		if cfg.DeletedSpotInfo.Loading {
+			fmt.Printf("%s", "Enter DeletedSpotInfo cron(docker 0 0 0/12 * *):")
+			line, err = readLine()
+			checkErr(err)
+			if line == "" {
+				line = "0 0 0/12 * *"
+			}
+			cfg.DeletedSpotInfo.Cron = line
+		}
 		/*Channel*/
-		fmt.Printf("%s", "Enter Channels cron(docker 0 0/18 * * *):")
-		line, err = readLine()
-		checkErr(err)
-		if line == "" {
-			line = "0 0/18 * * *"
-		}
-		cfg.Channel.Cron = line
-		fmt.Printf("%s", "Enter Channels sellingDirection(docker 23):")
-		line, err = readLine()
-		checkErr(err)
-		if line == "" {
-			line = "23"
-		}
-		cfg.Channel.SellingDirection = line
 		fmt.Printf("%s", "Channels loading? (docker false):")
 		line, err = readLine()
 		checkErr(err)
@@ -253,21 +254,23 @@ func enterConfig() {
 		loading, err = strconv.ParseBool(line)
 		checkErr(err)
 		cfg.Channel.Loading = loading
-		/*CustomersWithAdvertisers*/
-		fmt.Printf("%s", "Enter CustomersWithAdvertisers cron(docker 0 0/16 * * *):")
-		line, err = readLine()
-		checkErr(err)
-		if line == "" {
-			line = "0 0/16 * * *"
+		if cfg.Channel.Loading {
+			fmt.Printf("%s", "Enter Channels cron(docker 0 0/18 * * *):")
+			line, err = readLine()
+			checkErr(err)
+			if line == "" {
+				line = "0 0/18 * * *"
+			}
+			cfg.Channel.Cron = line
 		}
-		cfg.CustomersWithAdvertisers.Cron = line
-		fmt.Printf("%s", "Enter CustomersWithAdvertisers sellingDirection(docker 23):")
+		fmt.Printf("%s", "Enter Channels sellingDirection(docker 23):")
 		line, err = readLine()
 		checkErr(err)
 		if line == "" {
 			line = "23"
 		}
-		cfg.CustomersWithAdvertisers.SellingDirection = line
+		cfg.Channel.SellingDirection = line
+		/*CustomersWithAdvertisers*/
 		fmt.Printf("%s", "CustomersWithAdvertisers loading? (docker false):")
 		line, err = readLine()
 		checkErr(err)
@@ -277,14 +280,23 @@ func enterConfig() {
 		loading, err = strconv.ParseBool(line)
 		checkErr(err)
 		cfg.CustomersWithAdvertisers.Loading = loading
-		/*Rank*/
-		fmt.Printf("%s", "Enter Rank cron(docker 0 0 0/23 * *):")
+		if cfg.CustomersWithAdvertisers.Loading {
+			fmt.Printf("%s", "Enter CustomersWithAdvertisers cron(docker 0 0/16 * * *):")
+			line, err = readLine()
+			checkErr(err)
+			if line == "" {
+				line = "0 0/16 * * *"
+			}
+			cfg.CustomersWithAdvertisers.Cron = line
+		}
+		fmt.Printf("%s", "Enter CustomersWithAdvertisers sellingDirection(docker 23):")
 		line, err = readLine()
 		checkErr(err)
 		if line == "" {
-			line = "0 0 0/23 * *"
+			line = "23"
 		}
-		cfg.Rank.Cron = line
+		cfg.CustomersWithAdvertisers.SellingDirection = line
+		/*Rank*/
 		fmt.Printf("%s", "Rank loading? (docker false):")
 		line, err = readLine()
 		checkErr(err)
@@ -294,6 +306,15 @@ func enterConfig() {
 		loading, err = strconv.ParseBool(line)
 		checkErr(err)
 		cfg.Rank.Loading = loading
+		if cfg.Rank.Loading {
+			fmt.Printf("%s", "Enter Rank cron(docker 0 0 0/23 * *):")
+			line, err = readLine()
+			checkErr(err)
+			if line == "" {
+				line = "0 0 0/23 * *"
+			}
+			cfg.Rank.Cron = line
+		}
 		/*AMQP*/
 		fmt.Printf("%s", "Enter amqp host(docker localhost):")
 		line, err = readLine()

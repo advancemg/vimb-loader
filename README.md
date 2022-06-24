@@ -42,41 +42,40 @@
 5. В терминале появится контекстное меню ``Edit config? (Y/n):``, при ответе ``Y`` можно будет отредактировать файл
    конфигурации ``config.json``.
 6. ⚙️ Настройка конфигурации vimb-loader (при нажатии на Enter без ввода значения установится дефолтное значение):
+    * Включить загрузку бюджетов по расписанию? ``Budget loading? (default false):``
     * Задайте переодичность скачивания бюджетов. ``Enter Budget cron(default 0 0/46 * * *):``
     * Укажите направление продаж. ``Enter Budget sellingDirection(default 23):``
-    * Включить загрузку бюджетов по расписанию? ``Budget loading? (default false):``
+    * Включить загрузку сеток по расписанию? ``ProgramBreaks loading? (default false):``
     * Задайте переодичность скачивания сеток. ``Enter ProgramBreaks cron(default 0 0 0/8 * *):``
     * Укажите направление продаж. ``Enter ProgramBreaks sellingDirection(default 23):``
-    * Включить загрузку сеток по расписанию? ``ProgramBreaks loading? (default false):``
+    * Включить загрузку сеток. ``Light Mode по расписанию? ProgramBreaksLight loading? (default false):``
     * Задайте переодичность скачивания сеток. ``Light Mode Enter ProgramBreaksLight cron(default 0/2 * * * *):``
     * Укажите направление продаж. ``Enter ProgramBreaksLight sellingDirection(default 23):``
-    * Включить загрузку сеток. ``Light Mode по расписанию? ProgramBreaksLight loading? (default false):``
+    * Включить загрузку медиапланов по расписанию? ``Mediaplan loading? (default false):``
     * Задайте переодичность скачивания медиапланов. ``Enter Mediaplan cron(default 0 0/20 * * *):``
     * Укажите направление продаж. ``Enter Mediaplan sellingDirection(default 23):``
-    * Включить загрузку медиапланов по расписанию? ``Mediaplan loading? (default false):``
+    * Включить загрузку список роликов по расписанию? ``AdvMessages loading? (default false):``
     * Задайте переодичность скачивания списока роликов. ``Enter AdvMessages cron(default 0 0/2 * * *):``
     * Укажите направление продаж. ``Enter AdvMessages sellingDirection(default 23):``
-    * Включить загрузку список роликов по расписанию? ``AdvMessages loading? (default false):``
+    * Включить загрузку спотов по расписанию? ``Spots loading? (default false):``
     * Задайте переодичность скачивания спотов. ``Enter Spots cron(default 0 0/59 * * *):``
     * Укажите направление продаж. ``Enter Spots sellingDirection(default 23):``
-    * Включить загрузку спотов по расписанию? ``Spots loading? (default false):``
+    * Включить загрузку удаленных за период спотах по расписанию? ``DeletedSpotInfo loading? (default false):``
     * Задайте переодичность скачивания удаленных за период
       спотов. ``Enter DeletedSpotInfo cron(default 0 0 0/12 * *):``
     * Укажите направление продаж. ``Enter DeletedSpotInfo sellingDirection(default 23):``
-    * Включить загрузку удаленных за период спотах по расписанию? ``DeletedSpotInfo loading? (default false):``
+    * Включить загрузку каналов по расписанию? ``Channels loading? (default false):``
     * Задайте переодичность скачивания каналов. ``Enter Channels cron(default 0 0/18 * * *):``
     * Укажите направление продаж. ``Enter Channels sellingDirection(default 23):``
-    * Включить загрузку каналов по расписанию? ``Channels loading? (default false):``
+    * Включить загрузку списока заказчиков с рекламодеталями по
+      расписанию? ``CustomersWithAdvertisers loading? (default
+      false):``
     * Задайте переодичность скачивания списока заказчиков с
       рекламодеталями. ``Enter CustomersWithAdvertisers cron(
       default 0 0/16 * * *):``
     * Укажите направление продаж. ``Enter CustomersWithAdvertisers sellingDirection(default 23):``
-    * Включить загрузку списока заказчиков с рекламодеталями по
-      расписанию? ``CustomersWithAdvertisers loading? (default
-      false):``
-
-    * Задайте переодичность скачивания справочник рангов размещения. ``Enter Rank cron(default 0 0 0/23 * *):``
     * Включить загрузку справочника рангов размещения по расписанию? ``Rank loading? (default false):``
+    * Задайте переодичность скачивания справочник рангов размещения. ``Enter Rank cron(default 0 0 0/23 * *):``
     * Введите адрес хоста RabbitMQ (если указать локальный хост запустится встроенный RabbitMQ). ``Enter amqp host(
       default localhost):``
     * Введите порт RabbitMQ. ``Enter amqp port(default 5555):``
