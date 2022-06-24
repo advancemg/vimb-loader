@@ -15,7 +15,7 @@
 * Сервис позволяет работать с ВИМБ через REST API в формате JSON минуя SOAP с нестандартным XML.
 * Автоматическая загрузка данных по расписанию. При автоматической загрузке все данные скачиваются на основании бюджетов, бюджеты берутся от текущего дня до конца года.
 * Агрегирование данных не предоставляемых ВИМБ.
-* Скачанные данные хранятся на S3 и Badger.
+* Скачанные данные хранятся на S3 и Badger(или MongoDB).
 * API позволяет вытягивать сохраненные данные формирую динамический запрос.
 * В проекте используются RabbitMQ и S3, при указании в config.json хоста 127.0.0.1 или localhost для RabbitMQ и S3
   автоматически запустятся всроенные RabbitMQ и MinIO.
@@ -89,6 +89,12 @@
     * Выберите режим соединения, true без шифрования. ``Enter S3 Debug(default true):``
     * Введите название бакета. ``Enter S3 Bucket(default storage):``
     * Укажите локальную директорию для хранения данных MinIO. ``Enter S3 LocalDir(default s3-buckets):``
+    * Выберите БД. ``Enter database, mongodb or badger(default badger):``
+    * Введите адрес хоста MongoDB. ``Enter MongoDB Host(docker localhost):``
+    * Введите порт MongoDB. ``Enter MongoDB Port(docker 27017):``
+    * Введите название БД MongoDB. ``Enter MongoDB DB(docker db):``
+    * Введите пользователя MongoDB. ``Enter MongoDB Username(docker root):``
+    * Введите пароль MongoDB. ``Enter MongoDB Password(docker qwerty):``
     * Введите адрес ВИМБ сервиса. 435 боевой, 436
       тестовый. ``Enter url(default https://vimb-svc.vitpc.com:436/VIMBService.asmx):``
     * Введите сертификат выданный ВИМБ в формате base64. ``Enter cert:``

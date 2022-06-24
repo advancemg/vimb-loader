@@ -373,43 +373,6 @@ func enterConfig() {
 			line = "s3-buckets"
 		}
 		cfg.S3.S3LocalDir = line
-
-		/*Mongodb*/
-		fmt.Printf("%s", "Enter MongoDB Host(docker localhost):")
-		line, err = readLine()
-		checkErr(err)
-		if line == "" {
-			line = "localhost"
-		}
-		cfg.Mongo.Host = line
-		fmt.Printf("%s", "Enter MongoDB Port(docker 27017):")
-		line, err = readLine()
-		checkErr(err)
-		if line == "" {
-			line = "27017"
-		}
-		cfg.Mongo.Port = line
-		fmt.Printf("%s", "Enter MongoDB DB(docker admin):")
-		line, err = readLine()
-		checkErr(err)
-		if line == "" {
-			line = "admin"
-		}
-		cfg.Mongo.DB = line
-		fmt.Printf("%s", "Enter MongoDB Username(docker root):")
-		line, err = readLine()
-		checkErr(err)
-		if line == "" {
-			line = "root"
-		}
-		cfg.Mongo.Username = line
-		fmt.Printf("%s", "Enter MongoDB Password(docker qwerty):")
-		line, err = readLine()
-		checkErr(err)
-		if line != "" {
-			line = "qwerty"
-		}
-		cfg.Mongo.Password = line
 		/*Choose database*/
 		fmt.Printf("%s", "Enter database, mongodb or badger(default badger):")
 		line, err = readLine()
@@ -418,6 +381,44 @@ func enterConfig() {
 			line = "badger"
 		}
 		cfg.Database = line
+		if cfg.Database == "mongodb" {
+			/*Mongodb*/
+			fmt.Printf("%s", "Enter MongoDB Host(docker localhost):")
+			line, err = readLine()
+			checkErr(err)
+			if line == "" {
+				line = "localhost"
+			}
+			cfg.Mongo.Host = line
+			fmt.Printf("%s", "Enter MongoDB Port(docker 27017):")
+			line, err = readLine()
+			checkErr(err)
+			if line == "" {
+				line = "27017"
+			}
+			cfg.Mongo.Port = line
+			fmt.Printf("%s", "Enter MongoDB DB(docker db):")
+			line, err = readLine()
+			checkErr(err)
+			if line == "" {
+				line = "db"
+			}
+			cfg.Mongo.DB = line
+			fmt.Printf("%s", "Enter MongoDB Username(docker root):")
+			line, err = readLine()
+			checkErr(err)
+			if line == "" {
+				line = "root"
+			}
+			cfg.Mongo.Username = line
+			fmt.Printf("%s", "Enter MongoDB Password(docker qwerty):")
+			line, err = readLine()
+			checkErr(err)
+			if line == "" {
+				line = "qwerty"
+			}
+			cfg.Mongo.Password = line
+		}
 		/*VIMB*/
 		fmt.Printf("%s", "Enter url(docker https://vimb-svc.vitpc.com:436/VIMBService.asmx):")
 		line, err = readLine()
