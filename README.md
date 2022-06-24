@@ -126,12 +126,13 @@
 ## 🐳 Запуск в Docker контейнере
 При запуске контейнера необходимо указать путь к config.json.
    ``` bash 
-   docker run -d \
-  -it \
-  --name vimb-loader \
-  -v $(pwd)/config.json:/config.json \
-  -p 8000:8000 \
-  -p 5555:5555 \
-  -p 9999:9999 \
-  ghcr.io/advancemg/vimb-loader:1.0.0
+  docker run -d \
+  	-it \
+  	--name vimb-loader \
+  	-v $(pwd)/config.json:/config.json \
+  	-v $(pwd)/db:/db \
+  	-v $(pwd)/logs:/logs \
+  	-v $(pwd)/s3-buckets:/s3-buckets \
+  	-p 8000:8000 \
+  	ghcr.io/advancemg/vimb-loader:1.0.0
    ```

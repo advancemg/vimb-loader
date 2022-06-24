@@ -28,3 +28,15 @@ push-docker:
 
 mongo:
 	docker run --name mongo -e MONGODB_DATABASE=db -e MONGO_INITDB_ROOT_USERNAME=root -e MONGO_INITDB_ROOT_PASSWORD=qwerty -p 27017:27017 -d arm64v8/mongo
+
+
+run-docker:
+	docker run -d \
+  	-it \
+  	--name vimb-loader \
+  	-v $(pwd)/config.json:/config.json \
+  	-v $(pwd)/db:/db \
+  	-v $(pwd)/logs:/logs \
+  	-v $(pwd)/s3-buckets:/s3-buckets \
+  	-p 8000:8000 \
+  	ghcr.io/advancemg/vimb-loader:1.0.0
