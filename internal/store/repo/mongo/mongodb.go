@@ -81,7 +81,6 @@ func (c *DbRepo) Get(key interface{}, result interface{}) error {
 }
 
 func (c *DbRepo) AddWithTTL(key, value interface{}, ttl time.Duration) error {
-	c.Get(key, value)
 	marshal, err := bson.Marshal(value)
 	if err != nil {
 		return err
@@ -100,7 +99,18 @@ func (c *DbRepo) AddWithTTL(key, value interface{}, ttl time.Duration) error {
 	sessionCollection := c.Client.Database(c.database).Collection(c.table)
 	_, err = sessionCollection.InsertOne(ctx, bson.M{key.(string): timeout.IsTimeout, "created_at": timeout.CreatedAt, "ttl": timeout.Ttl})
 	if err != nil {
-		log.PrintLog("vimb-loader", service, "error", map[string]string{"MongoDBClient InsertOne": "error", "error": err.Error()})
+		if strings.Contains(err.Error(), "E11000 duplicate key error collection") {
+			_, err = c.DeleteOne(bson.M{key.(string): timeout.IsTimeout})
+			if err != nil {
+				return err
+			}
+		} else {
+			log.PrintLog("vimb-loader", service, "error", map[string]string{"MongoDBClient InsertOne": "error", "error": err.Error()})
+			return err
+		}
+	}
+	_, err = sessionCollection.InsertOne(ctx, bson.M{key.(string): timeout.IsTimeout, "created_at": timeout.CreatedAt, "ttl": timeout.Ttl})
+	if err != nil {
 		return err
 	}
 	log.PrintLog("vimb-loader", service, "info", map[string]string{"MongoDBClient InsertOne": "OK"})
