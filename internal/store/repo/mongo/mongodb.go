@@ -97,21 +97,21 @@ func (c *DbRepo) AddWithTTL(key, value interface{}, ttl time.Duration) error {
 	log.PrintLog("vimb-loader", service, "info", map[string]string{"AddWithTTL": "start"})
 	defer c.Client.Disconnect(ctx)
 	sessionCollection := c.Client.Database(c.database).Collection(c.table)
-	_, err = sessionCollection.InsertOne(ctx, bson.M{key.(string): timeout.IsTimeout, "created_at": timeout.CreatedAt, "ttl": timeout.Ttl})
-	if err != nil {
-		if strings.Contains(err.Error(), "E11000 duplicate key error collection") {
-			_, err = c.DeleteOne(bson.M{key.(string): timeout.IsTimeout})
-			if err != nil {
+	for {
+		_, err = sessionCollection.InsertOne(ctx, bson.M{key.(string): timeout.IsTimeout, "created_at": timeout.CreatedAt, "ttl": timeout.Ttl})
+		if err != nil {
+			if strings.Contains(err.Error(), "E11000 duplicate key error collection") {
+				_, err = c.DeleteOne(bson.M{key.(string): timeout.IsTimeout})
+				if err != nil {
+					return err
+				}
+				continue
+			} else {
+				log.PrintLog("vimb-loader", service, "error", map[string]string{"MongoDBClient InsertOne": "error", "error": err.Error()})
 				return err
 			}
-		} else {
-			log.PrintLog("vimb-loader", service, "error", map[string]string{"MongoDBClient InsertOne": "error", "error": err.Error()})
-			return err
 		}
-	}
-	_, err = sessionCollection.InsertOne(ctx, bson.M{key.(string): timeout.IsTimeout, "created_at": timeout.CreatedAt, "ttl": timeout.Ttl})
-	if err != nil {
-		return err
+		break
 	}
 	log.PrintLog("vimb-loader", service, "info", map[string]string{"MongoDBClient InsertOne": "OK"})
 	return nil
