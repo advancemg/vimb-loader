@@ -3,63 +3,46 @@ package utils
 import (
 	"crypto/tls"
 	"encoding/base64"
-	"encoding/json"
 	"encoding/pem"
 	"fmt"
 	convert "github.com/advancemg/go-convert"
+	cfg "github.com/advancemg/vimb-loader/internal/config"
 	"github.com/advancemg/vimb-loader/internal/store"
-	log "github.com/advancemg/vimb-loader/pkg/logging"
+	log "github.com/advancemg/vimb-loader/pkg/logging/zap"
 	"github.com/buger/jsonparser"
 	"golang.org/x/crypto/pkcs12"
 	"io"
 	"net/http"
-	"os"
 	"strconv"
 	"strings"
 	"time"
 )
 
-type Config struct {
-	Url      string `json:"url"`
-	Cert     string `json:"cert"`
-	CertFile string `json:"certFile"`
-	Password string `json:"password"`
-	Client   string `json:"client"`
-	Timeout  string `json:"timeout"`
-}
+//type Config struct {
+//	Url      string `json:"url"`
+//	Cert     string `json:"cert"`
+//	CertFile string `json:"certFile"`
+//	Password string `json:"password"`
+//	Client   string `json:"client"`
+//	Timeout  string `json:"timeout"`
+//}
 
 type Action struct {
 	SOAPAction string
 	Client     string
 }
 
-var cfg *Config
 var Actions *Action
 
 func init() {
-	//cfg = loadConfig()
 	Actions = &Action{
 		SOAPAction: "VIMBWebApplication2/GetVimbInfoStream",
 		Client:     "vimb",
 	}
 }
 
-func loadConfig() *Config {
-	var config Config
-	if cfg == nil {
-		configFile, err := os.Open("config.json")
-		if err != nil {
-			panic(err)
-		}
-		defer configFile.Close()
-		jsonParser := json.NewDecoder(configFile)
-		jsonParser.Decode(&config)
-		cfg = &config
-	}
-	return cfg
-}
-
-func (cfg *Config) newClient() *http.Client {
+func newClient() *http.Client {
+	cfg := cfg.Config
 	timeout, err := time.ParseDuration(cfg.Timeout)
 	if err != nil {
 		panic(err)
@@ -103,7 +86,7 @@ func (cfg *Config) newClient() *http.Client {
 }
 
 func (act *Action) Request(input []byte) ([]byte, error) {
-	loadConfig()
+	cfg := cfg.Config
 	reqBody := vimbRequest(string(input))
 	req, err := http.NewRequest("POST", cfg.Url, strings.NewReader(reqBody))
 	if err != nil {
@@ -111,7 +94,7 @@ func (act *Action) Request(input []byte) ([]byte, error) {
 	}
 	req.Header.Set("Content-Type", "text/xml; charset=utf-8")
 	req.Header.Set("SOAPAction", act.SOAPAction)
-	resp, err := cfg.newClient().Do(req)
+	resp, err := newClient().Do(req)
 	if err != nil {
 		return nil, err
 	}

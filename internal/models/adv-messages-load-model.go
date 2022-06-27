@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	goConvert "github.com/advancemg/go-convert"
 	"github.com/advancemg/vimb-loader/internal/store"
-	log "github.com/advancemg/vimb-loader/pkg/logging"
-	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
+	log "github.com/advancemg/vimb-loader/pkg/logging/zap"
+	"github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/utils"
 	"time"
 )

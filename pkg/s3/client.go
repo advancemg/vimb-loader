@@ -3,10 +3,10 @@ package s3
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
-	log "github.com/advancemg/vimb-loader/pkg/logging"
+	"github.com/advancemg/vimb-loader/internal/config"
+	log "github.com/advancemg/vimb-loader/pkg/logging/zap"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -40,18 +40,15 @@ type Config struct {
 }
 
 func InitConfig() *Config {
-	type configTemplate struct {
-		S3Cfg *Config `json:"s3"`
+	cfg = &Config{
+		S3AccessKeyId:     config.Config.S3.S3AccessKeyId,
+		S3SecretAccessKey: config.Config.S3.S3SecretAccessKey,
+		S3Region:          config.Config.S3.S3Region,
+		S3Endpoint:        config.Config.S3.S3Endpoint,
+		S3Debug:           config.Config.S3.S3Debug,
+		S3Bucket:          config.Config.S3.S3Bucket,
+		S3LocalDir:        config.Config.S3.S3LocalDir,
 	}
-	var config configTemplate
-	configFile, err := os.Open("config.json")
-	if err != nil {
-		panic(err)
-	}
-	defer configFile.Close()
-	jsonParser := json.NewDecoder(configFile)
-	jsonParser.Decode(&config)
-	cfg = config.S3Cfg
 	return cfg
 }
 

@@ -5,12 +5,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	log "github.com/advancemg/vimb-loader/pkg/logging"
+	log "github.com/advancemg/vimb-loader/pkg/logging/zap"
 	mongodb_client "github.com/advancemg/vimb-loader/pkg/storage/mongodb-client"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -24,8 +23,8 @@ type DbRepo struct {
 	database string
 }
 
-func New(db *mongo.Client, table, database string) *DbRepo {
-	return &DbRepo{db, database, table}
+func New(client *mongo.Client, table, database string) *DbRepo {
+	return &DbRepo{client, table, database}
 }
 
 type MongoKeyValue struct {
@@ -244,34 +243,13 @@ func (c *DbRepo) AddOrUpdateMany(list []MongoKeyValue, upsert bool) ([]byte, err
 }
 
 func (c *DbRepo) connect() {
-	cfg := loadConfig()
-	client, err := mongodb_client.New(
-		cfg.Mongo.Host,
-		cfg.Mongo.Port,
-		c.database,
-		cfg.Mongo.Username,
-		cfg.Mongo.Password)
+	cfg := mongodb_client.InitConfig()
+	cfg.DB = c.database
+	client, err := cfg.New()
 	if err != nil {
 		panic(err)
 	}
 	c.Client = client
-}
-
-type config struct {
-	Mongo    mongodb_client.Config `json:"mongodb"`
-	Database string                `json:"database"`
-}
-
-func loadConfig() *config {
-	var cfg config
-	configFile, err := os.Open("config.json")
-	if err != nil {
-		panic(err)
-	}
-	jsonParser := json.NewDecoder(configFile)
-	jsonParser.Decode(&cfg)
-	configFile.Close()
-	return &cfg
 }
 
 func HandleBadgerRequest(request map[string]interface{}) bson.M {

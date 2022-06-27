@@ -1,14 +1,13 @@
 package store
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
+	cfg "github.com/advancemg/vimb-loader/internal/config"
 	"github.com/advancemg/vimb-loader/internal/store/repo/badger"
 	"github.com/advancemg/vimb-loader/internal/store/repo/mongo"
 	badger_client "github.com/advancemg/vimb-loader/pkg/storage/badger-client"
 	mongodb_client "github.com/advancemg/vimb-loader/pkg/storage/mongodb-client"
-	"os"
 	"strings"
 	"time"
 )
@@ -134,40 +133,19 @@ func New(r DbInterface) *Repository {
 
 func OpenDb(database, table string) *Repository {
 	var repository *Repository
-	cfg := loadConfig()
-	switch cfg.Database {
+	switch cfg.Config.Database {
 	case mongodb:
-		mongoClient, err := mongodb_client.New(
-			cfg.Mongo.Host,
-			cfg.Mongo.Port,
-			database,
-			cfg.Mongo.Username,
-			cfg.Mongo.Password)
+		cfgMongo := mongodb_client.InitConfig()
+		cfgMongo.DB = database
+		mongoClient, err := cfgMongo.New()
 		if err != nil {
 			panic(err)
 		}
-		db := mongo.New(mongoClient, database, table)
+		db := mongo.New(mongoClient, table, database)
 		repository = New(db)
 	default:
 		db := badger.New(badger_client.Open(database + "/" + table))
 		repository = New(db)
 	}
 	return repository
-}
-
-type config struct {
-	Mongo    mongodb_client.Config `json:"mongodb"`
-	Database string                `json:"database"`
-}
-
-func loadConfig() *config {
-	var cfg config
-	configFile, err := os.Open("config.json")
-	if err != nil {
-		panic(err)
-	}
-	jsonParser := json.NewDecoder(configFile)
-	jsonParser.Decode(&cfg)
-	configFile.Close()
-	return &cfg
 }

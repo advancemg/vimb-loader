@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/advancemg/vimb-loader/pkg/mq-broker"
+	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 )
 
 func main() {

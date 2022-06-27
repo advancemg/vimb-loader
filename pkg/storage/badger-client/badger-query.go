@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/advancemg/badgerhold"
-	log "github.com/advancemg/vimb-loader/pkg/logging"
+	log "github.com/advancemg/vimb-loader/pkg/logging/logrus"
 	"github.com/dgraph-io/badger/v3"
 	"os"
 	"time"
@@ -37,7 +37,7 @@ func (l *badgerLog) Errorf(f string, v ...interface{}) {
 
 func (l *badgerLog) Warningf(f string, v ...interface{}) {
 	if l.level <= WARNING {
-		log.PrintLog("", "warning", "info", f, v)
+		log.PrintLog("", "badger", "info", f, v)
 	}
 }
 

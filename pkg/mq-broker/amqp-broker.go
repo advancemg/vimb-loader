@@ -3,7 +3,8 @@ package mq_broker
 import (
 	"encoding/json"
 	"fmt"
-	log "github.com/advancemg/vimb-loader/pkg/logging"
+	cfg "github.com/advancemg/vimb-loader/internal/config"
+	log "github.com/advancemg/vimb-loader/pkg/logging/zap"
 	"github.com/pkg/errors"
 	"github.com/streadway/amqp"
 	"github.com/valinurovam/garagemq/config"
@@ -11,7 +12,6 @@ import (
 	"github.com/valinurovam/garagemq/server"
 	"math"
 	"net"
-	"os"
 	"time"
 )
 
@@ -33,22 +33,12 @@ type QInfo struct {
 }
 
 func InitConfig() *Config {
-	return loadConfig()
-}
-
-func loadConfig() *Config {
-	type configTemplate struct {
-		AmqpConfig *Config `json:"amqp"`
+	return &Config{
+		MqHost:     cfg.Config.Amqp.MqHost,
+		MqPort:     cfg.Config.Amqp.MqPort,
+		MqUsername: cfg.Config.Amqp.MqUsername,
+		MqPassword: cfg.Config.Amqp.MqPassword,
 	}
-	var config configTemplate
-	configFile, err := os.Open("config.json")
-	if err != nil {
-		panic(err)
-	}
-	defer configFile.Close()
-	jsonParser := json.NewDecoder(configFile)
-	jsonParser.Decode(&config)
-	return config.AmqpConfig
 }
 
 func (c *Config) Ping() bool {

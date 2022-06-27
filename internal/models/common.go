@@ -1,11 +1,6 @@
 package models
 
 import (
-	"encoding/json"
-	"github.com/advancemg/badgerhold"
-	"os"
-	"strconv"
-	"strings"
 	"time"
 )
 
@@ -92,19 +87,6 @@ var QueueNames = []string{
 	ChannelsUpdateQueue,
 }
 
-type Configuration struct {
-	Mediaplan                MediaplanConfiguration                `json:"mediaplan"`
-	Budget                   BudgetConfiguration                   `json:"budget"`
-	Channel                  ChannelConfiguration                  `json:"channel"`
-	AdvMessages              AdvMessagesConfiguration              `json:"advMessages"`
-	CustomersWithAdvertisers CustomersWithAdvertisersConfiguration `json:"customersWithAdvertisers"`
-	DeletedSpotInfo          DeletedSpotInfoConfiguration          `json:"deletedSpotInfo"`
-	Rank                     RanksConfiguration                    `json:"rank"`
-	ProgramBreaks            ProgramBreaksConfiguration            `json:"programBreaks"`
-	ProgramBreaksLight       ProgramBreaksLightConfiguration       `json:"programBreaksLight"`
-	Spots                    SpotsConfiguration                    `json:"spots"`
-}
-
 type internalM struct {
 	M map[string]interface{} `json:"m"`
 }
@@ -169,103 +151,4 @@ type StreamResponse struct {
 type JsonResponse struct {
 	Body    interface{} `json:"body"`
 	Request string      `json:"request"`
-}
-
-var (
-	Config = Configuration{}
-)
-
-func LoadConfiguration() (*Configuration, error) {
-	var config Configuration
-	configFile, err := os.Open("config.json")
-	if err != nil {
-		return nil, err
-	}
-	defer configFile.Close()
-	jsonParser := json.NewDecoder(configFile)
-	jsonParser.Decode(&config)
-	return &config, nil
-}
-
-func HandleBadgerRequest(request map[string]interface{}) *badgerhold.Query {
-	var query *badgerhold.Query
-	once := true
-	for field, value := range request {
-		for key, val := range value.(map[string]interface{}) {
-			if once {
-				query = switchBadgerFilterWhere(query, key, field, val)
-				once = false
-			} else {
-				query = switchBadgerFilterAnd(query, key, field, val)
-			}
-		}
-	}
-	return query
-}
-
-func switchBadgerFilterAnd(filter *badgerhold.Query, key, filed string, value interface{}) *badgerhold.Query {
-	value = jsonNumber(value)
-	switch key {
-	case "eq":
-		filter = filter.And(filed).Eq(value)
-	case "ne":
-		filter = filter.And(filed).Ne(value)
-	case "gt":
-		filter = filter.And(filed).Gt(value)
-	case "lt":
-		filter = filter.And(filed).Lt(value)
-	case "ge":
-		filter = filter.And(filed).Ge(value)
-	case "le":
-		filter = filter.And(filed).Le(value)
-	case "in":
-		filter = filter.And(filed).In(value)
-	case "isnil":
-		filter = filter.And(filed).IsNil()
-	}
-	return filter
-}
-
-func switchBadgerFilterWhere(filter *badgerhold.Query, key, filed string, value interface{}) *badgerhold.Query {
-	value = jsonNumber(value)
-	switch key {
-	case "eq":
-		filter = badgerhold.Where(filed).Eq(value)
-	case "ne":
-		filter = badgerhold.Where(filed).Ne(value)
-	case "gt":
-		filter = badgerhold.Where(filed).Gt(value)
-	case "lt":
-		filter = badgerhold.Where(filed).Lt(value)
-	case "ge":
-		filter = badgerhold.Where(filed).Ge(value)
-	case "le":
-		filter = badgerhold.Where(filed).Le(value)
-	case "in":
-		filter = badgerhold.Where(filed).In(value)
-	case "isnil":
-		filter = badgerhold.Where(filed).IsNil()
-	}
-	return filter
-}
-
-func jsonNumber(value interface{}) interface{} {
-	if number, ok := value.(json.Number); ok {
-		strconv.ParseInt(string(number), 10, 64)
-		dot := strings.Contains(number.String(), ".")
-		if dot {
-			i, err := number.Float64()
-			if err != nil {
-				panic(err)
-			}
-			return i
-		} else {
-			i, err := number.Int64()
-			if err != nil {
-				panic(err)
-			}
-			return i
-		}
-	}
-	return value
 }

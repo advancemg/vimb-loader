@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/advancemg/vimb-loader/pkg/mq-broker"
+	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"time"
 )
 

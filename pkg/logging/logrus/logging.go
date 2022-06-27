@@ -1,4 +1,4 @@
-package logging
+package logrus
 
 import (
 	"fmt"
@@ -9,15 +9,15 @@ import (
 )
 
 func init() {
-	LogFile := fmt.Sprintf("logs/%v", time.Now().Format(time.RFC3339))
-	logFile, err := os.OpenFile(LogFile, os.O_APPEND|os.O_RDWR|os.O_CREATE, 0644)
+	filePath := fmt.Sprintf("logs/badger-%v", time.Now().Format(time.RFC3339))
+	logFile, err := os.OpenFile(filePath, os.O_APPEND|os.O_RDWR|os.O_CREATE, 0644)
 	if err != nil {
 		if os.IsNotExist(err) {
-			err := os.MkdirAll("logs", 0777)
+			err = os.MkdirAll("logs", 0777)
 			if err != nil {
 				log.Panic(err)
 			}
-			logFile, err = os.Create(LogFile)
+			logFile, err = os.Create(filePath)
 			if err != nil {
 				log.Panic(err)
 			}

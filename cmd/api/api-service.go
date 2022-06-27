@@ -5,8 +5,8 @@ import (
 	"fmt"
 	_ "github.com/advancemg/vimb-loader/docs"
 	cfg "github.com/advancemg/vimb-loader/internal/config"
-	"github.com/advancemg/vimb-loader/internal/models"
-	mq "github.com/advancemg/vimb-loader/pkg/mq-broker"
+	log "github.com/advancemg/vimb-loader/pkg/logging/zap"
+	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/routes"
 	"github.com/advancemg/vimb-loader/pkg/s3"
 	"github.com/advancemg/vimb-loader/pkg/services"
@@ -32,11 +32,11 @@ var (
 // @BasePath /
 func main() {
 	cfg.EditConfig()
-	config, err := models.LoadConfiguration()
+	err := cfg.Load()
 	if err != nil {
-		panic(err.Error())
+		panic(err)
 	}
-	models.Config = *config
+	log.Init()
 	port := utils.GetEnv("PORT", ":8000")
 	route := mux.NewRouter()
 	route.PathPrefix("/api/v1/docs").Handler(httpSwagger.WrapHandler)
@@ -105,7 +105,7 @@ func main() {
 	/* s3 server start*/
 	s3Config := s3.InitConfig()
 	if localHostRegex.MatchString(s3Config.S3Endpoint) {
-		err = os.Mkdir(s3Config.S3LocalDir, os.ModePerm)
+		err := os.Mkdir(s3Config.S3LocalDir, os.ModePerm)
 		if err != nil && !os.IsExist(err) {
 			panic(err.Error())
 		}
@@ -120,13 +120,13 @@ func main() {
 	for !s3Config.Ping() {
 	}
 	/* Clean BadgerGC every 15 min*/
-	if cfg.Load().Database != "mongodb" {
+	if cfg.Config.Database != "mongodb" {
 		go func() {
 			badger_client.CleanGC()
 		}()
 	}
 	/* amqp server */
-	mqConfig := mq.InitConfig()
+	mqConfig := mq_broker.InitConfig()
 	if localHostRegex.MatchString(mqConfig.MqHost) {
 		go func() {
 			utils.CheckErr(mqConfig.ServerStart())

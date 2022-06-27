@@ -1,6 +1,7 @@
 package services
 
 import (
+	cfg "github.com/advancemg/vimb-loader/internal/config"
 	"github.com/advancemg/vimb-loader/internal/models"
 	"github.com/pkg/errors"
 	"github.com/robfig/cron"
@@ -12,8 +13,36 @@ import (
 type LoadService struct {
 }
 
+type Configuration struct {
+	Mediaplan                models.MediaplanConfiguration                `json:"mediaplan"`
+	Budget                   models.BudgetConfiguration                   `json:"budget"`
+	Channel                  models.ChannelConfiguration                  `json:"channel"`
+	AdvMessages              models.AdvMessagesConfiguration              `json:"advMessages"`
+	CustomersWithAdvertisers models.CustomersWithAdvertisersConfiguration `json:"customersWithAdvertisers"`
+	DeletedSpotInfo          models.DeletedSpotInfoConfiguration          `json:"deletedSpotInfo"`
+	Rank                     models.RanksConfiguration                    `json:"rank"`
+	ProgramBreaks            models.ProgramBreaksConfiguration            `json:"programBreaks"`
+	ProgramBreaksLight       models.ProgramBreaksLightConfiguration       `json:"programBreaksLight"`
+	Spots                    models.SpotsConfiguration                    `json:"spots"`
+}
+
+func InitConfig() *Configuration {
+	return &Configuration{
+		Mediaplan:                models.MediaplanConfiguration(cfg.Config.Mediaplan),
+		Budget:                   models.BudgetConfiguration(cfg.Config.Budget),
+		Channel:                  models.ChannelConfiguration(cfg.Config.Channel),
+		AdvMessages:              models.AdvMessagesConfiguration(cfg.Config.AdvMessages),
+		CustomersWithAdvertisers: models.CustomersWithAdvertisersConfiguration(cfg.Config.CustomersWithAdvertisers),
+		DeletedSpotInfo:          models.DeletedSpotInfoConfiguration(cfg.Config.DeletedSpotInfo),
+		Rank:                     models.RanksConfiguration(cfg.Config.Rank),
+		ProgramBreaks:            models.ProgramBreaksConfiguration(cfg.Config.ProgramBreaks),
+		ProgramBreaksLight:       models.ProgramBreaksLightConfiguration(cfg.Config.ProgramBreaksLight),
+		Spots:                    models.SpotsConfiguration(cfg.Config.Spots),
+	}
+}
+
 func (svc *LoadService) Start() error {
-	config := models.Config
+	config := InitConfig()
 	scheduler := cron.New()
 	err := scheduler.AddFunc(config.Budget.Cron, config.Budget.InitJob())
 	if err != nil {

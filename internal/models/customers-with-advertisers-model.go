@@ -7,7 +7,7 @@ import (
 	goConvert "github.com/advancemg/go-convert"
 	"github.com/advancemg/vimb-loader/internal/store"
 	"github.com/advancemg/vimb-loader/internal/store/repo/badger"
-	log "github.com/advancemg/vimb-loader/pkg/logging"
+	log "github.com/advancemg/vimb-loader/pkg/logging/zap"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
 	"github.com/advancemg/vimb-loader/pkg/storage/badger-client"
