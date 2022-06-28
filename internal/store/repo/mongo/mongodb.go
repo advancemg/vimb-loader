@@ -38,6 +38,18 @@ type MongoKeyValue struct {
 	Value interface{}
 }
 
+func (c *DbRepo) Close() {
+	if c.Client == nil {
+		return
+	}
+
+	err := c.Client.Disconnect(context.TODO())
+	if err != nil {
+		panic(err)
+	}
+	log.PrintLog("vimb-loader", service, "info", map[string]string{"MongoDB": "Connection closed."})
+}
+
 func (c *DbRepo) AddOrUpdate(key interface{}, data interface{}) error {
 	list := []MongoKeyValue{{
 		Key:   bson.M{"_id": key},

@@ -46,7 +46,7 @@
     * Задайте переодичность скачивания бюджетов. ``Enter Budget cron(default 0 0/46 * * *):``
     * Укажите направление продаж. ``Enter Budget sellingDirection(default 23):``
     * Включить загрузку сеток по расписанию? ``ProgramBreaks loading? (default false):``
-    * Задайте переодичность скачивания сеток. ``Enter ProgramBreaks cron(default 0 0 0/8 * *):``
+    * Задайте переодичность скачивания сеток. ``Enter ProgramBreaks cron(default 0 0 */8 * *):``
     * Укажите направление продаж. ``Enter ProgramBreaks sellingDirection(default 23):``
     * Включить загрузку сеток. ``Light Mode по расписанию? ProgramBreaksLight loading? (default false):``
     * Задайте переодичность скачивания сеток. ``Light Mode Enter ProgramBreaksLight cron(default 0/2 * * * *):``
@@ -62,7 +62,7 @@
     * Укажите направление продаж. ``Enter Spots sellingDirection(default 23):``
     * Включить загрузку удаленных за период спотах по расписанию? ``DeletedSpotInfo loading? (default false):``
     * Задайте переодичность скачивания удаленных за период
-      спотов. ``Enter DeletedSpotInfo cron(default 0 0 0/12 * *):``
+      спотов. ``Enter DeletedSpotInfo cron(default 0 0 */12 * *):``
     * Укажите направление продаж. ``Enter DeletedSpotInfo sellingDirection(default 23):``
     * Включить загрузку каналов по расписанию? ``Channels loading? (default false):``
     * Задайте переодичность скачивания каналов. ``Enter Channels cron(default 0 0/18 * * *):``
@@ -75,7 +75,7 @@
       default 0 0/16 * * *):``
     * Укажите направление продаж. ``Enter CustomersWithAdvertisers sellingDirection(default 23):``
     * Включить загрузку справочника рангов размещения по расписанию? ``Rank loading? (default false):``
-    * Задайте переодичность скачивания справочник рангов размещения. ``Enter Rank cron(default 0 0 0/23 * *):``
+    * Задайте переодичность скачивания справочник рангов размещения. ``Enter Rank cron(default 0 0 */23 * *):``
     * Введите адрес хоста RabbitMQ (если указать локальный хост запустится встроенный RabbitMQ). ``Enter amqp host(
       default localhost):``
     * Введите порт RabbitMQ. ``Enter amqp port(default 5555):``
@@ -94,6 +94,7 @@
     * Введите название БД MongoDB. ``Enter MongoDB DB(docker db):``
     * Введите пользователя MongoDB. ``Enter MongoDB Username(docker root):``
     * Введите пароль MongoDB. ``Enter MongoDB Password(docker qwerty):``
+    * Задайте переодичность резервного копирования MongoDB, сохраняется на S3. ``Enter MongoDB Cron Backup(docker 0 */24 * * *):``
     * Введите адрес ВИМБ сервиса. 435 боевой, 436
       тестовый. ``Enter url(default https://vimb-svc.vitpc.com:436/VIMBService.asmx):``
     * Введите сертификат выданный ВИМБ в формате base64 или укажите путь к сертификату. ``"Enter certificate format. 1 - cert file, 2 - cert base64?:"``

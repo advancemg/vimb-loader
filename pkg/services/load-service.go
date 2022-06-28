@@ -1,9 +1,9 @@
 package services
 
 import (
+	"errors"
 	cfg "github.com/advancemg/vimb-loader/internal/config"
 	"github.com/advancemg/vimb-loader/internal/models"
-	"github.com/pkg/errors"
 	cron "github.com/robfig/cron/v3"
 	"os"
 	"os/signal"

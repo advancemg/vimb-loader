@@ -2,10 +2,10 @@ package mq_broker
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	cfg "github.com/advancemg/vimb-loader/internal/config"
 	log "github.com/advancemg/vimb-loader/pkg/logging/zap"
-	"github.com/pkg/errors"
 	"github.com/streadway/amqp"
 	"github.com/valinurovam/garagemq/config"
 	"github.com/valinurovam/garagemq/metrics"

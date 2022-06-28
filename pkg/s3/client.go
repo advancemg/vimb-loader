@@ -15,7 +15,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	"github.com/minio/madmin-go"
 	minio "github.com/minio/minio/cmd"
-	"github.com/zenthangplus/goccm"
 	"io"
 	"io/ioutil"
 	"net"
@@ -304,68 +303,6 @@ func CopyBatch(bucket, inputPrefix, outputPrefix string) error {
 		}
 	}
 	return nil
-}
-func DownloadBatch(bucket, prefix string) (string, error) {
-	keys := ListKeys(bucket, prefix)
-	err := connection()
-	if err != nil {
-		log.PrintLog("vimb-loader", "s3", "error", "Connection error:", err.Error())
-		return "", err
-	}
-	s3Client := s3.New(cfg.S3Session)
-	sessionDataDir, err := ioutil.TempDir(``, `s3_client-dir-Session-`)
-	if err != nil {
-		log.PrintLog("vimb-loader", "s3", "error", "DownloadBatch error:", err.Error())
-		return "", err
-	}
-	errorCh := make(chan error)
-	successCh := make(chan interface{})
-	lenKeys := len(keys)
-	concurrency := goccm.New(lenKeys)
-	for s3Key, _ := range keys {
-		concurrency.Wait()
-		go func(inputS3Key string) {
-			defer concurrency.Done()
-			size, err := GetFileSize(s3Client, bucket, inputS3Key)
-			if err != nil {
-				concurrency.Done()
-				errorCh <- err
-				return
-			}
-			temp, err := ioutil.TempFile(sessionDataDir, "s3_client-load-file-tmp-")
-			if err != nil {
-				concurrency.Done()
-				errorCh <- err
-				return
-			}
-			writer := &ProgressWriter{Writer: temp, Size: size, Written: 0}
-			svc := s3manager.NewDownloader(cfg.S3Session, func(d *s3manager.Downloader) {
-				d.PartSize = 5 * 1024 * 1024
-				d.Concurrency = lenKeys
-			})
-			_, err = svc.Download(writer, &s3.GetObjectInput{
-				Bucket: aws.String(bucket),
-				Key:    aws.String(inputS3Key),
-			})
-			if err != nil {
-				os.Remove(temp.Name())
-				concurrency.Done()
-				errorCh <- err
-				return
-			}
-			concurrency.Done()
-			successCh <- inputS3Key
-		}(s3Key)
-	}
-	concurrency.WaitAllDone()
-	for {
-		select {
-		case <-time.After(time.Second * 1):
-			return sessionDataDir, nil
-		case errC := <-errorCh:
-			return "", errC
-		}
-	}
 }
 func Download(key string) (string, error) {
 	bucket := cfg.S3Bucket

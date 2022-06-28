@@ -146,6 +146,13 @@ func main() {
 		service := services.UpdateService{}
 		utils.CheckErr(service.Start())
 	}()
+	/*mongo backup service*/
+	if cfg.Config.Database == "mongodb" && cfg.Config.Mongo.CronBackup != "" {
+		go func() {
+			service := services.BackupService{}
+			utils.CheckErr(service.Start())
+		}()
+	}
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt)
 	<-quit
