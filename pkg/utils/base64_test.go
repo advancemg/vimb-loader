@@ -6,6 +6,9 @@ import (
 )
 
 func TestFileToBase64(t *testing.T) {
+	if testing.Short() {
+		t.SkipNow()
+	}
 	pwd, err := os.Getwd()
 	if err != nil {
 		panic(err)

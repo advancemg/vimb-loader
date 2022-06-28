@@ -11,6 +11,9 @@ import (
 )
 
 func TestDump(t *testing.T) {
+	if testing.Short() {
+		t.SkipNow()
+	}
 	err := config.Load()
 	if err != nil {
 		panic(err)
@@ -27,6 +30,9 @@ func TestDump(t *testing.T) {
 }
 
 func TestDumpS3(t *testing.T) {
+	if testing.Short() {
+		t.SkipNow()
+	}
 	err := config.Load()
 	if err != nil {
 		panic(err)
@@ -50,6 +56,9 @@ func TestDumpS3(t *testing.T) {
 }
 
 func TestRecursiveZip(t *testing.T) {
+	if testing.Short() {
+		t.SkipNow()
+	}
 	pwd, err := os.Getwd()
 	if err != nil {
 		panic(err)

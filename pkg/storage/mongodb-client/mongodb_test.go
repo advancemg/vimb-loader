@@ -10,6 +10,9 @@ import (
 )
 
 func Test_connect(t *testing.T) {
+	if testing.Short() {
+		t.SkipNow()
+	}
 	zap.Init()
 	client, err := connect("localhost", "27017", "db", "root", "qwerty")
 	if err != nil {

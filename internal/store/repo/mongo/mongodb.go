@@ -69,9 +69,12 @@ type Timeout struct {
 }
 
 func (c *DbRepo) Get(key interface{}, result interface{}) error {
+	if c.Client == nil {
+		c.connect()
+		defer c.Close()
+	}
 	k := bson.M{key.(string): bson.M{"$gt": false}}
 	log.PrintLog("vimb-loader", service, "info", map[string]string{"Get": "start"})
-	defer c.Client.Disconnect(context.Background())
 	var timeout Timeout
 	err := c.Client.Database(c.database).Collection(c.table).FindOne(context.TODO(), k).Decode(&timeout)
 	if err != nil {
@@ -97,6 +100,11 @@ func (c *DbRepo) Get(key interface{}, result interface{}) error {
 }
 
 func (c *DbRepo) AddWithTTL(key, value interface{}, ttl time.Duration) error {
+	ctx := context.Background()
+	if c.Client == nil {
+		c.connect()
+		defer c.Close()
+	}
 	marshal, err := bson.Marshal(value)
 	if err != nil {
 		return err
@@ -108,8 +116,6 @@ func (c *DbRepo) AddWithTTL(key, value interface{}, ttl time.Duration) error {
 	}
 	timeout.Ttl = ttl
 	timeout.CreatedAt = time.Now().UTC()
-	ctx := context.Background()
-	defer c.Client.Disconnect(ctx)
 	log.PrintLog("vimb-loader", service, "info", map[string]string{"AddWithTTL": "start"})
 	sessionCollection := c.Client.Database(c.database).Collection(c.table)
 	for {
@@ -202,8 +208,11 @@ func (c *DbRepo) FindWhereAnd4Eq(result interface{}, filed1 string, value1 inter
 }
 
 func (c *DbRepo) Find(result interface{}, filter bson.M) error {
+	if c.Client == nil {
+		c.connect()
+		defer c.Close()
+	}
 	log.PrintLog("vimb-loader", service, "info", map[string]string{"Find": "start"})
-	defer c.Client.Disconnect(context.Background())
 	coll := c.Client.Database(c.database).Collection(c.table)
 	cursor, err := coll.Find(context.TODO(), filter)
 	if err != nil {
@@ -220,8 +229,11 @@ func (c *DbRepo) Find(result interface{}, filter bson.M) error {
 }
 
 func (c *DbRepo) DeleteOne(document interface{}) (int64, error) {
+	if c.Client == nil {
+		c.connect()
+		defer c.Close()
+	}
 	log.PrintLog("vimb-loader", service, "info", map[string]string{"DeleteOne": "start"})
-	defer c.Client.Disconnect(context.Background())
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	count, err := c.Client.Database(c.database).Collection(c.table).DeleteOne(ctx, document)
@@ -233,8 +245,11 @@ func (c *DbRepo) DeleteOne(document interface{}) (int64, error) {
 }
 
 func (c *DbRepo) AddOrUpdateMany(list []MongoKeyValue, upsert bool) ([]byte, error) {
+	if c.Client == nil {
+		c.connect()
+		defer c.Close()
+	}
 	log.PrintLog("vimb-loader", service, "info", map[string]string{"AddOrUpdateMany": "start"})
-	defer c.Client.Disconnect(context.Background())
 	var models []mongo.WriteModel
 	for _, item := range list {
 		models = append(models, mongo.NewUpdateOneModel().

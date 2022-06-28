@@ -1,38 +1,48 @@
 package models
 
 import (
+	"fmt"
 	"github.com/advancemg/badgerhold"
+	"github.com/advancemg/vimb-loader/internal/config"
+	"github.com/advancemg/vimb-loader/pkg/logging/zap"
 	"github.com/advancemg/vimb-loader/pkg/storage/badger-client"
 	"testing"
+	"time"
 )
 
-func TestBudgetsUpdateRequest_loadFromFile(t *testing.T) {
+func TestLoadFromFile(t *testing.T) {
 	if testing.Short() {
 		t.SkipNow()
 	}
-	type fields struct {
-		S3Key string
+	err := config.Load()
+	if err != nil {
+		panic(err)
 	}
-	tests := []struct {
-		name    string
-		fields  fields
-		wantErr bool
-	}{
-		{
-			name:    "loadFromFile-Budgets",
-			fields:  fields{"../../dev-test-data/budgets201902.gz"},
-			wantErr: false,
-		},
+	zap.Init()
+	request := &BudgetsUpdateRequest{S3Key: "../../dev-test-data/budgets201902.gz"}
+	start := time.Now()
+	err = request.loadFromFile()
+	if err != nil {
+		panic(err)
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			request := &BudgetsUpdateRequest{
-				S3Key: tt.fields.S3Key,
-			}
-			if err := request.loadFromFile(); (err != nil) != tt.wantErr {
-				t.Errorf("loadFromFile() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
+	fmt.Println(time.Since(start))
+}
+
+func BenchmarkLoadFromFil(b *testing.B) {
+	if testing.Short() {
+		b.SkipNow()
+	}
+	err := config.Load()
+	if err != nil {
+		panic(err)
+	}
+	zap.Init()
+	request := &BudgetsUpdateRequest{S3Key: "../../dev-test-data/budgets201902.gz"}
+	for i := 0; i < b.N; i++ {
+		err = request.loadFromFile()
+		if err != nil {
+			panic(err)
+		}
 	}
 }
 

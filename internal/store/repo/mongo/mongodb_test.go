@@ -10,6 +10,9 @@ import (
 )
 
 func TestDbRepo_AddWithTTL(t *testing.T) {
+	if testing.Short() {
+		t.SkipNow()
+	}
 	config.Load()
 	zap.Init()
 	db := New("timeout", "db")
@@ -26,6 +29,9 @@ func TestDbRepo_AddWithTTL(t *testing.T) {
 }
 
 func TestGetTTL(t *testing.T) {
+	if testing.Short() {
+		t.SkipNow()
+	}
 	config.Load()
 	zap.Init()
 	db := New("timeout", "db")

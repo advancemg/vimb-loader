@@ -6,6 +6,9 @@ import (
 )
 
 func TestPrintLog(t *testing.T) {
+	if testing.Short() {
+		t.SkipNow()
+	}
 	_, err := os.Open("fff")
 	if err != nil {
 		PrintLog("vimb", "new-client", "error", err)
@@ -13,6 +16,9 @@ func TestPrintLog(t *testing.T) {
 }
 
 func BenchmarkPrintLog(b *testing.B) {
+	if testing.Short() {
+		b.SkipNow()
+	}
 	for i := 0; i < b.N; i++ {
 		_, err := os.Open("fff")
 		if err != nil {
