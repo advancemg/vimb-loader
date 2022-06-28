@@ -22,6 +22,22 @@ func TestDump(t *testing.T) {
 		panic(err)
 	}
 	fmt.Println(path)
+	os.RemoveAll(path)
+	fmt.Println(time.Since(start))
+}
+
+func TestDumpS3(t *testing.T) {
+	err := config.Load()
+	if err != nil {
+		panic(err)
+	}
+	dm := InitConfig()
+	start := time.Now()
+	path, err := dm.Backup()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(path)
 	s3.InitConfig()
 	index := strings.LastIndex(path, "/")
 	s3Key := fmt.Sprintf("%s/%s", "mongo-backup", path[index:])

@@ -6,6 +6,7 @@ import (
 	cfg "github.com/advancemg/vimb-loader/internal/config"
 	log "github.com/advancemg/vimb-loader/pkg/logging/zap"
 	"github.com/advancemg/vimb-loader/pkg/s3"
+	mlog "github.com/mongodb/mongo-tools/common/log"
 	"github.com/mongodb/mongo-tools/common/options"
 	"github.com/mongodb/mongo-tools/mongodump"
 	"io"
@@ -56,6 +57,24 @@ func (cfg *Config) Backup() (string, error) {
 	}
 	opts.URI = &url
 	opts.Auth = &auth
+	filePath := fmt.Sprintf("logs/mongo-backup-%v", time.Now().Format(time.RFC3339))
+	logFile, err := os.OpenFile(filePath, os.O_APPEND|os.O_RDWR|os.O_CREATE, 0644)
+	if err != nil {
+		if os.IsNotExist(err) {
+			err = os.MkdirAll("logs", 0777)
+			if err != nil {
+				panic(err)
+			}
+			logFile, err = os.Create(filePath)
+			if err != nil {
+				panic(err)
+			}
+		} else {
+			panic(err)
+		}
+	}
+	defer logFile.Close()
+	mlog.SetWriter(logFile)
 	dump := mongodump.MongoDump{
 		ToolOptions:   opts,
 		InputOptions:  inputOptions,
@@ -66,7 +85,7 @@ func (cfg *Config) Backup() (string, error) {
 	dump.OutputOptions.Out = path
 	dump.OutputOptions.Gzip = true
 	dump.OutputOptions.NumParallelCollections = 1
-	err := dump.Init()
+	err = dump.Init()
 	if err != nil {
 		return "", err
 	}
@@ -91,7 +110,6 @@ func (cfg *Config) StartBackup() func() {
 			log.PrintLog("vimb-loader", "StartBackup", "error", "err:", err.Error())
 			return
 		}
-		fmt.Println(path)
 		s3.InitConfig()
 		index := strings.LastIndex(path, "/")
 		s3Key := fmt.Sprintf("%s/%s", "mongo-backup", path[index:])
