@@ -30,6 +30,7 @@ func (cfg *RanksConfiguration) StartJob() chan error {
 	go func() {
 		qName := GetRanksType
 		amqpConfig := mq_broker.InitConfig()
+		defer amqpConfig.Close()
 		err := amqpConfig.DeclareSimpleQueue(qName)
 		if err != nil {
 			errorCh <- err
@@ -48,7 +49,7 @@ func (cfg *RanksConfiguration) StartJob() chan error {
 			nil)
 		for msg := range messages {
 			var bodyJson GetRanks
-			err := json.Unmarshal(msg.Body, &bodyJson)
+			err = json.Unmarshal(msg.Body, &bodyJson)
 			if err != nil {
 				errorCh <- err
 			}
@@ -74,6 +75,7 @@ func (cfg *RanksConfiguration) InitJob() func() {
 		}
 		qName := GetRanksType
 		amqpConfig := mq_broker.InitConfig()
+		defer amqpConfig.Close()
 		err := amqpConfig.DeclareSimpleQueue(qName)
 		if err != nil {
 			log.PrintLog("vimb-loader", "Ranks InitJob", "error", "Q:", qName, "err:", err.Error())

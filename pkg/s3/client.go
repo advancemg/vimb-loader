@@ -81,7 +81,7 @@ func (c *Config) ServerRestart() error {
 	for {
 		select {
 		case <-time.After(120 * time.Minute):
-			err := admin.ServiceRestart(context.Background())
+			err = admin.ServiceRestart(context.Background())
 			if err != nil {
 				log.PrintLog("vimb-loader", "s3", "error", "Minio admin error:", err.Error())
 				os.Exit(-1)

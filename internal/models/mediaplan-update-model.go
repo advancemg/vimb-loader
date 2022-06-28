@@ -258,6 +258,7 @@ func MediaplanStartJob() chan error {
 	go func() {
 		qName := MPLansUpdateQueue
 		amqpConfig := mq_broker.InitConfig()
+		defer amqpConfig.Close()
 		err := amqpConfig.DeclareSimpleQueue(qName)
 		if err != nil {
 			errorCh <- err
@@ -340,8 +341,9 @@ func (request *MediaplanUpdateRequest) Update() error {
 		}
 	}
 	amqpConfig := mq_broker.InitConfig()
+	defer amqpConfig.Close()
 	for _, aggMessage := range aggTasks {
-		err := amqpConfig.PublishJson(MediaplanAggUpdateQueue, aggMessage)
+		err = amqpConfig.PublishJson(MediaplanAggUpdateQueue, aggMessage)
 		if err != nil {
 			return err
 		}

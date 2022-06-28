@@ -7,7 +7,6 @@ import (
 	"github.com/advancemg/vimb-loader/internal/store/repo/badger"
 	"github.com/advancemg/vimb-loader/internal/store/repo/mongo"
 	badger_client "github.com/advancemg/vimb-loader/pkg/storage/badger-client"
-	mongodb_client "github.com/advancemg/vimb-loader/pkg/storage/mongodb-client"
 	"strings"
 	"time"
 )
@@ -135,13 +134,7 @@ func OpenDb(database, table string) *Repository {
 	var repository *Repository
 	switch cfg.Config.Database {
 	case mongodb:
-		cfgMongo := mongodb_client.InitConfig()
-		cfgMongo.DB = database
-		mongoClient, err := cfgMongo.New()
-		if err != nil {
-			panic(err)
-		}
-		db := mongo.New(mongoClient, table, database)
+		db := mongo.New(table, database)
 		repository = New(db)
 	default:
 		db := badger.New(badger_client.Open(database + "/" + table))

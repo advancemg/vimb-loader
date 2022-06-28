@@ -32,6 +32,7 @@ func (cfg *ChannelConfiguration) StartJob() chan error {
 	go func() {
 		qName := GetChannelsType
 		amqpConfig := mq_broker.InitConfig()
+		defer amqpConfig.Close()
 		err := amqpConfig.DeclareSimpleQueue(qName)
 		if err != nil {
 			errorCh <- err
@@ -50,7 +51,7 @@ func (cfg *ChannelConfiguration) StartJob() chan error {
 			nil)
 		for msg := range messages {
 			var bodyJson GetChannels
-			err := json.Unmarshal(msg.Body, &bodyJson)
+			err = json.Unmarshal(msg.Body, &bodyJson)
 			if err != nil {
 				errorCh <- err
 			}
@@ -77,6 +78,7 @@ func (cfg *ChannelConfiguration) InitJob() func() {
 		}
 		qName := GetChannelsType
 		amqpConfig := mq_broker.InitConfig()
+		defer amqpConfig.Close()
 		err := amqpConfig.DeclareSimpleQueue(qName)
 		if err != nil {
 			log.PrintLog("vimb-loader", "Channels InitJob", "error", "Q:", qName, "err:", err.Error())

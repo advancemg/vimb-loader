@@ -45,6 +45,7 @@ type QuerySpotsOrderBlockQuery struct {
 func (request *SpotsLoadRequest) InitTasks() (CommonResponse, error) {
 	qName := GetSpotsType
 	amqpConfig := mq_broker.InitConfig()
+	defer amqpConfig.Close()
 	err := amqpConfig.DeclareSimpleQueue(qName)
 	if err != nil {
 		return nil, err
@@ -62,7 +63,7 @@ func (request *SpotsLoadRequest) InitTasks() (CommonResponse, error) {
 		req.Set("InclOrdBlocks", request.InclOrdBlocks)
 		req.Set("ChannelList", request.ChannelList)
 		req.Set("AdtList", request.AdtList)
-		err := amqpConfig.PublishJson(qName, req)
+		err = amqpConfig.PublishJson(qName, req)
 		if err != nil {
 			log.PrintLog("vimb-loader", "Spots InitTasks", "error", "Q:", qName, "err:", err.Error())
 			return nil, err

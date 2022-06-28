@@ -41,6 +41,7 @@ func (cfg *MediaplanConfiguration) StartJob() chan error {
 	go func() {
 		qName := GetMPLansType
 		amqpConfig := mq_broker.InitConfig()
+		defer amqpConfig.Close()
 		err := amqpConfig.DeclareSimpleQueue(qName)
 		if err != nil {
 			errorCh <- err
@@ -59,7 +60,7 @@ func (cfg *MediaplanConfiguration) StartJob() chan error {
 			nil)
 		for msg := range messages {
 			var bodyJson GetMPLans
-			err := json.Unmarshal(msg.Body, &bodyJson)
+			err = json.Unmarshal(msg.Body, &bodyJson)
 			if err != nil {
 				errorCh <- err
 			}
@@ -85,6 +86,7 @@ func (cfg *MediaplanConfiguration) InitJob() func() {
 		}
 		qName := GetMPLansType
 		amqpConfig := mq_broker.InitConfig()
+		defer amqpConfig.Close()
 		err := amqpConfig.DeclareSimpleQueue(qName)
 		if err != nil {
 			log.PrintLog("vimb-loader", "Mediaplans InitJob", "error", "Q:", qName, "err:", err.Error())
@@ -119,7 +121,7 @@ func (cfg *MediaplanConfiguration) InitJob() func() {
 			request.Set("AdtList", []string{})
 			request.Set("ChannelList", []string{})
 			request.Set("IncludeEmpty", "false")
-			err := amqpConfig.PublishJson(qName, request)
+			err = amqpConfig.PublishJson(qName, request)
 			if err != nil {
 				log.PrintLog("vimb-loader", "Mediaplans InitJob", "error", "Q:", qName, "err:", err.Error())
 				return

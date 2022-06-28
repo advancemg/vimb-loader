@@ -31,6 +31,7 @@ type ProgramBreaksLightModeQuery struct {
 func (request *ProgramBreaksLightModeLoadRequest) InitTasks() (CommonResponse, error) {
 	qName := GetProgramBreaksLightModeType
 	amqpConfig := mq_broker.InitConfig()
+	defer amqpConfig.Close()
 	err := amqpConfig.DeclareSimpleQueue(qName)
 	if err != nil {
 		return nil, err
@@ -61,7 +62,7 @@ func (request *ProgramBreaksLightModeLoadRequest) InitTasks() (CommonResponse, e
 			req.Set("CnlList", request.CnlList[i:j])
 			req.Set("ProtocolVersion", "2")
 			req.Set("Path", chunkCount)
-			err := amqpConfig.PublishJson(qName, req)
+			err = amqpConfig.PublishJson(qName, req)
 			if err != nil {
 				log.PrintLog("vimb-loader", "ProgramBreaksLightMode InitTasks", "error", "Q:", qName, "err:", err.Error())
 				return nil, err

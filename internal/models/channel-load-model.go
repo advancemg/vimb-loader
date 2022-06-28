@@ -28,6 +28,7 @@ type ChannelQuery struct {
 func (request *ChannelLoadRequest) InitTasks() (CommonResponse, error) {
 	qName := GetChannelsType
 	amqpConfig := mq_broker.InitConfig()
+	defer amqpConfig.Close()
 	err := amqpConfig.DeclareSimpleQueue(qName)
 	if err != nil {
 		return nil, err

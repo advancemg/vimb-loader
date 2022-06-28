@@ -18,6 +18,7 @@ type MediaplanLoadRequest struct {
 func (request *MediaplanLoadRequest) InitTasks() (CommonResponse, error) {
 	qName := GetMPLansType
 	amqpConfig := mq_broker.InitConfig()
+	defer amqpConfig.Close()
 	err := amqpConfig.DeclareSimpleQueue(qName)
 	if err != nil {
 		return nil, err

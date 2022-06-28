@@ -127,6 +127,7 @@ func SpotStartJob() chan error {
 	go func() {
 		qName := SpotsUpdateQueue
 		amqpConfig := mq_broker.InitConfig()
+		defer amqpConfig.Close()
 		err := amqpConfig.DeclareSimpleQueue(qName)
 		if err != nil {
 			errorCh <- err
@@ -145,7 +146,7 @@ func SpotStartJob() chan error {
 			nil)
 		for msg := range messages {
 			var bodyJson MqUpdateMessage
-			err := json.Unmarshal(msg.Body, &bodyJson)
+			err = json.Unmarshal(msg.Body, &bodyJson)
 			if err != nil {
 				errorCh <- err
 			}

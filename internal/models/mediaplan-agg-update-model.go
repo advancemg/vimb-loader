@@ -61,6 +61,7 @@ func MediaplanAggStartJob() chan error {
 	go func() {
 		qName := MediaplanAggUpdateQueue
 		amqpConfig := mq_broker.InitConfig()
+		defer amqpConfig.Close()
 		err := amqpConfig.DeclareSimpleQueue(qName)
 		if err != nil {
 			errorCh <- err
@@ -79,7 +80,7 @@ func MediaplanAggStartJob() chan error {
 			nil)
 		for msg := range messages {
 			var bodyJson MediaplanAggUpdateRequest
-			err := json.Unmarshal(msg.Body, &bodyJson)
+			err = json.Unmarshal(msg.Body, &bodyJson)
 			if err != nil {
 				errorCh <- err
 			}

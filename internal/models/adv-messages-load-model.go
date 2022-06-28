@@ -37,6 +37,7 @@ type AdvMessageQuery struct {
 func (request *AdvMessagesLoadRequest) InitTasks() (CommonResponse, error) {
 	qName := GetAdvMessagesType
 	amqpConfig := mq_broker.InitConfig()
+	defer amqpConfig.Close()
 	err := amqpConfig.DeclareSimpleQueue(qName)
 	if err != nil {
 		return nil, err
@@ -58,7 +59,7 @@ func (request *AdvMessagesLoadRequest) InitTasks() (CommonResponse, error) {
 		req.Set("Advertisers", []struct{}{})
 		req.Set("Aspects", []struct{}{})
 		req.Set("AdvertisingMessageIDs", []struct{}{})
-		err := amqpConfig.PublishJson(qName, req)
+		err = amqpConfig.PublishJson(qName, req)
 		if err != nil {
 			log.PrintLog("vimb-loader", "AdvMessages InitTasks", "error", "Q:", qName, "err:", err.Error())
 			return nil, err

@@ -34,6 +34,7 @@ func (cfg *CustomersWithAdvertisersConfiguration) StartJob() chan error {
 	go func() {
 		qName := GetCustomersWithAdvertisersType
 		amqpConfig := mq_broker.InitConfig()
+		defer amqpConfig.Close()
 		err := amqpConfig.DeclareSimpleQueue(qName)
 		if err != nil {
 			errorCh <- err
@@ -52,7 +53,7 @@ func (cfg *CustomersWithAdvertisersConfiguration) StartJob() chan error {
 			nil)
 		for msg := range messages {
 			var bodyJson GetCustomersWithAdvertisers
-			err := json.Unmarshal(msg.Body, &bodyJson)
+			err = json.Unmarshal(msg.Body, &bodyJson)
 			if err != nil {
 				errorCh <- err
 			}
@@ -78,6 +79,7 @@ func (cfg *CustomersWithAdvertisersConfiguration) InitJob() func() {
 		}
 		qName := GetCustomersWithAdvertisersType
 		amqpConfig := mq_broker.InitConfig()
+		defer amqpConfig.Close()
 		err := amqpConfig.DeclareSimpleQueue(qName)
 		if err != nil {
 			log.PrintLog("vimb-loader", "CustomersWithAdvertisers InitJob", "error", "Q:", qName, "err:", err.Error())

@@ -43,6 +43,7 @@ func (cfg *ProgramBreaksConfiguration) StartJob() chan error {
 	go func() {
 		qName := GetProgramBreaksType
 		amqpConfig := mq_broker.InitConfig()
+		defer amqpConfig.Close()
 		err := amqpConfig.DeclareSimpleQueue(qName)
 		if err != nil {
 			errorCh <- err
@@ -61,7 +62,7 @@ func (cfg *ProgramBreaksConfiguration) StartJob() chan error {
 			nil)
 		for msg := range messages {
 			var bodyJson GetProgramBreaks
-			err := json.Unmarshal(msg.Body, &bodyJson)
+			err = json.Unmarshal(msg.Body, &bodyJson)
 			if err != nil {
 				errorCh <- err
 			}
@@ -87,6 +88,7 @@ func (cfg *ProgramBreaksConfiguration) InitJob() func() {
 		}
 		qName := GetProgramBreaksType
 		amqpConfig := mq_broker.InitConfig()
+		defer amqpConfig.Close()
 		err := amqpConfig.DeclareSimpleQueue(qName)
 		if err != nil {
 			log.PrintLog("vimb-loader", "ProgramBreaks InitJob", "error", "Q:", qName, "err:", err.Error())
@@ -155,7 +157,7 @@ func (cfg *ProgramBreaksConfiguration) InitJob() func() {
 					request.Set("CnlList", cnl[i:j])
 					request.Set("ProtocolVersion", "2")
 					request.Set("Path", chunkCount)
-					err := amqpConfig.PublishJson(qName, request)
+					err = amqpConfig.PublishJson(qName, request)
 					if err != nil {
 						log.PrintLog("vimb-loader", "ProgramBreaks InitJob", "error", "Q:", qName, "err:", err.Error())
 						return

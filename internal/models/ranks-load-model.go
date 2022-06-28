@@ -20,6 +20,7 @@ type RankQuery struct {
 func (request *RanksLoadRequest) InitTasks() (CommonResponse, error) {
 	qName := GetRanksType
 	amqpConfig := mq_broker.InitConfig()
+	defer amqpConfig.Close()
 	err := amqpConfig.DeclareSimpleQueue(qName)
 	if err != nil {
 		return nil, err

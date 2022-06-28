@@ -40,7 +40,6 @@ func Init() {
 }
 
 func PrintLog(app, client, level string, v ...interface{}) {
-	Logger.Info("")
 	printLog(app, client, level, v...)
 }
 

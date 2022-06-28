@@ -41,6 +41,10 @@ func InitConfig() *Config {
 	}
 }
 
+func (c *Config) Close() error {
+	return c.conn.Close()
+}
+
 func (c *Config) Ping() bool {
 	for {
 		endpoint := fmt.Sprintf("%s:%s", c.MqHost, c.MqPort)
@@ -85,7 +89,7 @@ func (c *Config) connection() (*Config, error) {
 }
 
 func (c *Config) Channel() (*amqp.Channel, error) {
-	_, err := c.connection()
+	c, err := c.connection()
 	if err != nil {
 		return nil, err
 	}
@@ -102,7 +106,7 @@ func (c *Config) ConsumerChannel() (*amqp.Channel, *amqp.Connection, error) {
 }
 
 func (c *Config) GetQueueInfo(queue string) (*amqp.Queue, error) {
-	_, err := c.connection()
+	c, err := c.connection()
 	if err != nil {
 		return nil, err
 	}
@@ -116,7 +120,7 @@ func (c *Config) GetQueueInfo(queue string) (*amqp.Queue, error) {
 }
 
 func (c *Config) QueueDeclare(name string, durable, autoDelete, exclusive, noWait bool, args amqp.Table) (*amqp.Queue, error) {
-	_, err := c.connection()
+	c, err := c.connection()
 	if err != nil {
 		return nil, err
 	}
@@ -135,13 +139,13 @@ func (c *Config) QueueDeclare(name string, durable, autoDelete, exclusive, noWai
 	if err != nil {
 		return nil, err
 	}
-	defer ch.Close()
 	defer c.conn.Close()
+	defer ch.Close()
 	return &declareQueue, nil
 }
 
 func (c *Config) PublishJson(queue string, msg interface{}) error {
-	_, err := c.connection()
+	c, err := c.connection()
 	if err != nil {
 		return err
 	}
@@ -153,8 +157,8 @@ func (c *Config) PublishJson(queue string, msg interface{}) error {
 	if err != nil {
 		return err
 	}
+	//defer c.conn.Close()
 	defer ch.Close()
-	defer c.conn.Close()
 	err = ch.Publish(``, queue, false, false,
 		amqp.Publishing{
 			ContentType:  "application/json",
@@ -168,11 +172,11 @@ func (c *Config) PublishJson(queue string, msg interface{}) error {
 }
 
 func (c *Config) DeclareSimpleQueue(name string) error {
-	_, err := c.connection()
+	c, err := c.connection()
 	if err != nil {
 		return err
 	}
-	defer c.conn.Close()
+	//defer c.conn.Close()
 	var args = make(amqp.Table)
 	args["x-message-ttl"] = int64(math.MaxInt64)
 	_, err = c.QueueDeclare(name, true, false, false, false, args)

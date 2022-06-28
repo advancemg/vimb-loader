@@ -75,6 +75,7 @@ func DeletedSpotInfoStartJob() chan error {
 	go func() {
 		qName := DeletedSpotInfoUpdateQueue
 		amqpConfig := mq_broker.InitConfig()
+		defer amqpConfig.Close()
 		err := amqpConfig.DeclareSimpleQueue(qName)
 		if err != nil {
 			errorCh <- err

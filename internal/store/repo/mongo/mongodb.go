@@ -23,7 +23,13 @@ type DbRepo struct {
 	database string
 }
 
-func New(client *mongo.Client, table, database string) *DbRepo {
+func New(table, database string) *DbRepo {
+	cfg := mongodb_client.InitConfig()
+	cfg.DB = database
+	client, err := cfg.New()
+	if err != nil {
+		panic(err)
+	}
 	return &DbRepo{client, table, database}
 }
 
@@ -52,7 +58,6 @@ type Timeout struct {
 
 func (c *DbRepo) Get(key interface{}, result interface{}) error {
 	k := bson.M{key.(string): bson.M{"$gt": false}}
-	c.connect()
 	log.PrintLog("vimb-loader", service, "info", map[string]string{"Get": "start"})
 	defer c.Client.Disconnect(context.Background())
 	var timeout Timeout
@@ -91,16 +96,15 @@ func (c *DbRepo) AddWithTTL(key, value interface{}, ttl time.Duration) error {
 	}
 	timeout.Ttl = ttl
 	timeout.CreatedAt = time.Now().UTC()
-	c.connect()
 	ctx := context.Background()
-	log.PrintLog("vimb-loader", service, "info", map[string]string{"AddWithTTL": "start"})
 	defer c.Client.Disconnect(ctx)
+	log.PrintLog("vimb-loader", service, "info", map[string]string{"AddWithTTL": "start"})
 	sessionCollection := c.Client.Database(c.database).Collection(c.table)
 	for {
 		_, err = sessionCollection.InsertOne(ctx, bson.M{key.(string): timeout.IsTimeout, "created_at": timeout.CreatedAt, "ttl": timeout.Ttl})
 		if err != nil {
 			if strings.Contains(err.Error(), "E11000 duplicate key error collection") {
-				_, err = c.DeleteOne(bson.M{key.(string): timeout.IsTimeout})
+				_, err = sessionCollection.DeleteOne(ctx, bson.M{key.(string): timeout.IsTimeout})
 				if err != nil {
 					return err
 				}
@@ -186,7 +190,6 @@ func (c *DbRepo) FindWhereAnd4Eq(result interface{}, filed1 string, value1 inter
 }
 
 func (c *DbRepo) Find(result interface{}, filter bson.M) error {
-	c.connect()
 	log.PrintLog("vimb-loader", service, "info", map[string]string{"Find": "start"})
 	defer c.Client.Disconnect(context.Background())
 	coll := c.Client.Database(c.database).Collection(c.table)
@@ -205,7 +208,6 @@ func (c *DbRepo) Find(result interface{}, filter bson.M) error {
 }
 
 func (c *DbRepo) DeleteOne(document interface{}) (int64, error) {
-	c.connect()
 	log.PrintLog("vimb-loader", service, "info", map[string]string{"DeleteOne": "start"})
 	defer c.Client.Disconnect(context.Background())
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -219,7 +221,6 @@ func (c *DbRepo) DeleteOne(document interface{}) (int64, error) {
 }
 
 func (c *DbRepo) AddOrUpdateMany(list []MongoKeyValue, upsert bool) ([]byte, error) {
-	c.connect()
 	log.PrintLog("vimb-loader", service, "info", map[string]string{"AddOrUpdateMany": "start"})
 	defer c.Client.Disconnect(context.Background())
 	var models []mongo.WriteModel

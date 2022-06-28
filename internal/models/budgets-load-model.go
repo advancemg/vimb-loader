@@ -30,6 +30,7 @@ type BudgetQuery struct {
 func (request *BudgetLoadRequest) InitTasks() (CommonResponse, error) {
 	qName := GetBudgetsType
 	amqpConfig := mq_broker.InitConfig()
+	defer amqpConfig.Close()
 	err := amqpConfig.DeclareSimpleQueue(qName)
 	if err != nil {
 		return nil, err
@@ -44,7 +45,7 @@ func (request *BudgetLoadRequest) InitTasks() (CommonResponse, error) {
 		req.Set("SellingDirectionID", request.SellingDirectionID)
 		req.Set("StartMonth", month.ValueString)
 		req.Set("EndMonth", month.ValueString)
-		err := amqpConfig.PublishJson(qName, req)
+		err = amqpConfig.PublishJson(qName, req)
 		if err != nil {
 			log.PrintLog("vimb-loader", "Budget InitTasks", "error", "Q:", qName, "err:", err.Error())
 			return nil, err

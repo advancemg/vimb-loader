@@ -28,6 +28,7 @@ type CustomersWithAdvertiserDataQuery struct {
 func (request *CustomersWithAdvertisersLoadRequest) InitTasks() (CommonResponse, error) {
 	qName := GetCustomersWithAdvertisersType
 	amqpConfig := mq_broker.InitConfig()
+	defer amqpConfig.Close()
 	err := amqpConfig.DeclareSimpleQueue(qName)
 	if err != nil {
 		return nil, err

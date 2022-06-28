@@ -4,7 +4,7 @@ import (
 	cfg "github.com/advancemg/vimb-loader/internal/config"
 	"github.com/advancemg/vimb-loader/internal/models"
 	"github.com/pkg/errors"
-	"github.com/robfig/cron"
+	cron "github.com/robfig/cron/v3"
 	"os"
 	"os/signal"
 	"time"
@@ -43,49 +43,53 @@ func InitConfig() *Configuration {
 
 func (svc *LoadService) Start() error {
 	config := InitConfig()
-	scheduler := cron.New()
-	err := scheduler.AddFunc(config.Budget.Cron, config.Budget.InitJob())
+	location, err := time.LoadLocation("Europe/Moscow")
 	if err != nil {
 		return err
 	}
-	err = scheduler.AddFunc(config.ProgramBreaks.Cron, config.ProgramBreaks.InitJob())
+	scheduler := cron.New(cron.WithLocation(location))
+	_, err = scheduler.AddFunc(config.Budget.Cron, config.Budget.InitJob())
 	if err != nil {
 		return err
 	}
-	err = scheduler.AddFunc(config.ProgramBreaksLight.Cron, config.ProgramBreaksLight.InitJob())
+	_, err = scheduler.AddFunc(config.ProgramBreaks.Cron, config.ProgramBreaks.InitJob())
 	if err != nil {
 		return err
 	}
-	err = scheduler.AddFunc(config.Channel.Cron, config.Channel.InitJob())
+	_, err = scheduler.AddFunc(config.ProgramBreaksLight.Cron, config.ProgramBreaksLight.InitJob())
 	if err != nil {
 		return err
 	}
-	err = scheduler.AddFunc(config.Rank.Cron, config.Rank.InitJob())
+	_, err = scheduler.AddFunc(config.Channel.Cron, config.Channel.InitJob())
 	if err != nil {
 		return err
 	}
-	err = scheduler.AddFunc(config.CustomersWithAdvertisers.Cron, config.CustomersWithAdvertisers.InitJob())
+	_, err = scheduler.AddFunc(config.Rank.Cron, config.Rank.InitJob())
 	if err != nil {
 		return err
 	}
-	err = scheduler.AddFunc(config.Spots.Cron, config.Spots.InitJob())
+	_, err = scheduler.AddFunc(config.CustomersWithAdvertisers.Cron, config.CustomersWithAdvertisers.InitJob())
 	if err != nil {
 		return err
 	}
-	err = scheduler.AddFunc(config.Mediaplan.Cron, config.Mediaplan.InitJob())
+	_, err = scheduler.AddFunc(config.Spots.Cron, config.Spots.InitJob())
 	if err != nil {
 		return err
 	}
-	err = scheduler.AddFunc(config.AdvMessages.Cron, config.AdvMessages.InitJob())
+	_, err = scheduler.AddFunc(config.Mediaplan.Cron, config.Mediaplan.InitJob())
 	if err != nil {
 		return err
 	}
-	err = scheduler.AddFunc(config.DeletedSpotInfo.Cron, config.DeletedSpotInfo.InitJob())
+	_, err = scheduler.AddFunc(config.AdvMessages.Cron, config.AdvMessages.InitJob())
+	if err != nil {
+		return err
+	}
+	_, err = scheduler.AddFunc(config.DeletedSpotInfo.Cron, config.DeletedSpotInfo.InitJob())
 	if err != nil {
 		return err
 	}
 	defer scheduler.Stop()
-	scheduler.Start()
+	go scheduler.Start()
 	/*jobs*/
 	budgetErrChan := config.Budget.StartJob()
 	programBreaksErrChan := config.ProgramBreaks.StartJob()

@@ -105,7 +105,7 @@ func main() {
 	/* s3 server start*/
 	s3Config := s3.InitConfig()
 	if localHostRegex.MatchString(s3Config.S3Endpoint) {
-		err := os.Mkdir(s3Config.S3LocalDir, os.ModePerm)
+		err = os.Mkdir(s3Config.S3LocalDir, os.ModePerm)
 		if err != nil && !os.IsExist(err) {
 			panic(err.Error())
 		}

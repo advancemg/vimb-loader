@@ -71,6 +71,7 @@ func AdvertiserStartJob() chan error {
 	go func() {
 		qName := AdvMessagesUpdateQueue
 		amqpConfig := mq_broker.InitConfig()
+		defer amqpConfig.Close()
 		err := amqpConfig.DeclareSimpleQueue(qName)
 		if err != nil {
 			errorCh <- err
@@ -89,7 +90,7 @@ func AdvertiserStartJob() chan error {
 			nil)
 		for msg := range messages {
 			var bodyJson MqUpdateMessage
-			err := json.Unmarshal(msg.Body, &bodyJson)
+			err = json.Unmarshal(msg.Body, &bodyJson)
 			if err != nil {
 				errorCh <- err
 			}

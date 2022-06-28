@@ -101,6 +101,7 @@ func RanksStartJob() chan error {
 	go func() {
 		qName := RanksUpdateQueue
 		amqpConfig := mq_broker.InitConfig()
+		defer amqpConfig.Close()
 		err := amqpConfig.DeclareSimpleQueue(qName)
 		if err != nil {
 			errorCh <- err
