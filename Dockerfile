@@ -1,6 +1,6 @@
 FROM alpine
 COPY dist/lin app
-COPY docs docs
+COPY docs_old docs
 COPY default-config.json config.json
 EXPOSE 80
 EXPOSE 8080

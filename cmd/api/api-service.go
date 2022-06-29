@@ -101,7 +101,8 @@ func run() error {
 	route.HandleFunc("/api/v1/spot/deleted-info", routes.PostGetDeletedSpotInfo).Methods("POST", "OPTIONS")
 	/*mq-metrics*/
 	route.HandleFunc("/api/v1/mq/queues", routes.GetQueuesMetrics).Methods("GET", "OPTIONS")
-
+	/*backup*/
+	route.HandleFunc("/api/v1/backup", routes.PostMongoBackup).Methods("POST", "OPTIONS")
 	s := &http.Server{
 		Addr:         port,
 		WriteTimeout: time.Second * 15,

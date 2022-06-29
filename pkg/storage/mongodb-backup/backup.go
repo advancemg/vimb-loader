@@ -6,15 +6,30 @@ import (
 	cfg "github.com/advancemg/vimb-loader/internal/config"
 	log "github.com/advancemg/vimb-loader/pkg/logging/zap"
 	"github.com/advancemg/vimb-loader/pkg/s3"
+	"github.com/mongodb/mongo-tools/common/db"
 	mlog "github.com/mongodb/mongo-tools/common/log"
 	"github.com/mongodb/mongo-tools/common/options"
+	"github.com/mongodb/mongo-tools/common/util"
 	"github.com/mongodb/mongo-tools/mongodump"
+	"github.com/mongodb/mongo-tools/mongorestore"
 	"io"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
 )
+
+type SwaggerBackupRequest struct {
+	Host     string `json:"Host"`
+	Port     string `json:"Port"`
+	DB       string `json:"Db"`
+	Username string `json:"Username"`
+	Password string `json:"Password"`
+}
+
+type JsonResponse struct {
+	Request string `json:"request"`
+}
 
 type Config struct {
 	Host       string `json:"Host"`
@@ -33,6 +48,54 @@ func InitConfig() *Config {
 		Username:   cfg.Config.Mongo.Username,
 		Password:   cfg.Config.Mongo.Password,
 		CronBackup: cfg.Config.Mongo.CronBackup,
+	}
+}
+
+func (cfg *Config) Restore(path string) {
+	enabledOptions := options.EnabledOptions{
+		Auth:       true,
+		Connection: true,
+		Namespace:  true,
+		URI:        true,
+	}
+	opts := options.New("mongodump", "", "", "", false, enabledOptions)
+	nsOpts := &mongorestore.NSOptions{
+		NSInclude: []string{"db.timeout"},
+	}
+	inputOpts := &mongorestore.InputOptions{}
+	outputOpts := &mongorestore.OutputOptions{}
+	opts.AddOptions(inputOpts)
+	opts.AddOptions(nsOpts)
+	opts.AddOptions(outputOpts)
+	//opts.Namespace = &options.Namespace{DB: nsOpts.NSInclude[0]}
+	//url := options.URI{
+	//	ConnectionString: fmt.Sprintf(`mongodb://%s:%s/%s`, cfg.Host, cfg.Port, cfg.DB),
+	//}
+	//auth := options.Auth{
+	//	Username: cfg.Username,
+	//	Password: cfg.Password,
+	//}
+	//opts.URI = &url
+	//opts.Auth = &auth
+	targetDir := util.ToUniversalPath(path)
+	provider, err := db.NewSessionProvider(*opts)
+	if err != nil {
+		panic(err)
+	}
+	defer provider.Close()
+	restore := mongorestore.MongoRestore{
+		ToolOptions:     opts,
+		InputOptions:    inputOpts,
+		OutputOptions:   outputOpts,
+		NSOptions:       nsOpts,
+		SessionProvider: provider,
+		TargetDirectory: targetDir,
+	}
+	defer restore.Close()
+	result := restore.Restore()
+	err = result.Err
+	if err != nil {
+		panic(err)
 	}
 }
 
@@ -83,7 +146,7 @@ func (cfg *Config) Backup() (string, error) {
 	//dump.ToolOptions.Namespace.DB = cfg.DB
 	path := fmt.Sprintf("%s%s/mongo-backup-%s", os.TempDir(), "mongo-dump", time.Now().UTC().Format(time.RFC3339))
 	dump.OutputOptions.Out = path
-	dump.OutputOptions.Gzip = true
+	//dump.OutputOptions.Gzip = true
 	dump.OutputOptions.NumParallelCollections = 1
 	err = dump.Init()
 	if err != nil {
@@ -103,22 +166,31 @@ func (cfg *Config) Backup() (string, error) {
 	return zipFile, nil
 }
 
+func (cfg *Config) RunBackup() (*JsonResponse, error) {
+	path, err := cfg.Backup()
+	if err != nil {
+		log.PrintLog("vimb-loader", "RunBackup", "error", "err:", err.Error())
+		return nil, err
+	}
+	s3.InitConfig()
+	index := strings.LastIndex(path, "/")
+	s3Key := fmt.Sprintf("%s/%s", "mongo-backup", path[index:])
+	_, err = s3.UploadFileWithBucket(path, s3Key)
+	if err != nil {
+		log.PrintLog("vimb-loader", "RunBackup", "error", "err:", err.Error())
+		return nil, err
+	}
+	os.RemoveAll(path)
+	return &JsonResponse{"s3Key: " + s3Key}, nil
+}
+
 func (cfg *Config) StartBackup() func() {
 	return func() {
-		path, err := cfg.Backup()
+		_, err := cfg.RunBackup()
 		if err != nil {
 			log.PrintLog("vimb-loader", "StartBackup", "error", "err:", err.Error())
 			return
 		}
-		s3.InitConfig()
-		index := strings.LastIndex(path, "/")
-		s3Key := fmt.Sprintf("%s/%s", "mongo-backup", path[index:])
-		_, err = s3.UploadFileWithBucket(path, s3Key)
-		if err != nil {
-			log.PrintLog("vimb-loader", "StartBackup", "error", "err:", err.Error())
-			return
-		}
-		os.RemoveAll(path)
 	}
 }
 

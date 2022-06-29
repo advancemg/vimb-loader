@@ -29,6 +29,21 @@ func TestDump(t *testing.T) {
 	fmt.Println(time.Since(start))
 }
 
+func TestRestore(t *testing.T) {
+	if testing.Short() {
+		t.SkipNow()
+	}
+	err := config.Load()
+	if err != nil {
+		panic(err)
+	}
+	dm := InitConfig()
+	start := time.Now()
+	path := "/var/folders/dz/38x3jsnd74q6fg_97qrxnhzc0000gn/T/mongo-dump/mongo-backup-2022-06-29T11:26:20Z/db"
+	dm.Restore(path)
+	fmt.Println(time.Since(start))
+}
+
 func TestDumpS3(t *testing.T) {
 	if testing.Short() {
 		t.SkipNow()

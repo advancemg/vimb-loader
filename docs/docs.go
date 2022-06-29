@@ -177,6 +177,41 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/backup": {
+            "post": {
+                "description": "- Создаем резервную копию MongoDВ. При пустых полях берет значения их config файла.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Backup"
+                ],
+                "summary": "Создает backup MongoDB.",
+                "operationId": "routes-post-backup",
+                "parameters": [
+                    {
+                        "description": "Запрос",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/mongodb_backup.SwaggerBackupRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.StreamResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/budgets": {
             "post": {
                 "description": "Возвращает данные по сделкам в разрезе канало-периодов.",
@@ -1812,7 +1847,7 @@ const docTemplate = `{
                     "properties": {
                         "eq": {
                             "type": "integer",
-                            "example": 142480512
+                            "example": 91827134
                         }
                     }
                 }
@@ -2422,6 +2457,26 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "SpotID": {
+                    "type": "string"
+                }
+            }
+        },
+        "mongodb_backup.SwaggerBackupRequest": {
+            "type": "object",
+            "properties": {
+                "Db": {
+                    "type": "string"
+                },
+                "Host": {
+                    "type": "string"
+                },
+                "Password": {
+                    "type": "string"
+                },
+                "Port": {
+                    "type": "string"
+                },
+                "Username": {
                     "type": "string"
                 }
             }

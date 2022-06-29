@@ -240,7 +240,7 @@ definitions:
       BlockID:
         properties:
           eq:
-            example: 142480512
+            example: 91827134
             type: integer
         type: object
     type: object
@@ -657,6 +657,19 @@ definitions:
       SpotID:
         type: string
     type: object
+  mongodb_backup.SwaggerBackupRequest:
+    properties:
+      Db:
+        type: string
+      Host:
+        type: string
+      Password:
+        type: string
+      Port:
+        type: string
+      Username:
+        type: string
+    type: object
   routes.MqInfo:
     properties:
       consumers:
@@ -782,6 +795,30 @@ paths:
       summary: Загрузка агрегированных данных.
       tags:
       - Медиапланы
+  /api/v1/backup:
+    post:
+      consumes:
+      - application/json
+      description: '- Создаем резервную копию MongoDВ. При пустых полях берет значения
+        их config файла.'
+      operationId: routes-post-backup
+      parameters:
+      - description: Запрос
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/mongodb_backup.SwaggerBackupRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.StreamResponse'
+      summary: Создает backup MongoDB.
+      tags:
+      - Backup
   /api/v1/budgets:
     post:
       consumes:
