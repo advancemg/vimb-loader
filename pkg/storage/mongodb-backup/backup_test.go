@@ -39,7 +39,7 @@ func TestRestore(t *testing.T) {
 	}
 	dm := InitConfig()
 	start := time.Now()
-	path := "/var/folders/dz/38x3jsnd74q6fg_97qrxnhzc0000gn/T/mongo-dump/mongo-backup-2022-06-29T11:26:20Z/db"
+	path := "/var/folders/dz/38x3jsnd74q6fg_97qrxnhzc0000gn/T/mongo-dump/mongo-backup-2022-06-29T11:26:20Z/admin"
 	dm.Restore(path)
 	fmt.Println(time.Since(start))
 }
@@ -70,16 +70,12 @@ func TestDumpS3(t *testing.T) {
 	fmt.Println(time.Since(start))
 }
 
-func TestRecursiveZip(t *testing.T) {
-	if testing.Short() {
-		t.SkipNow()
+func TestListBackup(t *testing.T) {
+	config.Load()
+	s3.InitConfig()
+	backups, _ := ListBackups()
+	for _, k := range backups {
+		fmt.Println(k)
 	}
-	pwd, err := os.Getwd()
-	if err != nil {
-		panic(err)
-	}
-	err = RecursiveZip(pwd, "outPath.zip")
-	if err != nil {
-		panic(err)
-	}
+
 }

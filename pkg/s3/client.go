@@ -238,11 +238,11 @@ func ListDirectories(bucket, prefix string) map[string]string {
 	}
 	return data
 }
-func ListKeys(bucket, prefix string) map[string]string {
+func ListKeys(bucket, prefix string) (map[string]string, error) {
 	err := connection()
 	if err != nil {
 		log.PrintLog("vimb-loader", "s3", "error", "Connection error:", err.Error())
-		return nil
+		return nil, err
 	}
 	client := s3.New(cfg.S3Session)
 	request := s3.ListObjectsInput{
@@ -252,13 +252,13 @@ func ListKeys(bucket, prefix string) map[string]string {
 	result, err := client.ListObjects(&request)
 	if err != nil {
 		log.PrintLog("vimb-loader", "s3", "error", "ListKeys error:", err.Error())
-		return nil
+		return nil, err
 	}
 	var data = map[string]string{}
 	for _, file := range result.Contents {
 		data[*file.Key] = *file.ETag
 	}
-	return data
+	return data, nil
 }
 func ListKeysWithCred(bucket, prefix string) map[string]string {
 	err := connection()
@@ -283,8 +283,12 @@ func ListKeysWithCred(bucket, prefix string) map[string]string {
 	return data
 }
 func CopyBatch(bucket, inputPrefix, outputPrefix string) error {
-	keys := ListKeys(bucket, inputPrefix)
-	err := connection()
+	keys, err := ListKeys(bucket, inputPrefix)
+	if err != nil {
+		log.PrintLog("vimb-loader", "s3", "error", "Connection error:", err.Error())
+		return err
+	}
+	err = connection()
 	if err != nil {
 		log.PrintLog("vimb-loader", "s3", "error", "Connection error:", err.Error())
 		return err
@@ -374,8 +378,12 @@ func UploadBytesWithBucket(s3Key string, data []byte) (*s3manager.UploadOutput, 
 }
 
 func DeleteWithBucketPrefix(bucket string, prefix string) error {
-	keys := ListKeys(bucket, prefix)
-	err := connection()
+	keys, err := ListKeys(bucket, prefix)
+	if err != nil {
+		log.PrintLog("vimb-loader", "s3", "error", "ListKeys error:", err.Error())
+		return err
+	}
+	err = connection()
 	if err != nil {
 		log.PrintLog("vimb-loader", "s3", "error", "Connection error:", err.Error())
 		return err

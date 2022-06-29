@@ -670,6 +670,8 @@ definitions:
       Username:
         type: string
     type: object
+  mongodb_backup.SwaggerListBackupsRequest:
+    type: object
   routes.MqInfo:
     properties:
       consumers:
@@ -817,6 +819,29 @@ paths:
           schema:
             $ref: '#/definitions/models.StreamResponse'
       summary: Создает backup MongoDB.
+      tags:
+      - Backup
+  /api/v1/backup-list:
+    post:
+      consumes:
+      - application/json
+      description: '- Возвращает список бэкапов, s3Key.'
+      operationId: routes-post-backup-list
+      parameters:
+      - description: Запрос
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/mongodb_backup.SwaggerListBackupsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.StreamResponse'
+      summary: Список бэкапов MongoDB.
       tags:
       - Backup
   /api/v1/budgets:

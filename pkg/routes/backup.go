@@ -51,3 +51,47 @@ func PostMongoBackup(w http.ResponseWriter, r *http.Request) {
 	(w).WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(response)
 }
+
+// PostListBackups godoc
+// @Summary Список бэкапов MongoDB.
+// @Description - Возвращает список бэкапов, s3Key.
+// @ID routes-post-backup-list
+// @Tags Backup
+// @Param body body mongodb_backup.SwaggerListBackupsRequest true  "Запрос"
+// @Accept json
+// @Produce json
+// @Success 200 {object} models.StreamResponse
+// @Router /api/v1/backup-list [post]
+func PostListBackups(w http.ResponseWriter, r *http.Request) {
+	setupResponse(&w, r)
+	if (*r).Method == "OPTIONS" {
+		(w).WriteHeader(http.StatusOK)
+		return
+	}
+	//var request mongodb_backup.Config
+	//err := json.NewDecoder(r.Body).Decode(&request)
+	//if err != nil {
+	//	(w).WriteHeader(http.StatusBadRequest)
+	//	var response = utils.FieldValidateErrorType{
+	//		Field:   "id",
+	//		Message: fmt.Sprintf(`Ошибка %s`, err.Error()),
+	//	}
+	//	json.NewEncoder(w).Encode(response)
+	//	return
+	//}
+	//if request.Port == "" || request.Host == "" || request.DB == "" || request.Username == "" || request.Password == "" {
+	//	request = *mongodb_backup.InitConfig()
+	//}
+	response, err := mongodb_backup.ListBackups()
+	if err != nil {
+		(w).WriteHeader(http.StatusBadRequest)
+		var response = utils.FieldValidateErrorType{
+			Field:   "request",
+			Message: fmt.Sprintf(`Ошибка %s`, err.Error()),
+		}
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+	(w).WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(response)
+}

@@ -1,20 +1,18 @@
 package mongodb_backup
 
 import (
-	"archive/zip"
 	"fmt"
 	cfg "github.com/advancemg/vimb-loader/internal/config"
 	log "github.com/advancemg/vimb-loader/pkg/logging/zap"
 	"github.com/advancemg/vimb-loader/pkg/s3"
+	"github.com/advancemg/vimb-loader/pkg/utils"
 	"github.com/mongodb/mongo-tools/common/db"
 	mlog "github.com/mongodb/mongo-tools/common/log"
 	"github.com/mongodb/mongo-tools/common/options"
 	"github.com/mongodb/mongo-tools/common/util"
 	"github.com/mongodb/mongo-tools/mongodump"
 	"github.com/mongodb/mongo-tools/mongorestore"
-	"io"
 	"os"
-	"path/filepath"
 	"strings"
 	"time"
 )
@@ -25,6 +23,9 @@ type SwaggerBackupRequest struct {
 	DB       string `json:"Db"`
 	Username string `json:"Username"`
 	Password string `json:"Password"`
+}
+
+type SwaggerListBackupsRequest struct {
 }
 
 type JsonResponse struct {
@@ -67,16 +68,16 @@ func (cfg *Config) Restore(path string) {
 	opts.AddOptions(inputOpts)
 	opts.AddOptions(nsOpts)
 	opts.AddOptions(outputOpts)
-	//opts.Namespace = &options.Namespace{DB: nsOpts.NSInclude[0]}
-	//url := options.URI{
-	//	ConnectionString: fmt.Sprintf(`mongodb://%s:%s/%s`, cfg.Host, cfg.Port, cfg.DB),
-	//}
-	//auth := options.Auth{
-	//	Username: cfg.Username,
-	//	Password: cfg.Password,
-	//}
-	//opts.URI = &url
-	//opts.Auth = &auth
+	opts.Namespace = &options.Namespace{DB: nsOpts.NSInclude[0]}
+	url := options.URI{
+		ConnectionString: fmt.Sprintf(`mongodb://%s:%s/%s`, cfg.Host, cfg.Port, cfg.DB),
+	}
+	auth := options.Auth{
+		Username: cfg.Username,
+		Password: cfg.Password,
+	}
+	opts.URI = &url
+	opts.Auth = &auth
 	targetDir := util.ToUniversalPath(path)
 	provider, err := db.NewSessionProvider(*opts)
 	if err != nil {
@@ -97,6 +98,19 @@ func (cfg *Config) Restore(path string) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func ListBackups() ([]string, error) {
+	var result []string
+	bucket := cfg.Config.S3.S3Bucket
+	keys, err := s3.ListKeys(bucket, "mongo-backup")
+	if err != nil {
+		return nil, err
+	}
+	for key, _ := range keys {
+		result = append(result, key)
+	}
+	return result, nil
 }
 
 func (cfg *Config) Backup() (string, error) {
@@ -158,7 +172,7 @@ func (cfg *Config) Backup() (string, error) {
 	}
 	index := strings.LastIndex(path, "/")
 	zipFile := fmt.Sprintf("%s%s.zip", os.TempDir(), path[index:])
-	err = RecursiveZip(path, zipFile)
+	err = utils.RecursiveZip(path, zipFile)
 	if err != nil {
 		return "", fmt.Errorf("RecursiveZip: %w", err)
 	}
@@ -192,42 +206,4 @@ func (cfg *Config) StartBackup() func() {
 			return
 		}
 	}
-}
-
-func RecursiveZip(outputZip, inputPath string) error {
-	destinationFile, err := os.Create(inputPath)
-	if err != nil {
-		return err
-	}
-	myZip := zip.NewWriter(destinationFile)
-	err = filepath.Walk(outputZip, func(filePath string, info os.FileInfo, err error) error {
-		if info.IsDir() {
-			return nil
-		}
-		if err != nil {
-			return err
-		}
-		relPath := strings.TrimPrefix(filePath, filepath.Dir(outputZip))
-		zipFile, err := myZip.Create(relPath)
-		if err != nil {
-			return err
-		}
-		fsFile, err := os.Open(filePath)
-		if err != nil {
-			return err
-		}
-		_, err = io.Copy(zipFile, fsFile)
-		if err != nil {
-			return err
-		}
-		return nil
-	})
-	if err != nil {
-		return err
-	}
-	err = myZip.Close()
-	if err != nil {
-		return err
-	}
-	return nil
 }

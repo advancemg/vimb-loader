@@ -103,6 +103,7 @@ func run() error {
 	route.HandleFunc("/api/v1/mq/queues", routes.GetQueuesMetrics).Methods("GET", "OPTIONS")
 	/*backup*/
 	route.HandleFunc("/api/v1/backup", routes.PostMongoBackup).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/backup-list", routes.PostListBackups).Methods("POST", "OPTIONS")
 	s := &http.Server{
 		Addr:         port,
 		WriteTimeout: time.Second * 15,

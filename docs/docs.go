@@ -212,6 +212,41 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/backup-list": {
+            "post": {
+                "description": "- Возвращает список бэкапов, s3Key.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Backup"
+                ],
+                "summary": "Список бэкапов MongoDB.",
+                "operationId": "routes-post-backup-list",
+                "parameters": [
+                    {
+                        "description": "Запрос",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/mongodb_backup.SwaggerListBackupsRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.StreamResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/budgets": {
             "post": {
                 "description": "Возвращает данные по сделкам в разрезе канало-периодов.",
@@ -2480,6 +2515,9 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "mongodb_backup.SwaggerListBackupsRequest": {
+            "type": "object"
         },
         "routes.MqInfo": {
             "type": "object",
