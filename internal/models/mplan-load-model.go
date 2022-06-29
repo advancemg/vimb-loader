@@ -79,7 +79,10 @@ func (request *Any) QueryMediaplans() ([]Mediaplan, error) {
 		return nil, err
 	}
 	db, table := utils.SplitDbAndTable(DbMediaplans)
-	dbMediaplans := store.OpenDb(db, table)
+	dbMediaplans, err := store.OpenDb(db, table)
+	if err != nil {
+		return nil, err
+	}
 	err = dbMediaplans.FindJson(&result, marshal)
 	if err != nil {
 		return nil, err
@@ -94,7 +97,10 @@ func (request *Any) QueryAggMediaplans() ([]MediaplanAgg, error) {
 		return nil, err
 	}
 	db, table := utils.SplitDbAndTable(DbAggMediaplans)
-	dbAggMediaplans := store.OpenDb(db, table)
+	dbAggMediaplans, err := store.OpenDb(db, table)
+	if err != nil {
+		return nil, err
+	}
 	err = dbAggMediaplans.FindJson(&result, marshal)
 	if err != nil {
 		return nil, err

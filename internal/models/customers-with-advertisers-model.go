@@ -6,11 +6,9 @@ import (
 	"fmt"
 	goConvert "github.com/advancemg/go-convert"
 	"github.com/advancemg/vimb-loader/internal/store"
-	"github.com/advancemg/vimb-loader/internal/store/repo/badger"
 	log "github.com/advancemg/vimb-loader/pkg/logging/zap"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
-	"github.com/advancemg/vimb-loader/pkg/storage/badger-client"
 	"github.com/advancemg/vimb-loader/pkg/utils"
 	"time"
 )
@@ -126,9 +124,12 @@ func (request *GetCustomersWithAdvertisers) GetDataJson() (*JsonResponse, error)
 func (request *GetCustomersWithAdvertisers) GetDataXmlZip() (*StreamResponse, error) {
 	for {
 		var isTimeout utils.Timeout
-		db := badger.New(badger_client.Open(DbTimeout))
-		repo := store.New(db)
-		err := repo.Get("_id", &isTimeout)
+		db, table := utils.SplitDbAndTable(DbTimeout)
+		repo, err := store.OpenDb(db, table)
+		if err != nil {
+			return nil, err
+		}
+		err = repo.Get("_id", &isTimeout)
 		if err != nil {
 			if errors.Is(err, store.ErrNotFound) {
 				isTimeout.IsTimeout = false
@@ -164,7 +165,10 @@ func (request *GetCustomersWithAdvertisers) UploadToS3() (*MqUpdateMessage, erro
 		data, err := request.GetDataXmlZip()
 		if err != nil {
 			if vimbError, ok := err.(*utils.VimbError); ok {
-				vimbError.CheckTimeout("GetCustomersWithAdvertisers")
+				err = vimbError.CheckTimeout("GetCustomersWithAdvertisers")
+				if err != nil {
+					return nil, err
+				}
 				continue
 			}
 			return nil, err

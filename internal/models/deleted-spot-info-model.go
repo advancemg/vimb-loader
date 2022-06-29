@@ -102,7 +102,11 @@ func (cfg *DeletedSpotInfoConfiguration) InitJob() func() {
 		var budgets []Budget
 		months := map[int64][]time.Time{}
 		db, table := utils.SplitDbAndTable(DbBudgets)
-		repo := store.OpenDb(db, table)
+		repo, err := store.OpenDb(db, table)
+		if err != nil {
+			log.PrintLog("vimb-loader", "DeletedSpotInfo InitJob", "error", "Q:", qName, "err:", err.Error())
+			return
+		}
 		err = repo.FindWhereGe(&budgets, "Month", int64(-1))
 		if err != nil {
 			log.PrintLog("vimb-loader", "DeletedSpotInfo InitJob", "error", "Q:", qName, "err:", err.Error())
@@ -112,7 +116,8 @@ func (cfg *DeletedSpotInfoConfiguration) InitJob() func() {
 			agr[*budget.AgrID] = struct{}{}
 			days, err := utils.GetDaysFromYearMonthInt(*budget.Month)
 			if err != nil {
-				panic(err)
+				log.PrintLog("vimb-loader", "DeletedSpotInfo InitJob", "error", "Q:", qName, "err:", err.Error())
+				return
 			}
 			months[*budget.Month] = days
 		}
@@ -161,8 +166,11 @@ func (request *GetDeletedSpotInfo) GetDataXmlZip() (*StreamResponse, error) {
 	for {
 		var isTimeout utils.Timeout
 		db, table := utils.SplitDbAndTable(DbTimeout)
-		repo := store.OpenDb(db, table)
-		err := repo.Get("_id", &isTimeout)
+		repo, err := store.OpenDb(db, table)
+		if err != nil {
+			return nil, err
+		}
+		err = repo.Get("_id", &isTimeout)
 		if err != nil {
 			if errors.Is(err, store.ErrNotFound) {
 				isTimeout.IsTimeout = false
@@ -198,7 +206,10 @@ func (request *GetDeletedSpotInfo) UploadToS3() (*MqUpdateMessage, error) {
 		data, err := request.GetDataXmlZip()
 		if err != nil {
 			if vimbError, ok := err.(*utils.VimbError); ok {
-				vimbError.CheckTimeout("GetDeletedSpotInfo")
+				err = vimbError.CheckTimeout("GetDeletedSpotInfo")
+				if err != nil {
+					return nil, err
+				}
 				continue
 			}
 			return nil, err

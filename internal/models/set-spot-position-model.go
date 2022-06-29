@@ -44,8 +44,11 @@ func (request *SetSpotPosition) GetDataXmlZip() (*StreamResponse, error) {
 	for {
 		var isTimeout utils.Timeout
 		db, table := utils.SplitDbAndTable(DbTimeout)
-		repo := store.OpenDb(db, table)
-		err := repo.Get("_id", &isTimeout)
+		repo, err := store.OpenDb(db, table)
+		if err != nil {
+			return nil, err
+		}
+		err = repo.Get("_id", &isTimeout)
 		if err != nil {
 			if errors.Is(err, store.ErrNotFound) {
 				isTimeout.IsTimeout = false
@@ -81,7 +84,10 @@ func (request *SetSpotPosition) UploadToS3() error {
 		data, err := request.GetDataXmlZip()
 		if err != nil {
 			if vimbError, ok := err.(*utils.VimbError); ok {
-				vimbError.CheckTimeout("SetSpotPosition")
+				err = vimbError.CheckTimeout("SetSpotPosition")
+				if err != nil {
+					return err
+				}
 				continue
 			}
 			return err

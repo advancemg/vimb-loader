@@ -81,7 +81,10 @@ func (request *ProgramBreaksLightModeLoadRequest) getDays() ([]time.Time, error)
 func (request *Any) QueryProgramBreaksLightMode() ([]ProgramBreaksLight, error) {
 	var result []ProgramBreaksLight
 	db, table := utils.SplitDbAndTable(DbProgramBreaksLightMode)
-	dbProgramBreaksLightMode := store.OpenDb(db, table)
+	dbProgramBreaksLightMode, err := store.OpenDb(db, table)
+	if err != nil {
+		return nil, err
+	}
 	marshal, err := json.Marshal(request.Body)
 	if err != nil {
 		return nil, err

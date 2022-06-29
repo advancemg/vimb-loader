@@ -116,14 +116,22 @@ func (cfg *SpotsConfiguration) InitJob() func() {
 		months := map[int64][]time.Time{}
 		advertisers := map[int64]int64{}
 		db, table := utils.SplitDbAndTable(DbBudgets)
-		repoBudgets := store.OpenDb(db, table)
+		repoBudgets, err := store.OpenDb(db, table)
+		if err != nil {
+			log.PrintLog("vimb-loader", "Spots InitJob", "error", "Q:", qName, "err:", err.Error())
+			return
+		}
 		err = repoBudgets.FindWhereGe(&budgets, "Month", int64(-1))
 		if err != nil {
 			log.PrintLog("vimb-loader", "Spots InitJob", "error", "Q:", qName, "err:", err.Error())
 			return
 		}
 		db, table = utils.SplitDbAndTable(DbChannels)
-		repoChannels := store.OpenDb(db, table)
+		repoChannels, err := store.OpenDb(db, table)
+		if err != nil {
+			log.PrintLog("vimb-loader", "Spots InitJob", "error", "Q:", qName, "err:", err.Error())
+			return
+		}
 		err = repoChannels.FindWhereGe(&channels, "ID", int64(-1))
 		for _, budget := range budgets {
 			advertisers[*budget.AdtID] = *budget.AdtID
@@ -133,7 +141,8 @@ func (cfg *SpotsConfiguration) InitJob() func() {
 			}
 			days, err := utils.GetDaysFromYearMonthInt(*budget.Month)
 			if err != nil {
-				panic(err)
+				log.PrintLog("vimb-loader", "Spots InitJob", "error", "Q:", qName, "err:", err.Error())
+				return
 			}
 			months[*budget.Month] = days
 		}
@@ -200,8 +209,11 @@ func (request *GetSpots) GetDataXmlZip() (*StreamResponse, error) {
 	for {
 		var isTimeout utils.Timeout
 		db, table := utils.SplitDbAndTable(DbTimeout)
-		repo := store.OpenDb(db, table)
-		err := repo.Get("_id", &isTimeout)
+		repo, err := store.OpenDb(db, table)
+		if err != nil {
+			return nil, err
+		}
+		err = repo.Get("_id", &isTimeout)
 		if err != nil {
 			if errors.Is(err, store.ErrNotFound) {
 				isTimeout.IsTimeout = false
@@ -237,7 +249,10 @@ func (request *GetSpots) UploadToS3() (*MqUpdateMessage, error) {
 		data, err := request.GetDataXmlZip()
 		if err != nil {
 			if vimbError, ok := err.(*utils.VimbError); ok {
-				vimbError.CheckTimeout("GetSpots")
+				err = vimbError.CheckTimeout("GetSpots")
+				if err != nil {
+					return nil, err
+				}
 				continue
 			}
 			return nil, err

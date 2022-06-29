@@ -63,14 +63,14 @@ func (cfg *Config) Backup() (string, error) {
 		if os.IsNotExist(err) {
 			err = os.MkdirAll("logs", 0777)
 			if err != nil {
-				panic(err)
+				return "", fmt.Errorf("backup: %w", err)
 			}
 			logFile, err = os.Create(filePath)
 			if err != nil {
-				panic(err)
+				return "", fmt.Errorf("backup: %w", err)
 			}
 		} else {
-			panic(err)
+			return "", fmt.Errorf("backup: %w", err)
 		}
 	}
 	defer logFile.Close()

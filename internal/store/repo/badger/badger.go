@@ -3,6 +3,7 @@ package badger
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"github.com/advancemg/badgerhold"
 	"strconv"
 	"strings"
@@ -75,9 +76,12 @@ func (r *DbRepo) FindJson(result interface{}, filter []byte) error {
 	decoder := json.NewDecoder(bytes.NewReader(filter))
 	decoder.UseNumber()
 	if err := decoder.Decode(&request); err != nil {
-		return err
+		return fmt.Errorf("FindJson Decode: %w", err)
 	}
-	filterNetworks := HandleBadgerRequest(request)
+	filterNetworks, err := HandleBadgerRequest(request)
+	if err != nil {
+		return fmt.Errorf("FindJson: %w", err)
+	}
 	return r.Store.Find(result, filterNetworks)
 }
 
@@ -97,24 +101,35 @@ func (r *DbRepo) Delete(key interface{}, dataType interface{}) error {
 	return r.Store.Delete(key, dataType)
 }
 
-func HandleBadgerRequest(request map[string]interface{}) *badgerhold.Query {
+func HandleBadgerRequest(request map[string]interface{}) (*badgerhold.Query, error) {
 	var query *badgerhold.Query
 	once := true
 	for field, value := range request {
 		for key, val := range value.(map[string]interface{}) {
 			if once {
-				query = switchBadgerFilterWhere(query, key, field, val)
+				where, err := switchBadgerFilterWhere(query, key, field, val)
+				query = where
+				if err != nil {
+					return nil, fmt.Errorf("HandleBadgerRequest: %w", err)
+				}
 				once = false
 			} else {
-				query = switchBadgerFilterAnd(query, key, field, val)
+				and, err := switchBadgerFilterAnd(query, key, field, val)
+				query = and
+				if err != nil {
+					return nil, fmt.Errorf("HandleBadgerRequest: %w", err)
+				}
 			}
 		}
 	}
-	return query
+	return query, nil
 }
 
-func switchBadgerFilterAnd(filter *badgerhold.Query, key, filed string, value interface{}) *badgerhold.Query {
-	value = jsonNumber(value)
+func switchBadgerFilterAnd(filter *badgerhold.Query, key, filed string, value interface{}) (*badgerhold.Query, error) {
+	value, err := jsonNumber(value)
+	if err != nil {
+		return nil, fmt.Errorf("switchBadgerFilterAnd: %w", err)
+	}
 	switch key {
 	case "eq":
 		filter = filter.And(filed).Eq(value)
@@ -133,11 +148,14 @@ func switchBadgerFilterAnd(filter *badgerhold.Query, key, filed string, value in
 	case "isnil":
 		filter = filter.And(filed).IsNil()
 	}
-	return filter
+	return filter, nil
 }
 
-func switchBadgerFilterWhere(filter *badgerhold.Query, key, filed string, value interface{}) *badgerhold.Query {
-	value = jsonNumber(value)
+func switchBadgerFilterWhere(filter *badgerhold.Query, key, filed string, value interface{}) (*badgerhold.Query, error) {
+	value, err := jsonNumber(value)
+	if err != nil {
+		return nil, fmt.Errorf("switchBadgerFilterWhere: %w", err)
+	}
 	switch key {
 	case "eq":
 		filter = badgerhold.Where(filed).Eq(value)
@@ -156,26 +174,26 @@ func switchBadgerFilterWhere(filter *badgerhold.Query, key, filed string, value 
 	case "isnil":
 		filter = badgerhold.Where(filed).IsNil()
 	}
-	return filter
+	return filter, nil
 }
 
-func jsonNumber(value interface{}) interface{} {
+func jsonNumber(value interface{}) (interface{}, error) {
 	if number, ok := value.(json.Number); ok {
 		strconv.ParseInt(string(number), 10, 64)
 		dot := strings.Contains(number.String(), ".")
 		if dot {
 			i, err := number.Float64()
 			if err != nil {
-				panic(err)
+				return nil, fmt.Errorf("jsonNumber: %w", err)
 			}
-			return i
+			return i, err
 		} else {
 			i, err := number.Int64()
 			if err != nil {
-				panic(err)
+				return nil, fmt.Errorf("jsonNumber: %w", err)
 			}
-			return i
+			return i, err
 		}
 	}
-	return value
+	return value, nil
 }

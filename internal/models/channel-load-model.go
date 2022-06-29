@@ -48,7 +48,10 @@ func (request *ChannelLoadRequest) InitTasks() (CommonResponse, error) {
 func (request *Any) QueryChannels() ([]Channel, error) {
 	var result []Channel
 	db, table := utils.SplitDbAndTable(DbChannels)
-	repo := store.OpenDb(db, table)
+	repo, err := store.OpenDb(db, table)
+	if err != nil {
+		return nil, err
+	}
 	marshal, err := json.Marshal(request.Body)
 	if err != nil {
 		return nil, err

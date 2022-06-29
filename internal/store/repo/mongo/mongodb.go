@@ -23,14 +23,14 @@ type DbRepo struct {
 	database string
 }
 
-func New(table, database string) *DbRepo {
+func New(table, database string) (*DbRepo, error) {
 	cfg := mongodb_client.InitConfig()
 	cfg.DB = database
 	client, err := cfg.New()
 	if err != nil {
-		panic(err)
+		return nil, fmt.Errorf("mongodb New(): %w", err)
 	}
-	return &DbRepo{client, table, database}
+	return &DbRepo{client, table, database}, nil
 }
 
 type MongoKeyValue struct {
@@ -38,16 +38,16 @@ type MongoKeyValue struct {
 	Value interface{}
 }
 
-func (c *DbRepo) Close() {
+func (c *DbRepo) Close() error {
 	if c.Client == nil {
-		return
+		return nil
 	}
-
 	err := c.Client.Disconnect(context.TODO())
 	if err != nil {
-		panic(err)
+		return fmt.Errorf("mongodb disconnect: %w", err)
 	}
 	log.PrintLog("vimb-loader", service, "info", map[string]string{"MongoDB": "Connection closed."})
+	return nil
 }
 
 func (c *DbRepo) AddOrUpdate(key interface{}, data interface{}) error {
@@ -70,7 +70,10 @@ type Timeout struct {
 
 func (c *DbRepo) Get(key interface{}, result interface{}) error {
 	if c.Client == nil {
-		c.connect()
+		err := c.connect()
+		if err != nil {
+			return fmt.Errorf("mongodb get: %w", err)
+		}
 		defer c.Close()
 	}
 	k := bson.M{key.(string): bson.M{"$gt": false}}
@@ -102,7 +105,10 @@ func (c *DbRepo) Get(key interface{}, result interface{}) error {
 func (c *DbRepo) AddWithTTL(key, value interface{}, ttl time.Duration) error {
 	ctx := context.Background()
 	if c.Client == nil {
-		c.connect()
+		err := c.connect()
+		if err != nil {
+			return fmt.Errorf("mongodb addwithttl: %w", err)
+		}
 		defer c.Close()
 	}
 	marshal, err := bson.Marshal(value)
@@ -155,7 +161,10 @@ func (c *DbRepo) FindJson(result interface{}, filter []byte) error {
 	if err := decoder.Decode(&request); err != nil {
 		return err
 	}
-	filterNetworks := HandleBadgerRequest(request)
+	filterNetworks, err := HandleBadgerRequest(request)
+	if err != nil {
+		return fmt.Errorf("FindJson: %w", err)
+	}
 	return c.Find(result, filterNetworks)
 }
 
@@ -209,7 +218,10 @@ func (c *DbRepo) FindWhereAnd4Eq(result interface{}, filed1 string, value1 inter
 
 func (c *DbRepo) Find(result interface{}, filter bson.M) error {
 	if c.Client == nil {
-		c.connect()
+		err := c.connect()
+		if err != nil {
+			return fmt.Errorf("mongodb find: %w", err)
+		}
 		defer c.Close()
 	}
 	log.PrintLog("vimb-loader", service, "info", map[string]string{"Find": "start"})
@@ -230,7 +242,10 @@ func (c *DbRepo) Find(result interface{}, filter bson.M) error {
 
 func (c *DbRepo) DeleteOne(document interface{}) (int64, error) {
 	if c.Client == nil {
-		c.connect()
+		err := c.connect()
+		if err != nil {
+			return 0, fmt.Errorf("mongodb delete one: %w", err)
+		}
 		defer c.Close()
 	}
 	log.PrintLog("vimb-loader", service, "info", map[string]string{"DeleteOne": "start"})
@@ -246,7 +261,10 @@ func (c *DbRepo) DeleteOne(document interface{}) (int64, error) {
 
 func (c *DbRepo) AddOrUpdateMany(list []MongoKeyValue, upsert bool) ([]byte, error) {
 	if c.Client == nil {
-		c.connect()
+		err := c.connect()
+		if err != nil {
+			return nil, fmt.Errorf("mongodb addorupdate: %w", err)
+		}
 		defer c.Close()
 	}
 	log.PrintLog("vimb-loader", service, "info", map[string]string{"AddOrUpdateMany": "start"})
@@ -270,28 +288,36 @@ func (c *DbRepo) AddOrUpdateMany(list []MongoKeyValue, upsert bool) ([]byte, err
 	return bson.Marshal(data)
 }
 
-func (c *DbRepo) connect() {
+func (c *DbRepo) connect() error {
 	cfg := mongodb_client.InitConfig()
 	cfg.DB = c.database
 	client, err := cfg.New()
 	if err != nil {
-		panic(err)
+		return fmt.Errorf("mongodb connect: %w", err)
 	}
 	c.Client = client
+	return nil
 }
 
-func HandleBadgerRequest(request map[string]interface{}) bson.M {
+func HandleBadgerRequest(request map[string]interface{}) (bson.M, error) {
 	var filters []bson.M
 	for field, value := range request {
 		for key, val := range value.(map[string]interface{}) {
-			filters = append(filters, makeFilter(key, field, val))
+			filter, err := makeFilter(key, field, val)
+			if err != nil {
+				return nil, fmt.Errorf("HandleBadgerRequest: %w", err)
+			}
+			filters = append(filters, filter)
 		}
 	}
-	return bson.M{"$and": filters}
+	return bson.M{"$and": filters}, nil
 }
 
-func makeFilter(key, filed string, value interface{}) bson.M {
-	value = jsonNumber(value)
+func makeFilter(key, filed string, value interface{}) (bson.M, error) {
+	value, err := jsonNumber(value)
+	if err != nil {
+		return nil, fmt.Errorf("makeFilter: %w", err)
+	}
 	var filter bson.M
 	switch key {
 	case "eq":
@@ -311,26 +337,26 @@ func makeFilter(key, filed string, value interface{}) bson.M {
 	case "isnil":
 		filter = bson.M{filed: bson.M{"$nin": value}}
 	}
-	return filter
+	return filter, nil
 }
 
-func jsonNumber(value interface{}) interface{} {
+func jsonNumber(value interface{}) (interface{}, error) {
 	if number, ok := value.(json.Number); ok {
 		strconv.ParseInt(string(number), 10, 64)
 		dot := strings.Contains(number.String(), ".")
 		if dot {
 			i, err := number.Float64()
 			if err != nil {
-				panic(err)
+				return nil, fmt.Errorf("jsonNumber: %w", err)
 			}
-			return i
+			return i, nil
 		} else {
 			i, err := number.Int64()
 			if err != nil {
-				panic(err)
+				return nil, fmt.Errorf("jsonNumber: %w", err)
 			}
-			return i
+			return i, nil
 		}
 	}
-	return value
+	return value, nil
 }

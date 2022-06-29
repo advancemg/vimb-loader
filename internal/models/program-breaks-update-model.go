@@ -363,7 +363,10 @@ func (request *ProgramBreaksUpdateRequest) loadFromFile() error {
 		return err
 	}
 	db, table := utils.SplitDbAndTable(DbProgramBreaks)
-	dbProgramBreaks := store.OpenDb(db, table)
+	dbProgramBreaks, err := store.OpenDb(db, table)
+	if err != nil {
+		return err
+	}
 	month := utils.Int64(request.Month)
 	for _, dataB := range internalData {
 		programBreaks, err := dataB.ConvertProgramBreaks()
@@ -406,7 +409,10 @@ func (request *ProgramBreaksUpdateRequest) loadFromFile() error {
 			return err
 		}
 		db, table = utils.SplitDbAndTable(DbProgramBreaksProMaster)
-		dbProgramBreaksProMaster := store.OpenDb(db, table)
+		dbProgramBreaksProMaster, err := store.OpenDb(db, table)
+		if err != nil {
+			return err
+		}
 		for _, dataItem := range internalData {
 			data, err := dataItem.Convert()
 			if err != nil {
@@ -437,7 +443,10 @@ func (request *ProgramBreaksUpdateRequest) loadFromFile() error {
 			return err
 		}
 		db, table = utils.SplitDbAndTable(DbProgramBreaksProMaster)
-		dbProgramBreaksProMaster := store.OpenDb(db, table)
+		dbProgramBreaksProMaster, err := store.OpenDb(db, table)
+		if err != nil {
+			return err
+		}
 		data, err := internalData.Convert()
 		if err != nil {
 			return err
@@ -477,7 +486,10 @@ func (request *ProgramBreaksUpdateRequest) loadFromFile() error {
 			return err
 		}
 		db, table = utils.SplitDbAndTable(DbProgramBreaksBlockForecast)
-		dbProgramBreaksBlockForecast := store.OpenDb(db, table)
+		dbProgramBreaksBlockForecast, err := store.OpenDb(db, table)
+		if err != nil {
+			return err
+		}
 		for _, dataItem := range internalData {
 			data, err := dataItem.Convert()
 			if err != nil {
@@ -508,7 +520,10 @@ func (request *ProgramBreaksUpdateRequest) loadFromFile() error {
 			return err
 		}
 		db, table = utils.SplitDbAndTable(DbProgramBreaksBlockForecast)
-		dbProgramBreaksBlockForecast := store.OpenDb(db, table)
+		dbProgramBreaksBlockForecast, err := store.OpenDb(db, table)
+		if err != nil {
+			return err
+		}
 		data, err := internalData.Convert()
 		if err != nil {
 			return err
@@ -548,7 +563,10 @@ func (request *ProgramBreaksUpdateRequest) loadFromFile() error {
 			return err
 		}
 		db, table = utils.SplitDbAndTable(DbProgramBreaksBlockForecastTgr)
-		dbProgramBreaksBlockForecastTgr := store.OpenDb(db, table)
+		dbProgramBreaksBlockForecastTgr, err := store.OpenDb(db, table)
+		if err != nil {
+			return err
+		}
 		for _, dataItem := range internalData {
 			data, err := dataItem.Convert()
 			if err != nil {
@@ -579,7 +597,10 @@ func (request *ProgramBreaksUpdateRequest) loadFromFile() error {
 			return err
 		}
 		db, table = utils.SplitDbAndTable(DbProgramBreaksBlockForecastTgr)
-		dbProgramBreaksBlockForecastTgr := store.OpenDb(db, table)
+		dbProgramBreaksBlockForecastTgr, err := store.OpenDb(db, table)
+		if err != nil {
+			return err
+		}
 		data, err := internalData.Convert()
 		if err != nil {
 			return err

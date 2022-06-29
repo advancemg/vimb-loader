@@ -183,7 +183,10 @@ func (request *ChannelsUpdateRequest) loadFromFile() error {
 		return err
 	}
 	db, table := utils.SplitDbAndTable(DbChannels)
-	repo := store.OpenDb(db, table)
+	repo, err := store.OpenDb(db, table)
+	if err != nil {
+		return err
+	}
 	sellingDirectionID := utils.Int64(request.SellingDirectionID)
 	for _, dataM := range internalData {
 		channel, err := dataM.Convert()

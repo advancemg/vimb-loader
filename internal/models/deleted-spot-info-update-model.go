@@ -142,7 +142,10 @@ func (request *DeletedSpotInfoUpdateRequest) loadFromFile() error {
 		return err
 	}
 	db, table := utils.SplitDbAndTable(DbDeletedSpotInfo)
-	repo := store.OpenDb(db, table)
+	repo, err := store.OpenDb(db, table)
+	if err != nil {
+		return err
+	}
 	for _, dataI := range internalData {
 		deletedSpotInfo, err := dataI.ConvertDeletedSpotInfo()
 		if err != nil {

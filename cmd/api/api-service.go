@@ -5,7 +5,7 @@ import (
 	"fmt"
 	_ "github.com/advancemg/vimb-loader/docs"
 	cfg "github.com/advancemg/vimb-loader/internal/config"
-	log "github.com/advancemg/vimb-loader/pkg/logging/zap"
+	"github.com/advancemg/vimb-loader/pkg/logging/zap"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/routes"
 	"github.com/advancemg/vimb-loader/pkg/s3"
@@ -15,6 +15,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/swaggo/http-swagger"
 	_ "github.com/swaggo/swag"
+	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -31,12 +32,24 @@ var (
 // @description Документация
 // @BasePath /
 func main() {
-	cfg.EditConfig()
-	err := cfg.Load()
-	if err != nil {
-		panic(err)
+	if err := run(); err != nil {
+		log.Fatal(err)
 	}
-	log.Init()
+}
+
+func run() error {
+	err := cfg.EditConfig()
+	if err != nil {
+		return err
+	}
+	err = cfg.Load()
+	if err != nil {
+		return err
+	}
+	err = zap.Init()
+	if err != nil {
+		return err
+	}
 	port := utils.GetEnv("PORT", ":8000")
 	route := mux.NewRouter()
 	route.PathPrefix("/api/v1/docs").Handler(httpSwagger.WrapHandler)
@@ -107,7 +120,7 @@ func main() {
 	if localHostRegex.MatchString(s3Config.S3Endpoint) {
 		err = os.Mkdir(s3Config.S3LocalDir, os.ModePerm)
 		if err != nil && !os.IsExist(err) {
-			panic(err.Error())
+			return err
 		}
 		go func() {
 			utils.CheckErr(s3Config.ServerStart())
@@ -159,4 +172,5 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	s.Shutdown(ctx)
+	return nil
 }

@@ -168,7 +168,10 @@ func (request *ProgramBreaksLightUpdateRequest) loadFromFile() error {
 		return err
 	}
 	db, table := utils.SplitDbAndTable(DbProgramBreaksLightMode)
-	dbProgramBreaksLightMode := store.OpenDb(db, table)
+	dbProgramBreaksLightMode, err := store.OpenDb(db, table)
+	if err != nil {
+		return err
+	}
 	for _, dataB := range internalData {
 		programBreaksLight, err := dataB.Convert()
 		if err != nil {

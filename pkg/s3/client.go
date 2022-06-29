@@ -319,7 +319,7 @@ func Download(key string) (string, error) {
 	}
 	temp, err := ioutil.TempFile(``, "s3_client-load-file-tmp-")
 	if err != nil {
-		panic(err)
+		return "", fmt.Errorf("s3 download tempFile: %w", err)
 	}
 	tempfileName := temp.Name()
 	writer := &ProgressWriter{Writer: temp, Size: size, Written: 0}

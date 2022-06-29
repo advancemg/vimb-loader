@@ -130,15 +130,22 @@ func New(r DbInterface) *Repository {
 	return &Repository{repo: r}
 }
 
-func OpenDb(database, table string) *Repository {
+func OpenDb(database, table string) (*Repository, error) {
 	var repository *Repository
 	switch cfg.Config.Database {
 	case mongodb:
-		db := mongo.New(table, database)
+		db, err := mongo.New(table, database)
+		if err != nil {
+			return nil, fmt.Errorf("repository opendb: %w", err)
+		}
 		repository = New(db)
 	default:
-		db := badger.New(badger_client.Open(database + "/" + table))
+		open, err := badger_client.Open(database + "/" + table)
+		if err != nil {
+			return nil, fmt.Errorf("repository opendb: %w", err)
+		}
+		db := badger.New(open)
 		repository = New(db)
 	}
-	return repository
+	return repository, nil
 }

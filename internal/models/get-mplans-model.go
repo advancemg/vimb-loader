@@ -103,7 +103,11 @@ func (cfg *MediaplanConfiguration) InitJob() func() {
 		months := map[int64]struct{}{}
 		var budgets []Budget
 		db, table := utils.SplitDbAndTable(DbBudgets)
-		repoBudgets := store.OpenDb(db, table)
+		repoBudgets, err := store.OpenDb(db, table)
+		if err != nil {
+			log.PrintLog("vimb-loader", "Mediaplans InitJob", "error", "Q:", qName, "err:", err.Error())
+			return
+		}
 		err = repoBudgets.FindWhereGe(&budgets, "Month", int64(-1))
 		if err != nil {
 			log.PrintLog("vimb-loader", "Mediaplans InitJob", "error", "Q:", qName, "err:", err.Error())
@@ -154,8 +158,11 @@ func (request *GetMPLans) GetDataXmlZip() (*StreamResponse, error) {
 	for {
 		var isTimeout utils.Timeout
 		db, table := utils.SplitDbAndTable(DbTimeout)
-		repo := store.OpenDb(db, table)
-		err := repo.Get("_id", &isTimeout)
+		repo, err := store.OpenDb(db, table)
+		if err != nil {
+			return nil, err
+		}
+		err = repo.Get("_id", &isTimeout)
 		if err != nil {
 			if errors.Is(err, store.ErrNotFound) {
 				isTimeout.IsTimeout = false
@@ -191,7 +198,10 @@ func (request *GetMPLans) UploadToS3() (*MqUpdateMessage, error) {
 		data, err := request.GetDataXmlZip()
 		if err != nil {
 			if vimbError, ok := err.(*utils.VimbError); ok {
-				vimbError.CheckTimeout("GetMPLans")
+				err = vimbError.CheckTimeout("GetMPLans")
+				if err != nil {
+					return nil, err
+				}
 				continue
 			}
 			return nil, err

@@ -96,7 +96,10 @@ func (request *ProgramBreaksLoadRequest) getDays() ([]time.Time, error) {
 func (request *Any) QueryProgramBreaks() ([]ProgramBreaks, error) {
 	var result []ProgramBreaks
 	db, table := utils.SplitDbAndTable(DbProgramBreaks)
-	dbProgramBreaks := store.OpenDb(db, table)
+	dbProgramBreaks, err := store.OpenDb(db, table)
+	if err != nil {
+		return nil, err
+	}
 	marshal, err := json.Marshal(request.Body)
 	if err != nil {
 		return nil, err
@@ -111,7 +114,10 @@ func (request *Any) QueryProgramBreaks() ([]ProgramBreaks, error) {
 func (request *Any) QueryProgramBreaksProMaster() ([]ProMaster, error) {
 	var result []ProMaster
 	db, table := utils.SplitDbAndTable(DbProgramBreaksProMaster)
-	dbProgramBreaksProMaster := store.OpenDb(db, table)
+	dbProgramBreaksProMaster, err := store.OpenDb(db, table)
+	if err != nil {
+		return nil, err
+	}
 	marshal, err := json.Marshal(request.Body)
 	if err != nil {
 		return nil, err

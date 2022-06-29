@@ -138,7 +138,10 @@ func (request *AdvertiserUpdateRequest) loadFromFile() error {
 		return err
 	}
 	db, table := utils.SplitDbAndTable(DbAdvertisers)
-	repo := store.OpenDb(db, table)
+	repo, err := store.OpenDb(db, table)
+	if err != nil {
+		return err
+	}
 	for _, dataRow := range internalData {
 		advertiser, err := dataRow.ConvertAdvertiser()
 		if err != nil {

@@ -168,7 +168,10 @@ func (request *RanksUpdateRequest) loadFromFile() error {
 		return err
 	}
 	db, table := utils.SplitDbAndTable(DbRanks)
-	dbRanks := store.OpenDb(db, table)
+	dbRanks, err := store.OpenDb(db, table)
+	if err != nil {
+		return err
+	}
 	for _, dataM := range internalData {
 		rank, err := dataM.Convert()
 		if err != nil {

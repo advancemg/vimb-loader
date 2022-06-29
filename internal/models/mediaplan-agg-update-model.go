@@ -100,14 +100,20 @@ func (request *MediaplanAggUpdateRequest) Update() error {
 	/*create week info*/
 	/*load from mediaplans*/
 	db, table := utils.SplitDbAndTable(DbMediaplans)
-	dbMediaplan := store.OpenDb(db, table)
+	dbMediaplan, err := store.OpenDb(db, table)
+	if err != nil {
+		return err
+	}
 	var mediaplans []Mediaplan
-	err := dbMediaplan.FindWhereEq(&mediaplans, "MediaplanId", request.MediaplanId)
+	err = dbMediaplan.FindWhereEq(&mediaplans, "MediaplanId", request.MediaplanId)
 	if err != nil {
 		return err
 	}
 	db, table = utils.SplitDbAndTable(DbAggMediaplans)
-	dbAggMediaplans := store.OpenDb(db, table)
+	dbAggMediaplans, err := store.OpenDb(db, table)
+	if err != nil {
+		return err
+	}
 	for _, mediaplan := range mediaplans {
 		var cppOffPrimeWithDiscount float64
 		var cppPrimeWithDiscount float64
@@ -118,7 +124,10 @@ func (request *MediaplanAggUpdateRequest) Update() error {
 		var budget float64
 		var dealChannelStatus int64
 		db, table = utils.SplitDbAndTable(DbBudgets)
-		dbBudgets := store.OpenDb(db, table)
+		dbBudgets, err := store.OpenDb(db, table)
+		if err != nil {
+			return err
+		}
 		var budgets []Budget
 		err = dbBudgets.FindWhereAnd4Eq(&budgets,
 			"Month", request.Month,
@@ -138,7 +147,10 @@ func (request *MediaplanAggUpdateRequest) Update() error {
 		var bcpName string
 		var bcpCentralID int64
 		db, table = utils.SplitDbAndTable(DbChannels)
-		dbChannels := store.OpenDb(db, table)
+		dbChannels, err := store.OpenDb(db, table)
+		if err != nil {
+			return err
+		}
 		var channels []Channel
 		if mediaplan.ChannelId != nil {
 			err = dbChannels.FindWhereEq(&channels, "ID", *mediaplan.ChannelId)
@@ -153,7 +165,10 @@ func (request *MediaplanAggUpdateRequest) Update() error {
 		}
 		/*load from spots*/
 		db, table = utils.SplitDbAndTable(DbSpots)
-		dbSpots := store.OpenDb(db, table)
+		dbSpots, err := store.OpenDb(db, table)
+		if err != nil {
+			return err
+		}
 		var spots []Spot
 		if mediaplan.MplID != nil {
 			err = dbSpots.FindWhereEq(&spots, "MplID", *mediaplan.MplID)

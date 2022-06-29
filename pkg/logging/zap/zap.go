@@ -10,21 +10,21 @@ import (
 
 var Logger *log.Logger
 
-func Init() {
+func Init() error {
 	filePath := fmt.Sprintf("logs/%v", time.Now().Format(time.RFC3339))
 	logFile, err := os.OpenFile(filePath, os.O_APPEND|os.O_RDWR|os.O_CREATE, 0644)
 	if err != nil {
 		if os.IsNotExist(err) {
 			err = os.MkdirAll("logs", 0777)
 			if err != nil {
-				panic(err)
+				return err
 			}
 			logFile, err = os.Create(filePath)
 			if err != nil {
-				panic(err)
+				return err
 			}
 		} else {
-			panic(err)
+			return err
 		}
 	}
 	config := log.NewProductionEncoderConfig()
@@ -37,6 +37,7 @@ func Init() {
 	)
 	Logger = log.New(core, log.AddCaller(), log.AddStacktrace(zapcore.ErrorLevel))
 	//logFile.Close()
+	return nil
 }
 
 func PrintLog(app, client, level string, v ...interface{}) {

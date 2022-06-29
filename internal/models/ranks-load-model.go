@@ -39,7 +39,10 @@ func (request *RanksLoadRequest) InitTasks() (CommonResponse, error) {
 func (request *Any) QueryRanks() ([]Ranks, error) {
 	var result []Ranks
 	db, table := utils.SplitDbAndTable(DbRanks)
-	dbRanks := store.OpenDb(db, table)
+	dbRanks, err := store.OpenDb(db, table)
+	if err != nil {
+		return nil, err
+	}
 	marshal, err := json.Marshal(request.Body)
 	if err != nil {
 		return nil, err

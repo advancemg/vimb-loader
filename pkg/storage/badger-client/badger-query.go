@@ -3,6 +3,7 @@ package badger_client
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"github.com/advancemg/badgerhold"
 	log "github.com/advancemg/vimb-loader/pkg/logging/logrus"
 	"github.com/dgraph-io/badger/v3"
@@ -77,18 +78,22 @@ type Badger struct {
 	Store *badgerhold.Store
 }
 
-func New(storageDir string) *badgerhold.Store {
-	return Open(storageDir)
+func New(storageDir string) (*badgerhold.Store, error) {
+	open, err := Open(storageDir)
+	if err != nil {
+		return nil, fmt.Errorf("badger new: %w", err)
+	}
+	return open, nil
 }
 
-func Open(storageDir string) *badgerhold.Store {
+func Open(storageDir string) (*badgerhold.Store, error) {
 	if queryBadger[storageDir] != nil {
-		return queryBadger[storageDir]
+		return queryBadger[storageDir], nil
 	}
 	var err error
 	err = os.MkdirAll(storageDir, os.ModePerm)
 	if err != nil {
-		panic(err.Error())
+		return nil, fmt.Errorf("badger open: %w", err)
 	}
 	opts := badger.DefaultOptions(storageDir)
 	opts.SyncWrites = true
@@ -104,10 +109,10 @@ func Open(storageDir string) *badgerhold.Store {
 	}
 	store, err := badgerhold.Open(options)
 	if err != nil {
-		return nil
+		return nil, fmt.Errorf("badger open: %w", err)
 	}
 	queryBadger[storageDir] = store
-	return queryBadger[storageDir]
+	return queryBadger[storageDir], nil
 }
 
 func CleanGC() {

@@ -316,7 +316,10 @@ func (request *MediaplanUpdateRequest) Update() error {
 		return err
 	}
 	db, table := utils.SplitDbAndTable(DbMediaplans)
-	dbMediaplans := store.OpenDb(db, table)
+	dbMediaplans, err := store.OpenDb(db, table)
+	if err != nil {
+		return err
+	}
 	aggTasks := map[string]MediaplanAggUpdateRequest{}
 	for _, dataM := range internalData {
 		mediaplan, err := dataM.ConvertMediaplan()
@@ -368,7 +371,10 @@ func (request *MediaplanUpdateRequest) loadFromFile() error {
 	}
 	aggTasks := map[string]MediaplanAggUpdateRequest{}
 	db, table := utils.SplitDbAndTable(DbMediaplans)
-	dbMediaplans := store.OpenDb(db, table)
+	dbMediaplans, err := store.OpenDb(db, table)
+	if err != nil {
+		return err
+	}
 	for _, dataM := range internalData {
 		mediaplan, err := dataM.ConvertMediaplan()
 		if err != nil {

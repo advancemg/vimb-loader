@@ -81,7 +81,10 @@ func (request *SpotsLoadRequest) getDays() ([]time.Time, error) {
 func (request *Any) QuerySpots() ([]Spot, error) {
 	var result []Spot
 	db, table := utils.SplitDbAndTable(DbSpots)
-	repo := store.OpenDb(db, table)
+	repo, err := store.OpenDb(db, table)
+	if err != nil {
+		return nil, err
+	}
 	marshal, err := json.Marshal(request.Body)
 	if err != nil {
 		return nil, err
@@ -96,7 +99,10 @@ func (request *Any) QuerySpots() ([]Spot, error) {
 func (request *Any) QuerySpotsOrderBlock() ([]SpotOrderBlock, error) {
 	var result []SpotOrderBlock
 	db, table := utils.SplitDbAndTable(DbSpotsOrderBlock)
-	repo := store.OpenDb(db, table)
+	repo, err := store.OpenDb(db, table)
+	if err != nil {
+		return nil, err
+	}
 	marshal, err := json.Marshal(request.Body)
 	if err != nil {
 		return nil, err

@@ -3,9 +3,9 @@ package models
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/advancemg/vimb-loader/internal/store"
 	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/s3"
-	"github.com/advancemg/vimb-loader/pkg/storage/badger-client"
 	"github.com/advancemg/vimb-loader/pkg/utils"
 	"reflect"
 	"time"
@@ -129,13 +129,17 @@ func (request *CustomersWithAdvertisersUpdateRequest) loadFromFile() error {
 		if err != nil {
 			return err
 		}
-		badgerCustomersWithAdvertisers := badger_client.Open(DbCustomersWithAdvertisers)
+		db, table := utils.SplitDbAndTable(DbCustomersWithAdvertisers)
+		dbCustomersWithAdvertisers, err := store.OpenDb(db, table)
+		if err != nil {
+			return err
+		}
 		for _, dataItem := range internalData {
 			data, err := dataItem.ConvertCustomerAdvertiser()
 			if err != nil {
 				return err
 			}
-			err = badgerCustomersWithAdvertisers.Upsert(data.Key(), data)
+			err = dbCustomersWithAdvertisers.AddOrUpdate(data.Key(), data)
 			if err != nil {
 				return err
 			}
@@ -146,12 +150,16 @@ func (request *CustomersWithAdvertisersUpdateRequest) loadFromFile() error {
 		if err != nil {
 			return err
 		}
-		badgerCustomersWithAdvertisers := badger_client.Open(DbCustomersWithAdvertisers)
+		db, table := utils.SplitDbAndTable(DbCustomersWithAdvertisers)
+		dbCustomersWithAdvertisers, err := store.OpenDb(db, table)
+		if err != nil {
+			return err
+		}
 		data, err := internalData.ConvertCustomerAdvertiser()
 		if err != nil {
 			return err
 		}
-		err = badgerCustomersWithAdvertisers.Upsert(data.Key(), data)
+		err = dbCustomersWithAdvertisers.AddOrUpdate(data.Key(), data)
 		if err != nil {
 			return err
 		}
@@ -172,13 +180,17 @@ func (request *CustomersWithAdvertisersUpdateRequest) loadFromFile() error {
 		if err != nil {
 			return err
 		}
-		badgerCustomersWithAdvertisersData := badger_client.Open(DbCustomersWithAdvertisersData)
+		db, table := utils.SplitDbAndTable(DbCustomersWithAdvertisersData)
+		dbCustomersWithAdvertisersData, err := store.OpenDb(db, table)
+		if err != nil {
+			return err
+		}
 		for _, dataItem := range internalData {
 			data, err := dataItem.ConvertCustomerAdvertiserData()
 			if err != nil {
 				return err
 			}
-			err = badgerCustomersWithAdvertisersData.Upsert(data.Key(), data)
+			err = dbCustomersWithAdvertisersData.AddOrUpdate(data.Key(), data)
 			if err != nil {
 				return err
 			}
@@ -189,12 +201,16 @@ func (request *CustomersWithAdvertisersUpdateRequest) loadFromFile() error {
 		if err != nil {
 			return err
 		}
-		badgerCustomersWithAdvertisersData := badger_client.Open(DbCustomersWithAdvertisersData)
+		db, table := utils.SplitDbAndTable(DbCustomersWithAdvertisersData)
+		dbCustomersWithAdvertisersData, err := store.OpenDb(db, table)
+		if err != nil {
+			return err
+		}
 		data, err := internalData.ConvertCustomerAdvertiserData()
 		if err != nil {
 			return err
 		}
-		err = badgerCustomersWithAdvertisersData.Upsert(data.Key(), data)
+		err = dbCustomersWithAdvertisersData.AddOrUpdate(data.Key(), data)
 		if err != nil {
 			return err
 		}

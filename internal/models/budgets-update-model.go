@@ -203,7 +203,10 @@ func (request *BudgetsUpdateRequest) loadFromFile() error {
 		return err
 	}
 	db, table := utils.SplitDbAndTable(DbBudgets)
-	repo := store.OpenDb(db, table)
+	repo, err := store.OpenDb(db, table)
+	if err != nil {
+		return err
+	}
 	for _, dataM := range internalData {
 		budget, err := dataM.ConvertBudget()
 		if err != nil {

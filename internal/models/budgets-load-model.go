@@ -63,7 +63,10 @@ func (request *BudgetLoadRequest) getMonths() ([]utils.YearMonth, error) {
 func (request *Any) QueryBudgets() ([]Budget, error) {
 	var result []Budget
 	db, table := utils.SplitDbAndTable(DbBudgets)
-	repo := store.OpenDb(db, table)
+	repo, err := store.OpenDb(db, table)
+	if err != nil {
+		return nil, err
+	}
 	marshal, err := json.Marshal(request.Body)
 	if err != nil {
 		return nil, err

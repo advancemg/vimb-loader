@@ -70,9 +70,12 @@ func ProgramStartJob() chan error {
 func (request *ProgramUpdateRequest) Update() error {
 	timestamp := time.Now()
 	db, table := utils.SplitDbAndTable(DbPrograms)
-	dbPrograms := store.OpenDb(db, table)
+	dbPrograms, err := store.OpenDb(db, table)
+	if err != nil {
+		return err
+	}
 	var programBreaks []ProgramBreaks
-	err := dbPrograms.FindWhereGe(&programBreaks, "ProgID", int64(-1))
+	err = dbPrograms.FindWhereGe(&programBreaks, "ProgID", int64(-1))
 	if err != nil {
 		return err
 	}

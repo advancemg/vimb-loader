@@ -196,7 +196,10 @@ func (request *SpotsUpdateRequest) loadFromFile() error {
 		return err
 	}
 	db, table := utils.SplitDbAndTable(DbSpotsOrderBlock)
-	repoSpotsOrderBlock := store.OpenDb(db, table)
+	repoSpotsOrderBlock, err := store.OpenDb(db, table)
+	if err != nil {
+		return err
+	}
 	for _, dataO := range orderBlocks {
 		spot, err := dataO.ConvertOrderBlock()
 		if err != nil {
@@ -235,7 +238,10 @@ func (request *SpotsUpdateRequest) loadFromFile() error {
 		return err
 	}
 	db, table = utils.SplitDbAndTable(DbSpots)
-	repoSpots := store.OpenDb(db, table)
+	repoSpots, err := store.OpenDb(db, table)
+	if err != nil {
+		return err
+	}
 	month, err := strconv.Atoi(request.Month)
 	if err != nil {
 		return err
@@ -250,7 +256,10 @@ func (request *SpotsUpdateRequest) loadFromFile() error {
 		}
 		/*load from networks*/
 		db, table = utils.SplitDbAndTable(DbProgramBreaks)
-		dbProgramBreaks := store.OpenDb(db, table)
+		dbProgramBreaks, err := store.OpenDb(db, table)
+		if err != nil {
+			return err
+		}
 		var networks []ProgramBreaks
 		if spot.SptChnlPTR != nil {
 			err = dbProgramBreaks.FindWhereAnd2Eq(&networks, "CnlID", *spot.SptChnlPTR, "Month", int64(month))
@@ -270,7 +279,10 @@ func (request *SpotsUpdateRequest) loadFromFile() error {
 		}
 		/*load from mediaplans*/
 		db, table = utils.SplitDbAndTable(DbMediaplans)
-		repoMediaplans := store.OpenDb(db, table)
+		repoMediaplans, err := store.OpenDb(db, table)
+		if err != nil {
+			return err
+		}
 		var mediaplans []Mediaplan
 		if spot.CommInMplID != nil {
 			err = repoMediaplans.FindWhereEq(&mediaplans, "ComplimentId", *spot.CommInMplID)

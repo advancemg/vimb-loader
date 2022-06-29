@@ -15,7 +15,7 @@ func TestDbRepo_AddWithTTL(t *testing.T) {
 	}
 	config.Load()
 	zap.Init()
-	db := New("timeout", "db")
+	db, _ := New("timeout", "db")
 	timeout := Timeout{
 		IsTimeout: true,
 	}
@@ -34,7 +34,7 @@ func TestGetTTL(t *testing.T) {
 	}
 	config.Load()
 	zap.Init()
-	db := New("timeout", "db")
+	db, _ := New("timeout", "db")
 	var timeout Timeout
 	err := db.Get("_id", &timeout)
 	if err != nil {

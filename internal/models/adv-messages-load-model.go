@@ -77,7 +77,10 @@ func (request *AdvMessagesLoadRequest) getDays() ([]time.Time, error) {
 func (request *Any) QueryAdvMessages() ([]Advertiser, error) {
 	var result []Advertiser
 	db, table := utils.SplitDbAndTable(DbAdvertisers)
-	repo := store.OpenDb(db, table)
+	repo, err := store.OpenDb(db, table)
+	if err != nil {
+		return nil, err
+	}
 	marshal, err := json.Marshal(request.Body)
 	if err != nil {
 		return nil, err
