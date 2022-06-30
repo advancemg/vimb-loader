@@ -24,9 +24,9 @@ func TestDump(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(path)
-	os.RemoveAll(path)
 	fmt.Println(time.Since(start))
+	fmt.Println(path)
+	//os.RemoveAll(path)
 }
 
 func TestRestore(t *testing.T) {
@@ -39,8 +39,11 @@ func TestRestore(t *testing.T) {
 	}
 	dm := InitConfig()
 	start := time.Now()
-	path := "/var/folders/dz/38x3jsnd74q6fg_97qrxnhzc0000gn/T/mongo-dump/mongo-backup-2022-06-29T11:26:20Z/admin"
-	dm.Restore(path)
+	path := "/var/folders/dz/38x3jsnd74q6fg_97qrxnhzc0000gn/T/mongo-dump/db-2022-06-30T13:50:25Z.gz"
+	err = dm.Restore(path)
+	if err != nil {
+		panic(err)
+	}
 	fmt.Println(time.Since(start))
 }
 

@@ -13,18 +13,20 @@ func TestDbRepo_AddWithTTL(t *testing.T) {
 	if testing.Short() {
 		t.SkipNow()
 	}
-	config.Load()
+	err := config.Load()
+	if err != nil {
+		panic(err)
+	}
 	zap.Init()
 	db, _ := New("timeout", "db")
 	timeout := Timeout{
 		IsTimeout: true,
 	}
-	for i := 0; i < 10000; i++ {
-		err := db.AddWithTTL("_id", timeout, time.Second*30)
-		if err != nil {
-			panic(err)
-		}
+	err = db.AddWithTTL("_id", timeout, time.Second*30)
+	if err != nil {
+		panic(err)
 	}
+
 	os.RemoveAll("logs")
 }
 

@@ -20,6 +20,7 @@ type Amqp struct {
 type Mongo struct {
 	Host       string `json:"Host"`
 	Port       string `json:"Port"`
+	AuthDB     string `json:"AuthDb"`
 	DB         string `json:"Db"`
 	Username   string `json:"Username"`
 	Password   string `json:"Password"`

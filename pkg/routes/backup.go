@@ -68,20 +68,6 @@ func PostListBackups(w http.ResponseWriter, r *http.Request) {
 		(w).WriteHeader(http.StatusOK)
 		return
 	}
-	//var request mongodb_backup.Config
-	//err := json.NewDecoder(r.Body).Decode(&request)
-	//if err != nil {
-	//	(w).WriteHeader(http.StatusBadRequest)
-	//	var response = utils.FieldValidateErrorType{
-	//		Field:   "id",
-	//		Message: fmt.Sprintf(`Ошибка %s`, err.Error()),
-	//	}
-	//	json.NewEncoder(w).Encode(response)
-	//	return
-	//}
-	//if request.Port == "" || request.Host == "" || request.DB == "" || request.Username == "" || request.Password == "" {
-	//	request = *mongodb_backup.InitConfig()
-	//}
 	response, err := mongodb_backup.ListBackups()
 	if err != nil {
 		(w).WriteHeader(http.StatusBadRequest)
@@ -94,4 +80,46 @@ func PostListBackups(w http.ResponseWriter, r *http.Request) {
 	}
 	(w).WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(response)
+}
+
+// PostMongoRestore godoc
+// @Summary Восстановление backup MongoDB.
+// @Description - Восстановление БД из резервной копии. Указать s3Key бэкапа.
+// @ID routes-post-restore
+// @Tags Backup
+// @Param body body mongodb_backup.SwaggerRestoreRequest true  "Запрос"
+// @Accept json
+// @Produce json
+// @Success 200 {object} models.StreamResponse
+// @Router /api/v1/backup-restore [post]
+func PostMongoRestore(w http.ResponseWriter, r *http.Request) {
+	setupResponse(&w, r)
+	if (*r).Method == "OPTIONS" {
+		(w).WriteHeader(http.StatusOK)
+		return
+	}
+	var request mongodb_backup.SwaggerRestoreRequest
+	err := json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		(w).WriteHeader(http.StatusBadRequest)
+		var response = utils.FieldValidateErrorType{
+			Field:   "id",
+			Message: fmt.Sprintf(`Ошибка %s`, err.Error()),
+		}
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+	dbConfig := *mongodb_backup.InitConfig()
+	err = dbConfig.Restore(request.S3Key)
+	if err != nil {
+		(w).WriteHeader(http.StatusBadRequest)
+		var response = utils.FieldValidateErrorType{
+			Field:   "request",
+			Message: fmt.Sprintf(`Ошибка %s`, err.Error()),
+		}
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+	(w).WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(request)
 }

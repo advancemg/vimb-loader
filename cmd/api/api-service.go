@@ -104,6 +104,7 @@ func run() error {
 	/*backup*/
 	route.HandleFunc("/api/v1/backup", routes.PostMongoBackup).Methods("POST", "OPTIONS")
 	route.HandleFunc("/api/v1/backup-list", routes.PostListBackups).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/backup-restore", routes.PostMongoRestore).Methods("POST", "OPTIONS")
 	s := &http.Server{
 		Addr:         port,
 		WriteTimeout: time.Second * 15,

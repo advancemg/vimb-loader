@@ -6,6 +6,7 @@ import (
 	"github.com/advancemg/vimb-loader/internal/config"
 	"github.com/advancemg/vimb-loader/pkg/logging/zap"
 	"github.com/advancemg/vimb-loader/pkg/storage/badger-client"
+	"os"
 	"testing"
 	"time"
 )
@@ -26,6 +27,7 @@ func TestLoadFromFile(t *testing.T) {
 		panic(err)
 	}
 	fmt.Println(time.Since(start))
+	os.RemoveAll("logs")
 }
 
 func BenchmarkLoadFromFil(b *testing.B) {

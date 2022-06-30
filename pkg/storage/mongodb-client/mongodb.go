@@ -15,6 +15,7 @@ const service = "mongodb"
 type Config struct {
 	Host     string `json:"Host"`
 	Port     string `json:"Port"`
+	AuthDb   string `json:"AuthDb"`
 	DB       string `json:"Db"`
 	Username string `json:"Username"`
 	Password string `json:"Password"`
@@ -24,6 +25,7 @@ func InitConfig() *Config {
 	return &Config{
 		Host:     cfg.Config.Mongo.Host,
 		Port:     cfg.Config.Mongo.Port,
+		AuthDb:   cfg.Config.Mongo.AuthDB,
 		DB:       cfg.Config.Mongo.DB,
 		Username: cfg.Config.Mongo.Username,
 		Password: cfg.Config.Mongo.Password,
@@ -31,7 +33,7 @@ func InitConfig() *Config {
 }
 
 func (cfg *Config) New() (*mongo.Client, error) {
-	return connect(cfg.Host, cfg.Port, cfg.DB, cfg.Username, cfg.Password)
+	return connect(cfg.Host, cfg.Port, cfg.AuthDb, cfg.Username, cfg.Password)
 }
 
 func connect(host, port, database, username, password string) (*mongo.Client, error) {

@@ -239,6 +239,41 @@
                 }
             }
         },
+        "/api/v1/backup-restore": {
+            "post": {
+                "description": "- Восстановление БД из резервной копии. Указать s3Key бэкапа.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Backup"
+                ],
+                "summary": "Восстановление backup MongoDB.",
+                "operationId": "routes-post-restore",
+                "parameters": [
+                    {
+                        "description": "Запрос",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/mongodb_backup.SwaggerRestoreRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.StreamResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/budgets": {
             "post": {
                 "description": "Возвращает данные по сделкам в разрезе канало-периодов.",
@@ -2510,6 +2545,14 @@
         },
         "mongodb_backup.SwaggerListBackupsRequest": {
             "type": "object"
+        },
+        "mongodb_backup.SwaggerRestoreRequest": {
+            "type": "object",
+            "properties": {
+                "S3Key": {
+                    "type": "string"
+                }
+            }
         },
         "routes.MqInfo": {
             "type": "object",

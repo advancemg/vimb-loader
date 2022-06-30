@@ -672,6 +672,11 @@ definitions:
     type: object
   mongodb_backup.SwaggerListBackupsRequest:
     type: object
+  mongodb_backup.SwaggerRestoreRequest:
+    properties:
+      S3Key:
+        type: string
+    type: object
   routes.MqInfo:
     properties:
       consumers:
@@ -842,6 +847,29 @@ paths:
           schema:
             $ref: '#/definitions/models.StreamResponse'
       summary: Список бэкапов MongoDB.
+      tags:
+      - Backup
+  /api/v1/backup-restore:
+    post:
+      consumes:
+      - application/json
+      description: '- Восстановление БД из резервной копии. Указать s3Key бэкапа.'
+      operationId: routes-post-restore
+      parameters:
+      - description: Запрос
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/mongodb_backup.SwaggerRestoreRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.StreamResponse'
+      summary: Восстановление backup MongoDB.
       tags:
       - Backup
   /api/v1/budgets:
