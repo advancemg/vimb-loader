@@ -13,47 +13,6 @@ import (
 
 var queryBadger = map[string]*badgerhold.Store{}
 
-type loggingLevel int
-
-const (
-	DEBUG loggingLevel = iota
-	INFO
-	WARNING
-	ERROR
-)
-
-type badgerLog struct {
-	level loggingLevel
-}
-
-func defaultLogger(level loggingLevel) *badgerLog {
-	return &badgerLog{level: level}
-}
-
-func (l *badgerLog) Errorf(f string, v ...interface{}) {
-	if l.level <= ERROR {
-		log.PrintLog("", "badger", "error", f, v)
-	}
-}
-
-func (l *badgerLog) Warningf(f string, v ...interface{}) {
-	if l.level <= WARNING {
-		log.PrintLog("", "badger", "info", f, v)
-	}
-}
-
-func (l *badgerLog) Infof(f string, v ...interface{}) {
-	if l.level <= INFO {
-		log.PrintLog("", "badger", "info", f, v)
-	}
-}
-
-func (l *badgerLog) Debugf(f string, v ...interface{}) {
-	if l.level <= DEBUG {
-		log.PrintLog("", "badger", "debug", f, v)
-	}
-}
-
 func DefaultEncode(value interface{}) ([]byte, error) {
 	var buff bytes.Buffer
 	en := json.NewEncoder(&buff)

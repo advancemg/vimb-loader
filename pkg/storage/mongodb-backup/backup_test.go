@@ -3,6 +3,7 @@ package mongodb_backup
 import (
 	"fmt"
 	"github.com/advancemg/vimb-loader/internal/config"
+	"github.com/advancemg/vimb-loader/pkg/logging/zap"
 	"github.com/advancemg/vimb-loader/pkg/s3"
 	"os"
 	"strings"
@@ -15,6 +16,10 @@ func TestDump(t *testing.T) {
 		t.SkipNow()
 	}
 	err := config.Load()
+	if err != nil {
+		panic(err)
+	}
+	err = zap.Init()
 	if err != nil {
 		panic(err)
 	}
@@ -37,9 +42,14 @@ func TestRestore(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
+	err = zap.Init()
+	if err != nil {
+		panic(err)
+	}
 	dm := InitConfig()
 	start := time.Now()
 	path := "/var/folders/dz/38x3jsnd74q6fg_97qrxnhzc0000gn/T/mongo-dump/db-2022-06-30T13:50:25Z.gz"
+	//path := "/Users/eminshakh/tmp/db"
 	err = dm.Restore(path)
 	if err != nil {
 		panic(err)
@@ -52,6 +62,10 @@ func TestDumpS3(t *testing.T) {
 		t.SkipNow()
 	}
 	err := config.Load()
+	if err != nil {
+		panic(err)
+	}
+	err = zap.Init()
 	if err != nil {
 		panic(err)
 	}
@@ -75,6 +89,10 @@ func TestDumpS3(t *testing.T) {
 
 func TestListBackup(t *testing.T) {
 	config.Load()
+	err := zap.Init()
+	if err != nil {
+		panic(err)
+	}
 	s3.InitConfig()
 	backups, _ := ListBackups()
 	for _, k := range backups {

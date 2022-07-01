@@ -9,6 +9,7 @@ import (
 )
 
 var Logger *log.Logger
+var LogWriter *os.File
 
 func Init() error {
 	filePath := fmt.Sprintf("logs/%v", time.Now().Format(time.RFC3339))
@@ -36,6 +37,7 @@ func Init() error {
 		zapcore.NewCore(fileEncoder, writer, defaultLogLevel),
 	)
 	Logger = log.New(core, log.AddCaller(), log.AddStacktrace(zapcore.ErrorLevel))
+	LogWriter = logFile
 	//logFile.Close()
 	return nil
 }

@@ -84,39 +84,38 @@ func (cfg *Config) options() (*options.ToolOptions, *db.SessionProvider) {
 }
 
 func (cfg *Config) Restore(s3Key string) error {
-	s3.InitConfig()
 	path, err := s3.Download(s3Key)
 	if err != nil {
 		return err
 	}
-	//lFile, err := logFile()
-	//if err != nil {
-	//	//return "", err
-	//}
-	//defer lFile.Close()
-	//mlog.SetWriter(lFile)
+	mlog.SetWriter(log.LogWriter)
 	opts, provider := cfg.options()
 	defer provider.Close()
-	nsOpts := &mongorestore.NSOptions{
-		NSInclude: []string{"db.*"},
-	}
+	nsOpts := &mongorestore.NSOptions{}
 	inputOpts := &mongorestore.InputOptions{
 		Archive: path,
 		Gzip:    true,
 	}
-	outputOpts := &mongorestore.OutputOptions{}
-	restore := mongorestore.MongoRestore{
-		ToolOptions:     opts,
-		InputOptions:    inputOpts,
-		OutputOptions:   outputOpts,
-		NSOptions:       nsOpts,
-		SessionProvider: provider,
-		//TargetDirectory: path,
+	outputOpts := &mongorestore.OutputOptions{
+		Drop:                   true,
+		NoIndexRestore:         true,
+		NumParallelCollections: 4,
+		NumInsertionWorkers:    1,
+	}
+	opt := mongorestore.Options{
+		ToolOptions:   opts,
+		InputOptions:  inputOpts,
+		NSOptions:     nsOpts,
+		OutputOptions: outputOpts,
+	}
+	restore, err := mongorestore.New(opt)
+	if err != nil {
+		return err
 	}
 	defer restore.Close()
 	result := restore.Restore()
 	if result.Err != nil {
-		return err
+		return result.Err
 	}
 	return nil
 }
@@ -134,37 +133,12 @@ func ListBackups() ([]string, error) {
 	return result, nil
 }
 
-func logFile() (*os.File, error) {
-	filePath := fmt.Sprintf("logs/%s-%v", backupDir, time.Now().Format(time.RFC3339))
-	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_RDWR|os.O_CREATE, 0644)
-	if err != nil {
-		if os.IsNotExist(err) {
-			err = os.MkdirAll("logs", 0777)
-			if err != nil {
-				return nil, fmt.Errorf("backup logFile: %w", err)
-			}
-			file, err = os.Create(filePath)
-			if err != nil {
-				return nil, fmt.Errorf("backup logFile: %w", err)
-			}
-		} else {
-			return nil, fmt.Errorf("backup logFile: %w", err)
-		}
-	}
-	return file, nil
-}
-
 func (cfg *Config) Backup() (string, error) {
 	opts, provider := cfg.options()
 	defer provider.Close()
 	outputOptions := &mongodump.OutputOptions{}
 	inputOptions := &mongodump.InputOptions{}
-	lFile, err := logFile()
-	if err != nil {
-		return "", err
-	}
-	defer lFile.Close()
-	mlog.SetWriter(lFile)
+	mlog.SetWriter(log.LogWriter)
 	dump := mongodump.MongoDump{
 		ToolOptions:     opts,
 		InputOptions:    inputOptions,
@@ -177,7 +151,7 @@ func (cfg *Config) Backup() (string, error) {
 	dump.OutputOptions.Archive = path
 	dump.OutputOptions.Gzip = true
 	dump.OutputOptions.NumParallelCollections = 4
-	err = dump.Init()
+	err := dump.Init()
 	if err != nil {
 		return "", err
 	}
