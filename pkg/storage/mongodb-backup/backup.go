@@ -58,7 +58,7 @@ func InitConfig() *Config {
 	}
 }
 
-func (cfg *Config) options() (*options.ToolOptions, *db.SessionProvider) {
+func (cfg *Config) options() *options.ToolOptions {
 	enabledOptions := options.EnabledOptions{
 		Auth:       true,
 		Connection: true,
@@ -76,11 +76,7 @@ func (cfg *Config) options() (*options.ToolOptions, *db.SessionProvider) {
 	}
 	opts.URI = &url
 	opts.Auth = &auth
-	provider, err := db.NewSessionProvider(*opts)
-	if err != nil {
-		panic(err)
-	}
-	return opts, provider
+	return opts
 }
 
 func (cfg *Config) Restore(s3Key string) error {
@@ -89,8 +85,7 @@ func (cfg *Config) Restore(s3Key string) error {
 		return err
 	}
 	mlog.SetWriter(log.LogWriter)
-	opts, provider := cfg.options()
-	defer provider.Close()
+	opts := cfg.options()
 	nsOpts := &mongorestore.NSOptions{}
 	inputOpts := &mongorestore.InputOptions{
 		Archive: path,
@@ -134,7 +129,11 @@ func ListBackups() ([]string, error) {
 }
 
 func (cfg *Config) Backup() (string, error) {
-	opts, provider := cfg.options()
+	opts := cfg.options()
+	provider, err := db.NewSessionProvider(*opts)
+	if err != nil {
+		return "", err
+	}
 	defer provider.Close()
 	outputOptions := &mongodump.OutputOptions{}
 	inputOptions := &mongodump.InputOptions{}
@@ -151,7 +150,7 @@ func (cfg *Config) Backup() (string, error) {
 	dump.OutputOptions.Archive = path
 	dump.OutputOptions.Gzip = true
 	dump.OutputOptions.NumParallelCollections = 4
-	err := dump.Init()
+	err = dump.Init()
 	if err != nil {
 		return "", err
 	}
