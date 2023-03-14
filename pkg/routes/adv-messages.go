@@ -11,12 +11,14 @@ import (
 // PostGetAdvMessages godoc
 // @Summary Возвращает список роликов, созданных в указанный период времени. Список отфильтрован по правам НВ.
 // @Description Возвращает список роликов, созданных в указанный период времени. Список отфильтрован по правам НВ.
+// @Security ApiKeyAuth
 // @ID routes-get-adv-messages
 // @Tags Справочники
 // @Param body body models.SwaggerGetAdvMessagesRequest true  "Запрос"
 // @Accept json
 // @Produce json
 // @Success 200 {object} models.StreamResponse
+// @Failure 401 "Error: Unauthorized"
 // @Router /api/v1/adv-messages [post]
 func PostGetAdvMessages(w http.ResponseWriter, r *http.Request) {
 	setupResponse(&w, r)
@@ -52,12 +54,14 @@ func PostGetAdvMessages(w http.ResponseWriter, r *http.Request) {
 // PostLoadAdvMessages godoc
 // @Summary Создание задач, на загрузку роликов.
 // @Description Создание задач, на загрузку роликов, за выбранный период.
+// @Security ApiKeyAuth
 // @ID routes-load-adv-messages
 // @Tags Справочники
 // @Param body body models.AdvMessagesLoadRequest true  "Запрос"
 // @Accept json
 // @Produce json
 // @Success 200 {object} models.CommonResponse
+// @Failure 401 "Error: Unauthorized"
 // @Router /api/v1/adv-messages/load [post]
 func PostLoadAdvMessages(w http.ResponseWriter, r *http.Request) {
 	setupResponse(&w, r)
@@ -93,12 +97,14 @@ func PostLoadAdvMessages(w http.ResponseWriter, r *http.Request) {
 // PostAdvMessagesQuery godoc
 // @Summary Загрузку сохраненных роликов.
 // @Description Динамический запрос на загрузку сохраненных данных. Логические операторы: eq ==, ne !=, gt >, lt <, ge >=, le <=, in in, isnil is nil.
+// @Security ApiKeyAuth
 // @ID routes-query-adv-messages
 // @Tags Справочники
 // @Param body body models.AdvMessageQuery true  "Запрос"
 // @Accept json
 // @Produce json
 // @Success 200 {object} models.CommonResponse
+// @Failure 401 "Error: Unauthorized"
 // @Router /api/v1/adv-messages/query [post]
 func PostAdvMessagesQuery(w http.ResponseWriter, r *http.Request) {
 	setupResponse(&w, r)

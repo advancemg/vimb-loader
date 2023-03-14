@@ -11,12 +11,14 @@ import (
 // DeleteSpot godoc
 // @Summary Удаление спота в блоке.
 // @Description Удаление спота в блоке.
+// @Security ApiKeyAuth
 // @ID routes-delete-spot
 // @Tags Споты
 // @Param body body models.SwaggerDeleteSpotRequest true  "Запрос"
 // @Accept json
 // @Produce json
 // @Success 200 {object} models.StreamResponse
+// @Failure 401 "Error: Unauthorized"
 // @Router /api/v1/spot [delete]
 func DeleteSpot(w http.ResponseWriter, r *http.Request) {
 	setupResponse(&w, r)

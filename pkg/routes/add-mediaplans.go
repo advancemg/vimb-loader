@@ -11,6 +11,7 @@ import (
 // PutAddMPlan godoc
 // @Summary Создает новый медиаплан.
 // @Description Создает новый медиаплан.
+// @Security ApiKeyAuth
 // @ID routes-add-mediaplans
 // @Tags Медиапланы
 // @Param body body models.SwaggerAddMPlanRequest true  "Запрос"

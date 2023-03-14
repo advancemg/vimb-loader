@@ -11,12 +11,14 @@ import (
 // PostSetSpotPosition godoc
 // @Summary Выполняет позиционирование спота..
 // @Description Выполняет позиционирование спота..
+// @Security ApiKeyAuth
 // @ID routes-set-spot-position
 // @Tags Споты
 // @Param body body models.SwaggerSetSpotPositionRequest true  "Запрос"
 // @Accept json
 // @Produce json
 // @Success 200 {object} models.StreamResponse
+// @Failure 401 "Error: Unauthorized"
 // @Router /api/v1/spot/set-position [post]
 func PostSetSpotPosition(w http.ResponseWriter, r *http.Request) {
 	setupResponse(&w, r)

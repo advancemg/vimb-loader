@@ -11,12 +11,14 @@ import (
 // PutAddSpot godoc
 // @Summary Постановка спота в блок.
 // @Description Постановка спота в блок.
+// @Security ApiKeyAuth
 // @ID routes-add-spot
 // @Tags Споты
 // @Param body body models.SwaggerAddSpotRequest true  "Запрос"
 // @Accept json
 // @Produce json
 // @Success 200 {object} models.StreamResponse
+// @Failure 401 "Error: Unauthorized"
 // @Router /api/v1/spot [put]
 func PutAddSpot(w http.ResponseWriter, r *http.Request) {
 	setupResponse(&w, r)

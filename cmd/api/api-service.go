@@ -30,6 +30,9 @@ var (
 // @title ВИМБ API
 // @version 1.0
 // @description Документация
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name token
 // @BasePath /
 func main() {
 	if err := run(); err != nil {
@@ -55,56 +58,56 @@ func run() error {
 	route.PathPrefix("/api/v1/docs").Handler(httpSwagger.WrapHandler)
 	route.HandleFunc("/api/v1", routes.Health).Methods("GET", "OPTIONS")
 	/*dictionaries*/
-	route.HandleFunc("/api/v1/channels", routes.PostGetChannels).Methods("POST", "OPTIONS")
-	route.HandleFunc("/api/v1/channels/load", routes.PostLoadChannels).Methods("POST", "OPTIONS")
-	route.HandleFunc("/api/v1/channels/query", routes.PostChannelsQuery).Methods("POST", "OPTIONS")
-	route.HandleFunc("/api/v1/adv-messages", routes.PostGetAdvMessages).Methods("POST", "OPTIONS")
-	route.HandleFunc("/api/v1/adv-messages/load", routes.PostLoadAdvMessages).Methods("POST", "OPTIONS")
-	route.HandleFunc("/api/v1/adv-messages/query", routes.PostAdvMessagesQuery).Methods("POST", "OPTIONS")
-	route.HandleFunc("/api/v1/ranks", routes.PostGetRanks).Methods("POST", "OPTIONS")
-	route.HandleFunc("/api/v1/ranks/load", routes.PostLoadRanks).Methods("POST", "OPTIONS")
-	route.HandleFunc("/api/v1/ranks/query", routes.PostRanksQuery).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/channels", routes.AuthRequired(routes.PostGetChannels)).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/channels/load", routes.AuthRequired(routes.PostLoadChannels)).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/channels/query", routes.AuthRequired(routes.PostChannelsQuery)).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/adv-messages", routes.AuthRequired(routes.PostGetAdvMessages)).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/adv-messages/load", routes.AuthRequired(routes.PostLoadAdvMessages)).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/adv-messages/query", routes.AuthRequired(routes.PostAdvMessagesQuery)).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/ranks", routes.AuthRequired(routes.PostGetRanks)).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/ranks/load", routes.AuthRequired(routes.PostLoadRanks)).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/ranks/query", routes.AuthRequired(routes.PostRanksQuery)).Methods("POST", "OPTIONS")
 	/*networks*/
-	route.HandleFunc("/api/v1/program-breaks", routes.PostGetProgramBreaks).Methods("POST", "OPTIONS")
-	route.HandleFunc("/api/v1/program-breaks/load", routes.PostLoadProgramBreaks).Methods("POST", "OPTIONS")
-	route.HandleFunc("/api/v1/program-breaks/query", routes.PostProgramBreaksQuery).Methods("POST", "OPTIONS")
-	route.HandleFunc("/api/v1/program-breaks/pro-master/query", routes.PostProgramBreaksProMasterQuery).Methods("POST", "OPTIONS")
-	route.HandleFunc("/api/v1/program-breaks-light/load", routes.PostLoadProgramLightModeBreaks).Methods("POST", "OPTIONS")
-	route.HandleFunc("/api/v1/program-breaks-light/query", routes.PostProgramLightModeBreaksQuery).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/program-breaks", routes.AuthRequired(routes.PostGetProgramBreaks)).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/program-breaks/load", routes.AuthRequired(routes.PostLoadProgramBreaks)).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/program-breaks/query", routes.AuthRequired(routes.PostProgramBreaksQuery)).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/program-breaks/pro-master/query", routes.AuthRequired(routes.PostProgramBreaksProMasterQuery)).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/program-breaks-light/load", routes.AuthRequired(routes.PostLoadProgramLightModeBreaks)).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/program-breaks-light/query", routes.AuthRequired(routes.PostProgramLightModeBreaksQuery)).Methods("POST", "OPTIONS")
 	/*deals*/
-	route.HandleFunc("/api/v1/budgets", routes.PostGetBudgets).Methods("POST", "OPTIONS")
-	route.HandleFunc("/api/v1/budgets/load", routes.PostLoadBudgets).Methods("POST", "OPTIONS")
-	route.HandleFunc("/api/v1/budgets/query", routes.PostBudgetsQuery).Methods("POST", "OPTIONS")
-	route.HandleFunc("/api/v1/customers-with-advertisers", routes.PostGetCustomersWithAdvertisers).Methods("POST", "OPTIONS")
-	route.HandleFunc("/api/v1/customers-with-advertisers/load", routes.PostLoadCustomersWithAdvertisers).Methods("POST", "OPTIONS")
-	route.HandleFunc("/api/v1/customers-with-advertisers/query", routes.PostCustomersWithAdvertisersQuery).Methods("POST", "OPTIONS")
-	route.HandleFunc("/api/v1/customers-with-advertisers-data/query", routes.PostCustomersWithAdvertisersDataQuery).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/budgets", routes.AuthRequired(routes.PostGetBudgets)).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/budgets/load", routes.AuthRequired(routes.PostLoadBudgets)).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/budgets/query", routes.AuthRequired(routes.PostBudgetsQuery)).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/customers-with-advertisers", routes.AuthRequired(routes.PostGetCustomersWithAdvertisers)).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/customers-with-advertisers/load", routes.AuthRequired(routes.PostLoadCustomersWithAdvertisers)).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/customers-with-advertisers/query", routes.AuthRequired(routes.PostCustomersWithAdvertisersQuery)).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/customers-with-advertisers-data/query", routes.AuthRequired(routes.PostCustomersWithAdvertisersDataQuery)).Methods("POST", "OPTIONS")
 	/*mediaPlans*/
-	route.HandleFunc("/api/v1/mediaplan", routes.PutAddMPlan).Methods("PUT", "OPTIONS")
-	route.HandleFunc("/api/v1/mediaplan", routes.PostGetMPLans).Methods("POST", "OPTIONS")
-	route.HandleFunc("/api/v1/mediaplan/load", routes.PostLoadMPLans).Methods("POST", "OPTIONS")
-	route.HandleFunc("/api/v1/mediaplan/query", routes.PostMPLansQuery).Methods("POST", "OPTIONS")
-	route.HandleFunc("/api/v1/agg-mediaplan/query", routes.PostAggMPLansQuery).Methods("POST", "OPTIONS")
-	route.HandleFunc("/api/v1/mediaplan/film ", routes.PostAddMPlanFilm).Methods("POST", "OPTIONS")
-	route.HandleFunc("/api/v1/mediaplan/film", routes.DeleteMPlanFilm).Methods("DELETE", "OPTIONS")
-	route.HandleFunc("/api/v1/mediaplan/change-film-planned-inventory", routes.PostChangeMPlanFilmPlannedInventory).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/mediaplan", routes.AuthRequired(routes.PutAddMPlan)).Methods("PUT", "OPTIONS")
+	route.HandleFunc("/api/v1/mediaplan", routes.AuthRequired(routes.PostGetMPLans)).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/mediaplan/load", routes.AuthRequired(routes.PostLoadMPLans)).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/mediaplan/query", routes.AuthRequired(routes.PostMPLansQuery)).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/agg-mediaplan/query", routes.AuthRequired(routes.PostAggMPLansQuery)).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/mediaplan/film ", routes.AuthRequired(routes.PostAddMPlanFilm)).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/mediaplan/film", routes.AuthRequired(routes.DeleteMPlanFilm)).Methods("DELETE", "OPTIONS")
+	route.HandleFunc("/api/v1/mediaplan/change-film-planned-inventory", routes.AuthRequired(routes.PostChangeMPlanFilmPlannedInventory)).Methods("POST", "OPTIONS")
 	/*spots*/
-	route.HandleFunc("/api/v1/spot", routes.PostGetSpots).Methods("POST", "OPTIONS")
-	route.HandleFunc("/api/v1/spot/load", routes.PostLoadSpots).Methods("POST", "OPTIONS")
-	route.HandleFunc("/api/v1/spot/query", routes.PostSpotsQuery).Methods("POST", "OPTIONS")
-	route.HandleFunc("/api/v1/spot/order-block/query", routes.PostSpotsOrderBlockQuery).Methods("POST", "OPTIONS")
-	route.HandleFunc("/api/v1/spot", routes.PutAddSpot).Methods("PUT", "OPTIONS")
-	route.HandleFunc("/api/v1/spot", routes.DeleteSpot).Methods("DELETE", "OPTIONS")
-	route.HandleFunc("/api/v1/spot/change", routes.PostChangeSpot).Methods("POST", "OPTIONS")
-	route.HandleFunc("/api/v1/spot/set-position", routes.PostSetSpotPosition).Methods("POST", "OPTIONS")
-	route.HandleFunc("/api/v1/spot/change-films", routes.PostChangeFilms).Methods("POST", "OPTIONS")
-	route.HandleFunc("/api/v1/spot/deleted-info", routes.PostGetDeletedSpotInfo).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/spot", routes.AuthRequired(routes.PostGetSpots)).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/spot/load", routes.AuthRequired(routes.PostLoadSpots)).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/spot/query", routes.AuthRequired(routes.PostSpotsQuery)).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/spot/order-block/query", routes.AuthRequired(routes.PostSpotsOrderBlockQuery)).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/spot", routes.AuthRequired(routes.PutAddSpot)).Methods("PUT", "OPTIONS")
+	route.HandleFunc("/api/v1/spot", routes.AuthRequired(routes.DeleteSpot)).Methods("DELETE", "OPTIONS")
+	route.HandleFunc("/api/v1/spot/change", routes.AuthRequired(routes.PostChangeSpot)).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/spot/set-position", routes.AuthRequired(routes.PostSetSpotPosition)).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/spot/change-films", routes.AuthRequired(routes.PostChangeFilms)).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/spot/deleted-info", routes.AuthRequired(routes.PostGetDeletedSpotInfo)).Methods("POST", "OPTIONS")
 	/*mq-metrics*/
-	route.HandleFunc("/api/v1/mq/queues", routes.GetQueuesMetrics).Methods("GET", "OPTIONS")
+	route.HandleFunc("/api/v1/mq/queues", routes.AuthRequired(routes.GetQueuesMetrics)).Methods("GET", "OPTIONS")
 	/*backup*/
-	route.HandleFunc("/api/v1/backup", routes.PostMongoBackup).Methods("POST", "OPTIONS")
-	route.HandleFunc("/api/v1/backup-list", routes.PostListBackups).Methods("POST", "OPTIONS")
-	route.HandleFunc("/api/v1/backup-restore", routes.PostMongoRestore).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/backup", routes.AuthRequired(routes.PostMongoBackup)).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/backup-list", routes.AuthRequired(routes.PostListBackups)).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/backup-restore", routes.AuthRequired(routes.PostMongoRestore)).Methods("POST", "OPTIONS")
 	s := &http.Server{
 		Addr:         port,
 		WriteTimeout: time.Second * 15,
@@ -125,9 +128,9 @@ func run() error {
 		if err != nil && !os.IsExist(err) {
 			return err
 		}
-		go func() {
-			utils.CheckErr(s3Config.ServerStart())
-		}()
+		//go func() {
+		//	utils.CheckErr(s3Config.ServerStart())
+		//}()
 		/* s3 CreateDefaultBucket */
 		for !s3Config.Ping() {
 		}

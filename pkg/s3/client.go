@@ -2,7 +2,6 @@ package s3
 
 import (
 	"bytes"
-	"context"
 	"errors"
 	"fmt"
 	"github.com/advancemg/vimb-loader/internal/config"
@@ -13,7 +12,6 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
-	"github.com/minio/madmin-go"
 	minio "github.com/minio/minio/cmd"
 	"io"
 	"io/ioutil"
@@ -72,24 +70,24 @@ func (c *Config) ServerStart() error {
 	return errors.New("Minio server - stop")
 }
 
-func (c *Config) ServerRestart() error {
-	admin, err := madmin.New(c.S3Endpoint, c.S3AccessKeyId, c.S3SecretAccessKey, false)
-	if err != nil {
-		log.PrintLog("vimb-loader", "s3", "error", "Minio admin error:", err.Error())
-	}
-	for {
-		select {
-		case <-time.After(120 * time.Minute):
-			err = admin.ServiceRestart(context.Background())
-			if err != nil {
-				log.PrintLog("vimb-loader", "s3", "error", "Minio admin error:", err.Error())
-				os.Exit(-1)
-			}
-			log.PrintLog("vimb-loader", "s3", "info", "Minio Server Restart")
-		}
-	}
-	return errors.New("Minio server restart - error")
-}
+//func (c *Config) ServerRestart() error {
+//	admin, err := madmin.New(c.S3Endpoint, c.S3AccessKeyId, c.S3SecretAccessKey, false)
+//	if err != nil {
+//		log.PrintLog("vimb-loader", "s3", "error", "Minio admin error:", err.Error())
+//	}
+//	for {
+//		select {
+//		case <-time.After(120 * time.Minute):
+//			err = admin.ServiceRestart(context.Background())
+//			if err != nil {
+//				log.PrintLog("vimb-loader", "s3", "error", "Minio admin error:", err.Error())
+//				os.Exit(-1)
+//			}
+//			log.PrintLog("vimb-loader", "s3", "info", "Minio Server Restart")
+//		}
+//	}
+//	return errors.New("Minio server restart - error")
+//}
 
 type ProgressWriter struct {
 	Written int64

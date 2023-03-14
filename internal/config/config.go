@@ -115,6 +115,7 @@ type Configuration struct {
 	Password                 string                                `json:"password"`
 	Client                   string                                `json:"client"`
 	Timeout                  string                                `json:"timeout"`
+	Token                    string                                `json:"token"`
 }
 
 var Config *Configuration
@@ -185,13 +186,13 @@ func enterConfig() error {
 		}
 		cfg.Budget.Loading = loading
 		if cfg.Budget.Loading {
-			fmt.Printf("%s", "Enter Budget cron(docker 0 0/46 * * *):")
+			fmt.Printf("%s", "Enter Budget cron(docker 0/46 * * * *):")
 			line, err = readLine()
 			if err != nil {
 				return err
 			}
 			if line == "" {
-				line = "0 0/46 * * *"
+				line = "0/46 * * * *"
 			}
 			cfg.Budget.Cron = line
 		}
@@ -219,13 +220,13 @@ func enterConfig() error {
 		}
 		cfg.ProgramBreaks.Loading = loading
 		if cfg.ProgramBreaks.Loading {
-			fmt.Printf("%s", "Enter ProgramBreaks cron(docker 0 0 */8 * *):")
+			fmt.Printf("%s", "Enter ProgramBreaks cron(docker 0/8 * * * *):")
 			line, err = readLine()
 			if err != nil {
 				return err
 			}
 			if line == "" {
-				line = "0 0 0/8 * *"
+				line = "0/8 * * * *"
 			}
 			cfg.ProgramBreaks.Cron = line
 		}
@@ -288,13 +289,13 @@ func enterConfig() error {
 		}
 		cfg.Mediaplan.Loading = loading
 		if cfg.Mediaplan.Loading {
-			fmt.Printf("%s", "Enter Mediaplan cron(docker 0 0/20 * * *):")
+			fmt.Printf("%s", "Enter Mediaplan cron(docker 0/20 * * * *):")
 			line, err = readLine()
 			if err != nil {
 				return err
 			}
 			if line == "" {
-				line = "0 0/20 * * *"
+				line = "0/20 * * * *"
 			}
 			cfg.Mediaplan.Cron = line
 		}
@@ -322,13 +323,13 @@ func enterConfig() error {
 		}
 		cfg.AdvMessages.Loading = loading
 		if cfg.AdvMessages.Loading {
-			fmt.Printf("%s", "Enter AdvMessages cron(docker 0 0/2 * * *):")
+			fmt.Printf("%s", "Enter AdvMessages cron(docker 0/2 * * * *):")
 			line, err = readLine()
 			if err != nil {
 				return err
 			}
 			if line == "" {
-				line = "0 0/2 * * *"
+				line = "0/2 * * * *"
 			}
 			cfg.AdvMessages.Cron = line
 		}
@@ -347,13 +348,13 @@ func enterConfig() error {
 		}
 		cfg.Spots.Loading = loading
 		if cfg.Spots.Loading {
-			fmt.Printf("%s", "Enter Spots cron(docker 0 0/59 * * *):")
+			fmt.Printf("%s", "Enter Spots cron(docker 0/59 * * * *):")
 			line, err = readLine()
 			if err != nil {
 				return err
 			}
 			if line == "" {
-				line = "0 0/59 * * *"
+				line = "0/59 * * * *"
 			}
 			cfg.Spots.Cron = line
 		}
@@ -381,13 +382,13 @@ func enterConfig() error {
 		}
 		cfg.DeletedSpotInfo.Loading = loading
 		if cfg.DeletedSpotInfo.Loading {
-			fmt.Printf("%s", "Enter DeletedSpotInfo cron(docker 0 0 */12 * *):")
+			fmt.Printf("%s", "Enter DeletedSpotInfo cron(docker 0/12 * * * *):")
 			line, err = readLine()
 			if err != nil {
 				return err
 			}
 			if line == "" {
-				line = "0 0 0/12 * *"
+				line = "0/12 * * * *"
 			}
 			cfg.DeletedSpotInfo.Cron = line
 		}
@@ -406,13 +407,13 @@ func enterConfig() error {
 		}
 		cfg.Channel.Loading = loading
 		if cfg.Channel.Loading {
-			fmt.Printf("%s", "Enter Channels cron(docker 0 0/18 * * *):")
+			fmt.Printf("%s", "Enter Channels cron(docker 0/18 * * * *):")
 			line, err = readLine()
 			if err != nil {
 				return err
 			}
 			if line == "" {
-				line = "0 0/18 * * *"
+				line = "0/18 * * * *"
 			}
 			cfg.Channel.Cron = line
 		}
@@ -440,13 +441,13 @@ func enterConfig() error {
 		}
 		cfg.CustomersWithAdvertisers.Loading = loading
 		if cfg.CustomersWithAdvertisers.Loading {
-			fmt.Printf("%s", "Enter CustomersWithAdvertisers cron(docker 0 0/16 * * *):")
+			fmt.Printf("%s", "Enter CustomersWithAdvertisers cron(docker 0/16 * * * *):")
 			line, err = readLine()
 			if err != nil {
 				return err
 			}
 			if line == "" {
-				line = "0 0/16 * * *"
+				line = "0/16 * * * *"
 			}
 			cfg.CustomersWithAdvertisers.Cron = line
 		}
@@ -474,13 +475,13 @@ func enterConfig() error {
 		}
 		cfg.Rank.Loading = loading
 		if cfg.Rank.Loading {
-			fmt.Printf("%s", "Enter Rank cron(docker 0 0 */23 * *):")
+			fmt.Printf("%s", "Enter Rank cron(docker 0/23 * * * *):")
 			line, err = readLine()
 			if err != nil {
 				return err
 			}
 			if line == "" {
-				line = "0 0 0/23 * *"
+				line = "0/23 * * * *"
 			}
 			cfg.Rank.Cron = line
 		}
@@ -642,13 +643,13 @@ func enterConfig() error {
 				line = "qwerty"
 			}
 			cfg.Mongo.Password = line
-			fmt.Printf("%s", "Enter MongoDB Cron Backup(docker 0 */24 * * *):")
+			fmt.Printf("%s", "Enter MongoDB Cron Backup(docker 0/24 * * * *):")
 			line, err = readLine()
 			if err != nil {
 				return err
 			}
 			if line == "" {
-				line = "0 */24 * * *"
+				line = "0/24 * * * *"
 			}
 			cfg.Mongo.CronBackup = line
 		}
@@ -705,6 +706,12 @@ func enterConfig() error {
 			line = "120s"
 		}
 		cfg.Timeout = line
+		fmt.Printf("%s", "Enter token for API:")
+		line, err = readLine()
+		if err != nil {
+			return err
+		}
+		cfg.Token = line
 		Config = cfg
 		marshal, err := json.MarshalIndent(Config, "", "  ")
 		if err != nil {

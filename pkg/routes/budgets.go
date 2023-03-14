@@ -11,12 +11,14 @@ import (
 // PostGetBudgets godoc
 // @Summary Возвращает данные по сделкам в разрезе канало-периодов.
 // @Description Возвращает данные по сделкам в разрезе канало-периодов.
+// @Security ApiKeyAuth
 // @ID routes-get-budgets
 // @Tags Сделки
 // @Param body body models.SwaggerGetBudgetsRequest true  "Запрос"
 // @Accept json
 // @Produce json
 // @Success 200 {object} models.StreamResponse
+// @Failure 401 "Error: Unauthorized"
 // @Router /api/v1/budgets [post]
 func PostGetBudgets(w http.ResponseWriter, r *http.Request) {
 	setupResponse(&w, r)
@@ -52,12 +54,14 @@ func PostGetBudgets(w http.ResponseWriter, r *http.Request) {
 // PostLoadBudgets godoc
 // @Summary Создание задач, на загрузку бюджетов.
 // @Description Создание задач, на загрузку бюджетов, за выбранный период.
+// @Security ApiKeyAuth
 // @ID routes-load-budgets
 // @Tags Сделки
 // @Param body body models.BudgetLoadRequest true  "Запрос"
 // @Accept json
 // @Produce json
 // @Success 200 {object} models.CommonResponse
+// @Failure 401 "Error: Unauthorized"
 // @Router /api/v1/budgets/load [post]
 func PostLoadBudgets(w http.ResponseWriter, r *http.Request) {
 	setupResponse(&w, r)
@@ -93,12 +97,14 @@ func PostLoadBudgets(w http.ResponseWriter, r *http.Request) {
 // PostBudgetsQuery godoc
 // @Summary Загрузка сохраненных бюджетов.
 // @Description Динамический запрос на загрузку сохраненных данных. Логические операторы: eq ==, ne !=, gt >, lt <, ge >=, le <=, in in, isnil is nil.
+// @Security ApiKeyAuth
 // @ID routes-query-budgets
 // @Tags Сделки
 // @Param body body models.BudgetQuery true  "Запрос"
 // @Accept json
 // @Produce json
 // @Success 200 {object} models.CommonResponse
+// @Failure 401 "Error: Unauthorized"
 // @Router /api/v1/budgets/query [post]
 func PostBudgetsQuery(w http.ResponseWriter, r *http.Request) {
 	setupResponse(&w, r)

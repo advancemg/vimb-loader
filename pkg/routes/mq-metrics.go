@@ -16,11 +16,13 @@ type MqInfo struct {
 // GetQueuesMetrics godoc
 // @Summary Состояние очередей.
 // @Description Состояние очередей.
+// @Security ApiKeyAuth
 // @ID routes-get-mq-queue-metrics
 // @Tags MQ
 // @Accept json
 // @Produce json
 // @Success 200 {object} []routes.MqInfo
+// @Failure 401 "Error: Unauthorized"
 // @Router /api/v1/mq/queues [get]
 func GetQueuesMetrics(w http.ResponseWriter, r *http.Request) {
 	setupResponse(&w, r)

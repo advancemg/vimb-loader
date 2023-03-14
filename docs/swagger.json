@@ -6,7 +6,6 @@
         "contact": {},
         "version": "1.0"
     },
-    "basePath": "/",
     "paths": {
         "/api/v1": {
             "get": {
@@ -24,13 +23,18 @@
                 "operationId": "routes-health",
                 "responses": {
                     "200": {
-                        "description": ""
+                        "description": "OK"
                     }
                 }
             }
         },
         "/api/v1/adv-messages": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Возвращает список роликов, созданных в указанный период времени. Список отфильтрован по правам НВ.",
                 "consumes": [
                     "application/json"
@@ -60,12 +64,20 @@
                         "schema": {
                             "$ref": "#/definitions/models.StreamResponse"
                         }
+                    },
+                    "401": {
+                        "description": "Error: Unauthorized"
                     }
                 }
             }
         },
         "/api/v1/adv-messages/load": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Создание задач, на загрузку роликов, за выбранный период.",
                 "consumes": [
                     "application/json"
@@ -95,12 +107,20 @@
                         "schema": {
                             "$ref": "#/definitions/models.CommonResponse"
                         }
+                    },
+                    "401": {
+                        "description": "Error: Unauthorized"
                     }
                 }
             }
         },
         "/api/v1/adv-messages/query": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Динамический запрос на загрузку сохраненных данных. Логические операторы: eq ==, ne !=, gt \u003e, lt \u003c, ge \u003e=, le \u003c=, in in, isnil is nil.",
                 "consumes": [
                     "application/json"
@@ -130,12 +150,20 @@
                         "schema": {
                             "$ref": "#/definitions/models.CommonResponse"
                         }
+                    },
+                    "401": {
+                        "description": "Error: Unauthorized"
                     }
                 }
             }
         },
         "/api/v1/agg-mediaplan/query": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Динамический запрос на загрузку сохраненных данных. Логические операторы: eq ==, ne !=, gt \u003e, lt \u003c, ge \u003e=, le \u003c=, in in, isnil is nil.",
                 "consumes": [
                     "application/json"
@@ -165,12 +193,20 @@
                         "schema": {
                             "$ref": "#/definitions/models.CommonResponse"
                         }
+                    },
+                    "401": {
+                        "description": "Error: Unauthorized"
                     }
                 }
             }
         },
         "/api/v1/backup": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "- Создаем резервную копию MongoDВ. При пустых полях берет значения их config файла.",
                 "consumes": [
                     "application/json"
@@ -200,12 +236,20 @@
                         "schema": {
                             "$ref": "#/definitions/models.StreamResponse"
                         }
+                    },
+                    "401": {
+                        "description": "Error: Unauthorized"
                     }
                 }
             }
         },
         "/api/v1/backup-list": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "- Возвращает список бэкапов, s3Key.",
                 "consumes": [
                     "application/json"
@@ -235,12 +279,20 @@
                         "schema": {
                             "$ref": "#/definitions/models.StreamResponse"
                         }
+                    },
+                    "401": {
+                        "description": "Error: Unauthorized"
                     }
                 }
             }
         },
         "/api/v1/backup-restore": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "- Восстановление БД из резервной копии. Указать s3Key бэкапа.",
                 "consumes": [
                     "application/json"
@@ -270,12 +322,20 @@
                         "schema": {
                             "$ref": "#/definitions/models.StreamResponse"
                         }
+                    },
+                    "401": {
+                        "description": "Error: Unauthorized"
                     }
                 }
             }
         },
         "/api/v1/budgets": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Возвращает данные по сделкам в разрезе канало-периодов.",
                 "consumes": [
                     "application/json"
@@ -305,12 +365,20 @@
                         "schema": {
                             "$ref": "#/definitions/models.StreamResponse"
                         }
+                    },
+                    "401": {
+                        "description": "Error: Unauthorized"
                     }
                 }
             }
         },
         "/api/v1/budgets/load": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Создание задач, на загрузку бюджетов, за выбранный период.",
                 "consumes": [
                     "application/json"
@@ -340,12 +408,20 @@
                         "schema": {
                             "$ref": "#/definitions/models.CommonResponse"
                         }
+                    },
+                    "401": {
+                        "description": "Error: Unauthorized"
                     }
                 }
             }
         },
         "/api/v1/budgets/query": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Динамический запрос на загрузку сохраненных данных. Логические операторы: eq ==, ne !=, gt \u003e, lt \u003c, ge \u003e=, le \u003c=, in in, isnil is nil.",
                 "consumes": [
                     "application/json"
@@ -375,12 +451,20 @@
                         "schema": {
                             "$ref": "#/definitions/models.CommonResponse"
                         }
+                    },
+                    "401": {
+                        "description": "Error: Unauthorized"
                     }
                 }
             }
         },
         "/api/v1/channels": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Результат включает активные в настоящий момент для размещения каналы, а также каналы, которые станут активными в течение ближайших трех месяцев.",
                 "consumes": [
                     "application/json"
@@ -410,12 +494,20 @@
                         "schema": {
                             "$ref": "#/definitions/models.StreamResponse"
                         }
+                    },
+                    "401": {
+                        "description": "Error: Unauthorized"
                     }
                 }
             }
         },
         "/api/v1/channels/load": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Создание задач, на загрузку каналов, за выбранный период.",
                 "consumes": [
                     "application/json"
@@ -445,12 +537,20 @@
                         "schema": {
                             "$ref": "#/definitions/models.CommonResponse"
                         }
+                    },
+                    "401": {
+                        "description": "Error: Unauthorized"
                     }
                 }
             }
         },
         "/api/v1/channels/query": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Динамический запрос на загрузку сохраненных данных. Логические операторы: eq ==, ne !=, gt \u003e, lt \u003c, ge \u003e=, le \u003c=, in in, isnil is nil.",
                 "consumes": [
                     "application/json"
@@ -480,12 +580,20 @@
                         "schema": {
                             "$ref": "#/definitions/models.CommonResponse"
                         }
+                    },
+                    "401": {
+                        "description": "Error: Unauthorized"
                     }
                 }
             }
         },
         "/api/v1/customers-with-advertisers": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Возвращает список заказчиков с рекламодеталями для заданного направления продаж.",
                 "consumes": [
                     "application/json"
@@ -515,12 +623,20 @@
                         "schema": {
                             "$ref": "#/definitions/models.StreamResponse"
                         }
+                    },
+                    "401": {
+                        "description": "Error: Unauthorized"
                     }
                 }
             }
         },
         "/api/v1/customers-with-advertisers-data/query": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Динамический запрос на загрузку сохраненных данных. Логические операторы: eq ==, ne !=, gt \u003e, lt \u003c, ge \u003e=, le \u003c=, in in, isnil is nil.",
                 "consumes": [
                     "application/json"
@@ -550,12 +666,20 @@
                         "schema": {
                             "$ref": "#/definitions/models.StreamResponse"
                         }
+                    },
+                    "401": {
+                        "description": "Error: Unauthorized"
                     }
                 }
             }
         },
         "/api/v1/customers-with-advertisers/load": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Создание задачи для загружки заказчиков с рекламодеталями для заданного направления продаж.",
                 "consumes": [
                     "application/json"
@@ -585,12 +709,20 @@
                         "schema": {
                             "$ref": "#/definitions/models.StreamResponse"
                         }
+                    },
+                    "401": {
+                        "description": "Error: Unauthorized"
                     }
                 }
             }
         },
         "/api/v1/customers-with-advertisers/query": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Динамический запрос на загрузку сохраненных данных. Логические операторы: eq ==, ne !=, gt \u003e, lt \u003c, ge \u003e=, le \u003c=, in in, isnil is nil.",
                 "consumes": [
                     "application/json"
@@ -620,12 +752,20 @@
                         "schema": {
                             "$ref": "#/definitions/models.StreamResponse"
                         }
+                    },
+                    "401": {
+                        "description": "Error: Unauthorized"
                     }
                 }
             }
         },
         "/api/v1/mediaplan": {
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Создает новый медиаплан.",
                 "consumes": [
                     "application/json"
@@ -659,6 +799,11 @@
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Возвращает доступные медиапланы. Минимальный кванта периода начитки - 1 месяц (с первого по последнее число).",
                 "consumes": [
                     "application/json"
@@ -688,12 +833,20 @@
                         "schema": {
                             "$ref": "#/definitions/models.StreamResponse"
                         }
+                    },
+                    "401": {
+                        "description": "Error: Unauthorized"
                     }
                 }
             }
         },
         "/api/v1/mediaplan/change-film-planned-inventory": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Метод допускает массовое редактирование, при этом все ролики должны относиться к одному медиаплану.",
                 "consumes": [
                     "application/json"
@@ -723,12 +876,20 @@
                         "schema": {
                             "$ref": "#/definitions/models.StreamResponse"
                         }
+                    },
+                    "401": {
+                        "description": "Error: Unauthorized"
                     }
                 }
             }
         },
         "/api/v1/mediaplan/film": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "“Втягивает” ролик в медиаплан. Период ролика в медиаплане устанавливается равным периоду медиаплана.",
                 "consumes": [
                     "application/json"
@@ -758,10 +919,18 @@
                         "schema": {
                             "$ref": "#/definitions/models.StreamResponse"
                         }
+                    },
+                    "401": {
+                        "description": "Error: Unauthorized"
                     }
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Одним из требований для удаления является отсутствие соответствующего этому роличному сплиту размещения.",
                 "consumes": [
                     "application/json"
@@ -791,12 +960,20 @@
                         "schema": {
                             "$ref": "#/definitions/models.StreamResponse"
                         }
+                    },
+                    "401": {
+                        "description": "Error: Unauthorized"
                     }
                 }
             }
         },
         "/api/v1/mediaplan/load": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Создание задач, на загрузку медиапланов.",
                 "consumes": [
                     "application/json"
@@ -826,12 +1003,20 @@
                         "schema": {
                             "$ref": "#/definitions/models.CommonResponse"
                         }
+                    },
+                    "401": {
+                        "description": "Error: Unauthorized"
                     }
                 }
             }
         },
         "/api/v1/mediaplan/query": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Динамический запрос на загрузку сохраненных данных. Логические операторы: eq ==, ne !=, gt \u003e, lt \u003c, ge \u003e=, le \u003c=, in in, isnil is nil.",
                 "consumes": [
                     "application/json"
@@ -861,12 +1046,20 @@
                         "schema": {
                             "$ref": "#/definitions/models.CommonResponse"
                         }
+                    },
+                    "401": {
+                        "description": "Error: Unauthorized"
                     }
                 }
             }
         },
         "/api/v1/mq/queues": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Состояние очередей.",
                 "consumes": [
                     "application/json"
@@ -888,12 +1081,20 @@
                                 "$ref": "#/definitions/routes.MqInfo"
                             }
                         }
+                    },
+                    "401": {
+                        "description": "Error: Unauthorized"
                     }
                 }
             }
         },
         "/api/v1/program-breaks": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Возвращает Данные по блокам + занятые объемы блоков.",
                 "consumes": [
                     "application/json"
@@ -923,12 +1124,20 @@
                         "schema": {
                             "$ref": "#/definitions/models.StreamResponse"
                         }
+                    },
+                    "401": {
+                        "description": "Error: Unauthorized"
                     }
                 }
             }
         },
         "/api/v1/program-breaks-light/load": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Создание задач, на загрузку сеток Light Mode, за выбранный период.",
                 "consumes": [
                     "application/json"
@@ -958,12 +1167,20 @@
                         "schema": {
                             "$ref": "#/definitions/models.CommonResponse"
                         }
+                    },
+                    "401": {
+                        "description": "Error: Unauthorized"
                     }
                 }
             }
         },
         "/api/v1/program-breaks-light/query": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Динамический запрос на загрузку сохраненных данных. Логические операторы: eq ==, ne !=, gt \u003e, lt \u003c, ge \u003e=, le \u003c=, in in, isnil is nil.",
                 "consumes": [
                     "application/json"
@@ -993,12 +1210,20 @@
                         "schema": {
                             "$ref": "#/definitions/models.CommonResponse"
                         }
+                    },
+                    "401": {
+                        "description": "Error: Unauthorized"
                     }
                 }
             }
         },
         "/api/v1/program-breaks/load": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Создание задач, на загрузку сеток, за выбранный период.",
                 "consumes": [
                     "application/json"
@@ -1028,12 +1253,20 @@
                         "schema": {
                             "$ref": "#/definitions/models.CommonResponse"
                         }
+                    },
+                    "401": {
+                        "description": "Error: Unauthorized"
                     }
                 }
             }
         },
         "/api/v1/program-breaks/pro-master/query": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Динамический запрос на загрузку сохраненных данных. Логические операторы: eq ==, ne !=, gt \u003e, lt \u003c, ge \u003e=, le \u003c=, in in, isnil is nil.",
                 "consumes": [
                     "application/json"
@@ -1063,12 +1296,20 @@
                         "schema": {
                             "$ref": "#/definitions/models.CommonResponse"
                         }
+                    },
+                    "401": {
+                        "description": "Error: Unauthorized"
                     }
                 }
             }
         },
         "/api/v1/program-breaks/query": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Динамический запрос на загрузку сохраненных данных. Логические операторы: eq ==, ne !=, gt \u003e, lt \u003c, ge \u003e=, le \u003c=, in in, isnil is nil.",
                 "consumes": [
                     "application/json"
@@ -1098,12 +1339,20 @@
                         "schema": {
                             "$ref": "#/definitions/models.CommonResponse"
                         }
+                    },
+                    "401": {
+                        "description": "Error: Unauthorized"
                     }
                 }
             }
         },
         "/api/v1/ranks": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Возвращает справочник рангов размещения.",
                 "consumes": [
                     "application/json"
@@ -1133,12 +1382,20 @@
                         "schema": {
                             "$ref": "#/definitions/models.StreamResponse"
                         }
+                    },
+                    "401": {
+                        "description": "Error: Unauthorized"
                     }
                 }
             }
         },
         "/api/v1/ranks/load": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Создание задач, на загрузку рангов размещения.",
                 "consumes": [
                     "application/json"
@@ -1168,12 +1425,20 @@
                         "schema": {
                             "$ref": "#/definitions/models.CommonResponse"
                         }
+                    },
+                    "401": {
+                        "description": "Error: Unauthorized"
                     }
                 }
             }
         },
         "/api/v1/ranks/query": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Динамический запрос на загрузку сохраненных данных. Логические операторы: eq ==, ne !=, gt \u003e, lt \u003c, ge \u003e=, le \u003c=, in in, isnil is nil.",
                 "consumes": [
                     "application/json"
@@ -1203,12 +1468,20 @@
                         "schema": {
                             "$ref": "#/definitions/models.CommonResponse"
                         }
+                    },
+                    "401": {
+                        "description": "Error: Unauthorized"
                     }
                 }
             }
         },
         "/api/v1/spot": {
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Постановка спота в блок.",
                 "consumes": [
                     "application/json"
@@ -1238,10 +1511,18 @@
                         "schema": {
                             "$ref": "#/definitions/models.StreamResponse"
                         }
+                    },
+                    "401": {
+                        "description": "Error: Unauthorized"
                     }
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Возвращает список спотов.",
                 "consumes": [
                     "application/json"
@@ -1271,10 +1552,18 @@
                         "schema": {
                             "$ref": "#/definitions/models.StreamResponse"
                         }
+                    },
+                    "401": {
+                        "description": "Error: Unauthorized"
                     }
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Удаление спота в блоке.",
                 "consumes": [
                     "application/json"
@@ -1304,12 +1593,20 @@
                         "schema": {
                             "$ref": "#/definitions/models.StreamResponse"
                         }
+                    },
+                    "401": {
+                        "description": "Error: Unauthorized"
                     }
                 }
             }
         },
         "/api/v1/spot/change": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Замена спота в блок.",
                 "consumes": [
                     "application/json"
@@ -1339,12 +1636,20 @@
                         "schema": {
                             "$ref": "#/definitions/models.StreamResponse"
                         }
+                    },
+                    "401": {
+                        "description": "Error: Unauthorized"
                     }
                 }
             }
         },
         "/api/v1/spot/change-films": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Заменяет в спотах существующие ролики в медиапланах на указанные в CommInMplIDs (не больше трех).",
                 "consumes": [
                     "application/json"
@@ -1374,12 +1679,20 @@
                         "schema": {
                             "$ref": "#/definitions/models.StreamResponse"
                         }
+                    },
+                    "401": {
+                        "description": "Error: Unauthorized"
                     }
                 }
             }
         },
         "/api/v1/spot/deleted-info": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Возвращает информацию об удаленных за период спотах",
                 "consumes": [
                     "application/json"
@@ -1409,12 +1722,20 @@
                         "schema": {
                             "$ref": "#/definitions/models.StreamResponse"
                         }
+                    },
+                    "401": {
+                        "description": "Error: Unauthorized"
                     }
                 }
             }
         },
         "/api/v1/spot/load": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Создание задач на загрузку спотов.",
                 "consumes": [
                     "application/json"
@@ -1444,12 +1765,20 @@
                         "schema": {
                             "$ref": "#/definitions/models.CommonResponse"
                         }
+                    },
+                    "401": {
+                        "description": "Error: Unauthorized"
                     }
                 }
             }
         },
         "/api/v1/spot/order-block/query": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Динамический запрос на загрузку сохраненных данных. Логические операторы: eq ==, ne !=, gt \u003e, lt \u003c, ge \u003e=, le \u003c=, in in, isnil is nil.",
                 "consumes": [
                     "application/json"
@@ -1479,12 +1808,20 @@
                         "schema": {
                             "$ref": "#/definitions/models.CommonResponse"
                         }
+                    },
+                    "401": {
+                        "description": "Error: Unauthorized"
                     }
                 }
             }
         },
         "/api/v1/spot/query": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Динамический запрос на загрузку сохраненных данных. Логические операторы: eq ==, ne !=, gt \u003e, lt \u003c, ge \u003e=, le \u003c=, in in, isnil is nil.",
                 "consumes": [
                     "application/json"
@@ -1514,12 +1851,20 @@
                         "schema": {
                             "$ref": "#/definitions/models.CommonResponse"
                         }
+                    },
+                    "401": {
+                        "description": "Error: Unauthorized"
                     }
                 }
             }
         },
         "/api/v1/spot/set-position": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Выполняет позиционирование спота..",
                 "consumes": [
                     "application/json"
@@ -1549,6 +1894,9 @@
                         "schema": {
                             "$ref": "#/definitions/models.StreamResponse"
                         }
+                    },
+                    "401": {
+                        "description": "Error: Unauthorized"
                     }
                 }
             }
@@ -2567,6 +2915,13 @@
                     "type": "string"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "ApiKeyAuth": {
+            "type": "apiKey",
+            "name": "token",
+            "in": "header"
         }
     }
 }
