@@ -88,6 +88,9 @@ func TestDumpS3(t *testing.T) {
 }
 
 func TestListBackup(t *testing.T) {
+	if testing.Short() {
+		t.SkipNow()
+	}
 	config.Load()
 	err := zap.Init()
 	if err != nil {
