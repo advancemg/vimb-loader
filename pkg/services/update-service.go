@@ -2,7 +2,7 @@ package services
 
 import (
 	"errors"
-	"github.com/advancemg/vimb-loader/pkg/models"
+	"github.com/advancemg/vimb-loader/internal/models"
 	"os"
 	"os/signal"
 	"time"

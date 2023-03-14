@@ -3,10 +3,10 @@ package s3
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
-	log "github.com/advancemg/vimb-loader/pkg/logging"
+	"github.com/advancemg/vimb-loader/internal/config"
+	log "github.com/advancemg/vimb-loader/pkg/logging/zap"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -15,7 +15,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	"github.com/minio/madmin-go"
 	minio "github.com/minio/minio/cmd"
-	"github.com/zenthangplus/goccm"
 	"io"
 	"io/ioutil"
 	"net"
@@ -40,18 +39,15 @@ type Config struct {
 }
 
 func InitConfig() *Config {
-	type configTemplate struct {
-		S3Cfg *Config `json:"s3"`
+	cfg = &Config{
+		S3AccessKeyId:     config.Config.S3.S3AccessKeyId,
+		S3SecretAccessKey: config.Config.S3.S3SecretAccessKey,
+		S3Region:          config.Config.S3.S3Region,
+		S3Endpoint:        config.Config.S3.S3Endpoint,
+		S3Debug:           config.Config.S3.S3Debug,
+		S3Bucket:          config.Config.S3.S3Bucket,
+		S3LocalDir:        config.Config.S3.S3LocalDir,
 	}
-	var config configTemplate
-	configFile, err := os.Open("config.json")
-	if err != nil {
-		panic(err)
-	}
-	defer configFile.Close()
-	jsonParser := json.NewDecoder(configFile)
-	jsonParser.Decode(&config)
-	cfg = config.S3Cfg
 	return cfg
 }
 
@@ -84,7 +80,7 @@ func (c *Config) ServerRestart() error {
 	for {
 		select {
 		case <-time.After(120 * time.Minute):
-			err := admin.ServiceRestart(context.Background())
+			err = admin.ServiceRestart(context.Background())
 			if err != nil {
 				log.PrintLog("vimb-loader", "s3", "error", "Minio admin error:", err.Error())
 				os.Exit(-1)
@@ -242,11 +238,11 @@ func ListDirectories(bucket, prefix string) map[string]string {
 	}
 	return data
 }
-func ListKeys(bucket, prefix string) map[string]string {
+func ListKeys(bucket, prefix string) (map[string]string, error) {
 	err := connection()
 	if err != nil {
 		log.PrintLog("vimb-loader", "s3", "error", "Connection error:", err.Error())
-		return nil
+		return nil, err
 	}
 	client := s3.New(cfg.S3Session)
 	request := s3.ListObjectsInput{
@@ -256,13 +252,13 @@ func ListKeys(bucket, prefix string) map[string]string {
 	result, err := client.ListObjects(&request)
 	if err != nil {
 		log.PrintLog("vimb-loader", "s3", "error", "ListKeys error:", err.Error())
-		return nil
+		return nil, err
 	}
 	var data = map[string]string{}
 	for _, file := range result.Contents {
 		data[*file.Key] = *file.ETag
 	}
-	return data
+	return data, nil
 }
 func ListKeysWithCred(bucket, prefix string) map[string]string {
 	err := connection()
@@ -287,8 +283,12 @@ func ListKeysWithCred(bucket, prefix string) map[string]string {
 	return data
 }
 func CopyBatch(bucket, inputPrefix, outputPrefix string) error {
-	keys := ListKeys(bucket, inputPrefix)
-	err := connection()
+	keys, err := ListKeys(bucket, inputPrefix)
+	if err != nil {
+		log.PrintLog("vimb-loader", "s3", "error", "Connection error:", err.Error())
+		return err
+	}
+	err = connection()
 	if err != nil {
 		log.PrintLog("vimb-loader", "s3", "error", "Connection error:", err.Error())
 		return err
@@ -308,68 +308,6 @@ func CopyBatch(bucket, inputPrefix, outputPrefix string) error {
 	}
 	return nil
 }
-func DownloadBatch(bucket, prefix string) (string, error) {
-	keys := ListKeys(bucket, prefix)
-	err := connection()
-	if err != nil {
-		log.PrintLog("vimb-loader", "s3", "error", "Connection error:", err.Error())
-		return "", err
-	}
-	s3Client := s3.New(cfg.S3Session)
-	sessionDataDir, err := ioutil.TempDir(``, `s3_client-dir-Session-`)
-	if err != nil {
-		log.PrintLog("vimb-loader", "s3", "error", "DownloadBatch error:", err.Error())
-		return "", err
-	}
-	errorCh := make(chan error)
-	successCh := make(chan interface{})
-	lenKeys := len(keys)
-	concurrency := goccm.New(lenKeys)
-	for s3Key, _ := range keys {
-		concurrency.Wait()
-		go func(inputS3Key string) {
-			defer concurrency.Done()
-			size, err := GetFileSize(s3Client, bucket, inputS3Key)
-			if err != nil {
-				concurrency.Done()
-				errorCh <- err
-				return
-			}
-			temp, err := ioutil.TempFile(sessionDataDir, "s3_client-load-file-tmp-")
-			if err != nil {
-				concurrency.Done()
-				errorCh <- err
-				return
-			}
-			writer := &ProgressWriter{Writer: temp, Size: size, Written: 0}
-			svc := s3manager.NewDownloader(cfg.S3Session, func(d *s3manager.Downloader) {
-				d.PartSize = 5 * 1024 * 1024
-				d.Concurrency = lenKeys
-			})
-			_, err = svc.Download(writer, &s3.GetObjectInput{
-				Bucket: aws.String(bucket),
-				Key:    aws.String(inputS3Key),
-			})
-			if err != nil {
-				os.Remove(temp.Name())
-				concurrency.Done()
-				errorCh <- err
-				return
-			}
-			concurrency.Done()
-			successCh <- inputS3Key
-		}(s3Key)
-	}
-	concurrency.WaitAllDone()
-	for {
-		select {
-		case <-time.After(time.Second * 1):
-			return sessionDataDir, nil
-		case errC := <-errorCh:
-			return "", errC
-		}
-	}
-}
 func Download(key string) (string, error) {
 	bucket := cfg.S3Bucket
 	err := connection()
@@ -385,7 +323,7 @@ func Download(key string) (string, error) {
 	}
 	temp, err := ioutil.TempFile(``, "s3_client-load-file-tmp-")
 	if err != nil {
-		panic(err)
+		return "", fmt.Errorf("s3 download tempFile: %w", err)
 	}
 	tempfileName := temp.Name()
 	writer := &ProgressWriter{Writer: temp, Size: size, Written: 0}
@@ -440,8 +378,12 @@ func UploadBytesWithBucket(s3Key string, data []byte) (*s3manager.UploadOutput, 
 }
 
 func DeleteWithBucketPrefix(bucket string, prefix string) error {
-	keys := ListKeys(bucket, prefix)
-	err := connection()
+	keys, err := ListKeys(bucket, prefix)
+	if err != nil {
+		log.PrintLog("vimb-loader", "s3", "error", "ListKeys error:", err.Error())
+		return err
+	}
+	err = connection()
 	if err != nil {
 		log.PrintLog("vimb-loader", "s3", "error", "Connection error:", err.Error())
 		return err

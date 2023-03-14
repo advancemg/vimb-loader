@@ -2,8 +2,8 @@ package routes
 
 import (
 	"encoding/json"
-	"github.com/advancemg/vimb-loader/pkg/models"
-	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
+	"github.com/advancemg/vimb-loader/internal/models"
+	"github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"net/http"
 )
 
@@ -29,6 +29,7 @@ func GetQueuesMetrics(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	config := mq_broker.InitConfig()
+	defer config.Close()
 	var response []MqInfo
 	for _, qName := range models.QueueNames {
 		info, _ := config.GetQueueInfo(qName)

@@ -2,16 +2,16 @@ package mq_broker
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
-	log "github.com/advancemg/vimb-loader/pkg/logging"
-	"github.com/pkg/errors"
+	cfg "github.com/advancemg/vimb-loader/internal/config"
+	log "github.com/advancemg/vimb-loader/pkg/logging/zap"
 	"github.com/streadway/amqp"
 	"github.com/valinurovam/garagemq/config"
 	"github.com/valinurovam/garagemq/metrics"
 	"github.com/valinurovam/garagemq/server"
 	"math"
 	"net"
-	"os"
 	"time"
 )
 
@@ -33,22 +33,16 @@ type QInfo struct {
 }
 
 func InitConfig() *Config {
-	return loadConfig()
+	return &Config{
+		MqHost:     cfg.Config.Amqp.MqHost,
+		MqPort:     cfg.Config.Amqp.MqPort,
+		MqUsername: cfg.Config.Amqp.MqUsername,
+		MqPassword: cfg.Config.Amqp.MqPassword,
+	}
 }
 
-func loadConfig() *Config {
-	type configTemplate struct {
-		AmqpConfig *Config `json:"amqp"`
-	}
-	var config configTemplate
-	configFile, err := os.Open("config.json")
-	if err != nil {
-		panic(err)
-	}
-	defer configFile.Close()
-	jsonParser := json.NewDecoder(configFile)
-	jsonParser.Decode(&config)
-	return config.AmqpConfig
+func (c *Config) Close() error {
+	return c.conn.Close()
 }
 
 func (c *Config) Ping() bool {
@@ -69,7 +63,10 @@ func (c *Config) Ping() bool {
 }
 
 func (c *Config) ServerStart() error {
-	cfg, _ := config.CreateDefault()
+	cfg, err := config.CreateDefault()
+	if err != nil {
+		return err
+	}
 	cfg.Queue.MaxMessagesInRAM = 1000
 	cfg.Connection.ChannelsMax = 2000
 	metrics.NewTrackRegistry(15, time.Second, false)
@@ -92,7 +89,7 @@ func (c *Config) connection() (*Config, error) {
 }
 
 func (c *Config) Channel() (*amqp.Channel, error) {
-	_, err := c.connection()
+	c, err := c.connection()
 	if err != nil {
 		return nil, err
 	}
@@ -109,7 +106,7 @@ func (c *Config) ConsumerChannel() (*amqp.Channel, *amqp.Connection, error) {
 }
 
 func (c *Config) GetQueueInfo(queue string) (*amqp.Queue, error) {
-	_, err := c.connection()
+	c, err := c.connection()
 	if err != nil {
 		return nil, err
 	}
@@ -123,7 +120,7 @@ func (c *Config) GetQueueInfo(queue string) (*amqp.Queue, error) {
 }
 
 func (c *Config) QueueDeclare(name string, durable, autoDelete, exclusive, noWait bool, args amqp.Table) (*amqp.Queue, error) {
-	_, err := c.connection()
+	c, err := c.connection()
 	if err != nil {
 		return nil, err
 	}
@@ -142,13 +139,13 @@ func (c *Config) QueueDeclare(name string, durable, autoDelete, exclusive, noWai
 	if err != nil {
 		return nil, err
 	}
-	defer ch.Close()
 	defer c.conn.Close()
+	defer ch.Close()
 	return &declareQueue, nil
 }
 
 func (c *Config) PublishJson(queue string, msg interface{}) error {
-	_, err := c.connection()
+	c, err := c.connection()
 	if err != nil {
 		return err
 	}
@@ -160,8 +157,8 @@ func (c *Config) PublishJson(queue string, msg interface{}) error {
 	if err != nil {
 		return err
 	}
+	//defer c.conn.Close()
 	defer ch.Close()
-	defer c.conn.Close()
 	err = ch.Publish(``, queue, false, false,
 		amqp.Publishing{
 			ContentType:  "application/json",
@@ -175,11 +172,11 @@ func (c *Config) PublishJson(queue string, msg interface{}) error {
 }
 
 func (c *Config) DeclareSimpleQueue(name string) error {
-	_, err := c.connection()
+	c, err := c.connection()
 	if err != nil {
 		return err
 	}
-	defer c.conn.Close()
+	//defer c.conn.Close()
 	var args = make(amqp.Table)
 	args["x-message-ttl"] = int64(math.MaxInt64)
 	_, err = c.QueueDeclare(name, true, false, false, false, args)

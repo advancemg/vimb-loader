@@ -74,6 +74,9 @@ func TestGetDaysFromYearMonth(t *testing.T) {
 }
 
 func TestGetWeekDayByYearMonth(t *testing.T) {
+	if testing.Short() {
+		t.SkipNow()
+	}
 	for i := 0; i < 12; i++ {
 		yearMonth := int64(201901 + i)
 		month, _ := GetWeekDayByYearMonth(yearMonth)

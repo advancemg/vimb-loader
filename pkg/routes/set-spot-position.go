@@ -3,7 +3,7 @@ package routes
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/advancemg/vimb-loader/pkg/models"
+	"github.com/advancemg/vimb-loader/internal/models"
 	"github.com/advancemg/vimb-loader/pkg/utils"
 	"net/http"
 )

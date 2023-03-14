@@ -5,16 +5,17 @@ import (
 	"fmt"
 	_ "github.com/advancemg/vimb-loader/docs"
 	cfg "github.com/advancemg/vimb-loader/internal/config"
-	"github.com/advancemg/vimb-loader/pkg/models"
-	mq "github.com/advancemg/vimb-loader/pkg/mq-broker"
+	"github.com/advancemg/vimb-loader/pkg/logging/zap"
+	mq_broker "github.com/advancemg/vimb-loader/pkg/mq-broker"
 	"github.com/advancemg/vimb-loader/pkg/routes"
 	"github.com/advancemg/vimb-loader/pkg/s3"
 	"github.com/advancemg/vimb-loader/pkg/services"
-	"github.com/advancemg/vimb-loader/pkg/storage"
+	"github.com/advancemg/vimb-loader/pkg/storage/badger-client"
 	"github.com/advancemg/vimb-loader/pkg/utils"
 	"github.com/gorilla/mux"
 	"github.com/swaggo/http-swagger"
 	_ "github.com/swaggo/swag"
+	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -31,12 +32,24 @@ var (
 // @description Документация
 // @BasePath /
 func main() {
-	cfg.EditConfig()
-	config, err := models.LoadConfiguration()
-	if err != nil {
-		panic(err.Error())
+	if err := run(); err != nil {
+		log.Fatal(err)
 	}
-	models.Config = *config
+}
+
+func run() error {
+	err := cfg.EditConfig()
+	if err != nil {
+		return err
+	}
+	err = cfg.Load()
+	if err != nil {
+		return err
+	}
+	err = zap.Init()
+	if err != nil {
+		return err
+	}
 	port := utils.GetEnv("PORT", ":8000")
 	route := mux.NewRouter()
 	route.PathPrefix("/api/v1/docs").Handler(httpSwagger.WrapHandler)
@@ -88,7 +101,10 @@ func main() {
 	route.HandleFunc("/api/v1/spot/deleted-info", routes.PostGetDeletedSpotInfo).Methods("POST", "OPTIONS")
 	/*mq-metrics*/
 	route.HandleFunc("/api/v1/mq/queues", routes.GetQueuesMetrics).Methods("GET", "OPTIONS")
-
+	/*backup*/
+	route.HandleFunc("/api/v1/backup", routes.PostMongoBackup).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/backup-list", routes.PostListBackups).Methods("POST", "OPTIONS")
+	route.HandleFunc("/api/v1/backup-restore", routes.PostMongoRestore).Methods("POST", "OPTIONS")
 	s := &http.Server{
 		Addr:         port,
 		WriteTimeout: time.Second * 15,
@@ -107,7 +123,7 @@ func main() {
 	if localHostRegex.MatchString(s3Config.S3Endpoint) {
 		err = os.Mkdir(s3Config.S3LocalDir, os.ModePerm)
 		if err != nil && !os.IsExist(err) {
-			panic(err.Error())
+			return err
 		}
 		go func() {
 			utils.CheckErr(s3Config.ServerStart())
@@ -120,11 +136,13 @@ func main() {
 	for !s3Config.Ping() {
 	}
 	/* Clean BadgerGC every 15 min*/
-	go func() {
-		storage.CleanGC()
-	}()
+	if cfg.Config.Database != "mongodb" {
+		go func() {
+			badger_client.CleanGC()
+		}()
+	}
 	/* amqp server */
-	mqConfig := mq.InitConfig()
+	mqConfig := mq_broker.InitConfig()
 	if localHostRegex.MatchString(mqConfig.MqHost) {
 		go func() {
 			utils.CheckErr(mqConfig.ServerStart())
@@ -144,10 +162,18 @@ func main() {
 		service := services.UpdateService{}
 		utils.CheckErr(service.Start())
 	}()
+	/*mongo backup service*/
+	if cfg.Config.Database == "mongodb" && cfg.Config.Mongo.CronBackup != "" {
+		go func() {
+			service := services.BackupService{}
+			utils.CheckErr(service.Start())
+		}()
+	}
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt)
 	<-quit
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	s.Shutdown(ctx)
+	return nil
 }
