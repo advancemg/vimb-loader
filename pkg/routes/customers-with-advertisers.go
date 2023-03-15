@@ -11,12 +11,14 @@ import (
 // PostGetCustomersWithAdvertisers godoc
 // @Summary Возвращает список заказчиков с рекламодеталями для заданного направления продаж.
 // @Description Возвращает список заказчиков с рекламодеталями для заданного направления продаж.
+// @Security ApiKeyAuth
 // @ID routes-customers-with-advertisers
 // @Tags Сделки
 // @Param body body models.SwaggerGetCustomersWithAdvertisersRequest true  "Запрос"
 // @Accept json
 // @Produce json
 // @Success 200 {object} models.StreamResponse
+// @Failure 401 "Error: Unauthorized"
 // @Router /api/v1/customers-with-advertisers [post]
 func PostGetCustomersWithAdvertisers(w http.ResponseWriter, r *http.Request) {
 	setupResponse(&w, r)
@@ -52,12 +54,14 @@ func PostGetCustomersWithAdvertisers(w http.ResponseWriter, r *http.Request) {
 // PostLoadCustomersWithAdvertisers godoc
 // @Summary Создание задачи для загружки заказчиков с рекламодеталями для заданного направления продаж.
 // @Description Создание задачи для загружки заказчиков с рекламодеталями для заданного направления продаж.
+// @Security ApiKeyAuth
 // @ID routes-customers-with-advertisers-load
 // @Tags Сделки
 // @Param body body models.SwaggerGetCustomersWithAdvertisersRequest true  "Запрос"
 // @Accept json
 // @Produce json
 // @Success 200 {object} models.StreamResponse
+// @Failure 401 "Error: Unauthorized"
 // @Router /api/v1/customers-with-advertisers/load [post]
 func PostLoadCustomersWithAdvertisers(w http.ResponseWriter, r *http.Request) {
 	setupResponse(&w, r)
@@ -93,12 +97,14 @@ func PostLoadCustomersWithAdvertisers(w http.ResponseWriter, r *http.Request) {
 // PostCustomersWithAdvertisersQuery godoc
 // @Summary Загрузка сохраненных заказчиков с рекламодеталями для заданного направления продаж.
 // @Description Динамический запрос на загрузку сохраненных данных. Логические операторы: eq ==, ne !=, gt >, lt <, ge >=, le <=, in in, isnil is nil.
+// @Security ApiKeyAuth
 // @ID routes-customers-with-advertisers-query
 // @Tags Сделки
 // @Param body body models.CustomersWithAdvertiserQuery true  "Запрос"
 // @Accept json
 // @Produce json
 // @Success 200 {object} models.StreamResponse
+// @Failure 401 "Error: Unauthorized"
 // @Router /api/v1/customers-with-advertisers/query [post]
 func PostCustomersWithAdvertisersQuery(w http.ResponseWriter, r *http.Request) {
 	setupResponse(&w, r)
@@ -134,12 +140,14 @@ func PostCustomersWithAdvertisersQuery(w http.ResponseWriter, r *http.Request) {
 // PostCustomersWithAdvertisersDataQuery godoc
 // @Summary Загрузка сохраненных заказчиков с рекламодеталями для заданного направления продаж.
 // @Description Динамический запрос на загрузку сохраненных данных. Логические операторы: eq ==, ne !=, gt >, lt <, ge >=, le <=, in in, isnil is nil.
+// @Security ApiKeyAuth
 // @ID routes-customers-with-advertisers-data-query
 // @Tags Сделки
 // @Param body body models.CustomersWithAdvertiserDataQuery true  "Запрос"
 // @Accept json
 // @Produce json
 // @Success 200 {object} models.StreamResponse
+// @Failure 401 "Error: Unauthorized"
 // @Router /api/v1/customers-with-advertisers-data/query [post]
 func PostCustomersWithAdvertisersDataQuery(w http.ResponseWriter, r *http.Request) {
 	setupResponse(&w, r)

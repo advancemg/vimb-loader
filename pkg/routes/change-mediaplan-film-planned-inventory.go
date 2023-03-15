@@ -11,12 +11,14 @@ import (
 // PostChangeMPlanFilmPlannedInventory godoc
 // @Summary Замена планового инвентаря роликов в медиаплане.
 // @Description Метод допускает массовое редактирование, при этом все ролики должны относиться к одному медиаплану.
+// @Security ApiKeyAuth
 // @ID routes-change-mediaplan-film-planned-inventory
 // @Tags Медиапланы
 // @Param body body models.SwaggerChangeMPlanFilmPlannedInventoryRequest true  "Запрос"
 // @Accept json
 // @Produce json
 // @Success 200 {object} models.StreamResponse
+// @Failure 401 "Error: Unauthorized"
 // @Router /api/v1/mediaplan/change-film-planned-inventory [post]
 func PostChangeMPlanFilmPlannedInventory(w http.ResponseWriter, r *http.Request) {
 	setupResponse(&w, r)

@@ -11,12 +11,14 @@ import (
 // PostChangeFilms godoc
 // @Summary Заменяет в спотах существующие ролики в медиапланах на указанные в CommInMplIDs (не больше трех).
 // @Description Заменяет в спотах существующие ролики в медиапланах на указанные в CommInMplIDs (не больше трех).
+// @Security ApiKeyAuth
 // @ID routes-change-films
 // @Tags Споты
 // @Param body body models.SwaggerChangeFilmsRequest true  "Запрос"
 // @Accept json
 // @Produce json
 // @Success 200 {object} models.StreamResponse
+// @Failure 401 "Error: Unauthorized"
 // @Router /api/v1/spot/change-films [post]
 func PostChangeFilms(w http.ResponseWriter, r *http.Request) {
 	setupResponse(&w, r)

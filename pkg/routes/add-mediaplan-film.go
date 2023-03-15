@@ -11,12 +11,14 @@ import (
 // PostAddMPlanFilm godoc
 // @Summary “Втягивает” ролик в медиаплан. Период ролика в медиаплане устанавливается равным периоду медиаплана.
 // @Description “Втягивает” ролик в медиаплан. Период ролика в медиаплане устанавливается равным периоду медиаплана.
+// @Security ApiKeyAuth
 // @ID routes-add-mediaplan-film
 // @Tags Медиапланы
 // @Param body body models.SwaggerAddMPlanFilmRequest true  "Запрос"
 // @Accept json
 // @Produce json
 // @Success 200 {object} models.StreamResponse
+// @Failure 401 "Error: Unauthorized"
 // @Router /api/v1/mediaplan/film [post]
 func PostAddMPlanFilm(w http.ResponseWriter, r *http.Request) {
 	setupResponse(&w, r)

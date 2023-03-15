@@ -11,12 +11,14 @@ import (
 // PostGetMPLans godoc
 // @Summary Возвращает доступные медиапланы. Минимальный кванта периода начитки - 1 месяц (с первого по последнее число).
 // @Description Возвращает доступные медиапланы. Минимальный кванта периода начитки - 1 месяц (с первого по последнее число).
+// @Security ApiKeyAuth
 // @ID routes-get-mediaplans
 // @Tags Медиапланы
 // @Param body body models.SwaggerGetMPLansRequest true  "Запрос"
 // @Accept json
 // @Produce json
 // @Success 200 {object} models.StreamResponse
+// @Failure 401 "Error: Unauthorized"
 // @Router /api/v1/mediaplan [post]
 func PostGetMPLans(w http.ResponseWriter, r *http.Request) {
 	setupResponse(&w, r)
@@ -52,12 +54,14 @@ func PostGetMPLans(w http.ResponseWriter, r *http.Request) {
 // PostLoadMPLans godoc
 // @Summary Создание задач, на загрузку медиапланов.
 // @Description Создание задач, на загрузку медиапланов.
+// @Security ApiKeyAuth
 // @ID routes-load-mediaplans
 // @Tags Медиапланы
 // @Param body body models.MediaplanLoadRequest true  "Запрос"
 // @Accept json
 // @Produce json
 // @Success 200 {object} models.CommonResponse
+// @Failure 401 "Error: Unauthorized"
 // @Router /api/v1/mediaplan/load [post]
 func PostLoadMPLans(w http.ResponseWriter, r *http.Request) {
 	setupResponse(&w, r)
@@ -93,12 +97,14 @@ func PostLoadMPLans(w http.ResponseWriter, r *http.Request) {
 // PostMPLansQuery godoc
 // @Summary Загрузка сохраненных медиапланов.
 // @Description Динамический запрос на загрузку сохраненных данных. Логические операторы: eq ==, ne !=, gt >, lt <, ge >=, le <=, in in, isnil is nil.
+// @Security ApiKeyAuth
 // @ID routes-query-mediaplans
 // @Tags Медиапланы
 // @Param body body models.MediaplanQuery true  "Запрос"
 // @Accept json
 // @Produce json
 // @Success 200 {object} models.CommonResponse
+// @Failure 401 "Error: Unauthorized"
 // @Router /api/v1/mediaplan/query [post]
 func PostMPLansQuery(w http.ResponseWriter, r *http.Request) {
 	setupResponse(&w, r)
@@ -134,12 +140,14 @@ func PostMPLansQuery(w http.ResponseWriter, r *http.Request) {
 // PostAggMPLansQuery godoc
 // @Summary Загрузка агрегированных данных.
 // @Description Динамический запрос на загрузку сохраненных данных. Логические операторы: eq ==, ne !=, gt >, lt <, ge >=, le <=, in in, isnil is nil.
+// @Security ApiKeyAuth
 // @ID routes-query-agg-mediaplans
 // @Tags Медиапланы
 // @Param body body models.AggMediaplanQuery true  "Запрос"
 // @Accept json
 // @Produce json
 // @Success 200 {object} models.CommonResponse
+// @Failure 401 "Error: Unauthorized"
 // @Router /api/v1/agg-mediaplan/query [post]
 func PostAggMPLansQuery(w http.ResponseWriter, r *http.Request) {
 	setupResponse(&w, r)

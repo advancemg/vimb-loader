@@ -11,12 +11,14 @@ import (
 // PostGetDeletedSpotInfo godoc
 // @Summary Возвращает информацию об удаленных за период спотах
 // @Description Возвращает информацию об удаленных за период спотах
+// @Security ApiKeyAuth
 // @ID routes-get-deleted-spots-info
 // @Tags Споты
 // @Param body body models.SwaggerGetDeletedSpotInfoRequest true  "Запрос"
 // @Accept json
 // @Produce json
 // @Success 200 {object} models.StreamResponse
+// @Failure 401 "Error: Unauthorized"
 // @Router /api/v1/spot/deleted-info [post]
 func PostGetDeletedSpotInfo(w http.ResponseWriter, r *http.Request) {
 	setupResponse(&w, r)

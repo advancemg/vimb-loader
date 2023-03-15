@@ -11,12 +11,14 @@ import (
 // PostGetProgramBreaks godoc
 // @Summary Возвращает Данные по блокам + занятые объемы блоков.
 // @Description Возвращает Данные по блокам + занятые объемы блоков.
+// @Security ApiKeyAuth
 // @ID routes-get-program-breaks
 // @Tags Блоки
 // @Param body body models.SwaggerGetProgramBreaksRequest true  "Запрос"
 // @Accept json
 // @Produce json
 // @Success 200 {object} models.StreamResponse
+// @Failure 401 "Error: Unauthorized"
 // @Router /api/v1/program-breaks [post]
 func PostGetProgramBreaks(w http.ResponseWriter, r *http.Request) {
 	setupResponse(&w, r)
@@ -52,12 +54,14 @@ func PostGetProgramBreaks(w http.ResponseWriter, r *http.Request) {
 // PostLoadProgramBreaks godoc
 // @Summary Создание задач, на загрузку сеток.
 // @Description Создание задач, на загрузку сеток, за выбранный период.
+// @Security ApiKeyAuth
 // @ID routes-load-program-breaks
 // @Tags Блоки
 // @Param body body models.ProgramBreaksLoadRequest true  "Запрос"
 // @Accept json
 // @Produce json
 // @Success 200 {object} models.CommonResponse
+// @Failure 401 "Error: Unauthorized"
 // @Router /api/v1/program-breaks/load [post]
 func PostLoadProgramBreaks(w http.ResponseWriter, r *http.Request) {
 	setupResponse(&w, r)
@@ -93,12 +97,14 @@ func PostLoadProgramBreaks(w http.ResponseWriter, r *http.Request) {
 // PostProgramBreaksQuery godoc
 // @Summary Загрузка сохраненных сеток.
 // @Description Динамический запрос на загрузку сохраненных данных. Логические операторы: eq ==, ne !=, gt >, lt <, ge >=, le <=, in in, isnil is nil.
+// @Security ApiKeyAuth
 // @ID routes-query-program-breaks
 // @Tags Блоки
 // @Param body body models.ProgramBreaksQuery true  "Запрос"
 // @Accept json
 // @Produce json
 // @Success 200 {object} models.CommonResponse
+// @Failure 401 "Error: Unauthorized"
 // @Router /api/v1/program-breaks/query [post]
 func PostProgramBreaksQuery(w http.ResponseWriter, r *http.Request) {
 	setupResponse(&w, r)
@@ -134,12 +140,14 @@ func PostProgramBreaksQuery(w http.ResponseWriter, r *http.Request) {
 // PostProgramBreaksProMasterQuery godoc
 // @Summary Загрузка сохраненных сеток.
 // @Description Динамический запрос на загрузку сохраненных данных. Логические операторы: eq ==, ne !=, gt >, lt <, ge >=, le <=, in in, isnil is nil.
+// @Security ApiKeyAuth
 // @ID routes-query-program-breaks-pro-master
 // @Tags Блоки
 // @Param body body models.ProMasterQuery true  "Запрос"
 // @Accept json
 // @Produce json
 // @Success 200 {object} models.CommonResponse
+// @Failure 401 "Error: Unauthorized"
 // @Router /api/v1/program-breaks/pro-master/query [post]
 func PostProgramBreaksProMasterQuery(w http.ResponseWriter, r *http.Request) {
 	setupResponse(&w, r)
@@ -175,12 +183,14 @@ func PostProgramBreaksProMasterQuery(w http.ResponseWriter, r *http.Request) {
 // PostProgramLightModeBreaksQuery godoc
 // @Summary Загрузка сохраненных сеток Light Mode.
 // @Description Динамический запрос на загрузку сохраненных данных. Логические операторы: eq ==, ne !=, gt >, lt <, ge >=, le <=, in in, isnil is nil.
+// @Security ApiKeyAuth
 // @ID routes-query-program-breaks-light-mode
 // @Tags Блоки
 // @Param body body models.ProgramBreaksLightModeQuery true  "Запрос"
 // @Accept json
 // @Produce json
 // @Success 200 {object} models.CommonResponse
+// @Failure 401 "Error: Unauthorized"
 // @Router /api/v1/program-breaks-light/query [post]
 func PostProgramLightModeBreaksQuery(w http.ResponseWriter, r *http.Request) {
 	setupResponse(&w, r)
@@ -216,12 +226,14 @@ func PostProgramLightModeBreaksQuery(w http.ResponseWriter, r *http.Request) {
 // PostLoadProgramLightModeBreaks godoc
 // @Summary Создание задач, на загрузку сеток Light Mode.
 // @Description Создание задач, на загрузку сеток Light Mode, за выбранный период.
+// @Security ApiKeyAuth
 // @ID routes-load-program-breaks-light-mode
 // @Tags Блоки
 // @Param body body models.ProgramBreaksLightModeLoadRequest true  "Запрос"
 // @Accept json
 // @Produce json
 // @Success 200 {object} models.CommonResponse
+// @Failure 401 "Error: Unauthorized"
 // @Router /api/v1/program-breaks-light/load [post]
 func PostLoadProgramLightModeBreaks(w http.ResponseWriter, r *http.Request) {
 	setupResponse(&w, r)

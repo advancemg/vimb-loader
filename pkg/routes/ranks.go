@@ -11,12 +11,14 @@ import (
 // PostGetRanks godoc
 // @Summary Возвращает справочник рангов размещения.
 // @Description Возвращает справочник рангов размещения.
+// @Security ApiKeyAuth
 // @ID routes-get-ranks
 // @Tags Справочники
 // @Param body body models.SwaggerGetRanksRequest true  "Запрос"
 // @Accept json
 // @Produce json
 // @Success 200 {object} models.StreamResponse
+// @Failure 401 "Error: Unauthorized"
 // @Router /api/v1/ranks [post]
 func PostGetRanks(w http.ResponseWriter, r *http.Request) {
 	setupResponse(&w, r)
@@ -52,12 +54,14 @@ func PostGetRanks(w http.ResponseWriter, r *http.Request) {
 // PostLoadRanks godoc
 // @Summary Создание задач, на загрузку рангов размещения.
 // @Description Создание задач, на загрузку рангов размещения.
+// @Security ApiKeyAuth
 // @ID routes-load-ranks
 // @Tags Справочники
 // @Param body body models.RanksLoadRequest true  "Запрос"
 // @Accept json
 // @Produce json
 // @Success 200 {object} models.CommonResponse
+// @Failure 401 "Error: Unauthorized"
 // @Router /api/v1/ranks/load [post]
 func PostLoadRanks(w http.ResponseWriter, r *http.Request) {
 	setupResponse(&w, r)
@@ -93,12 +97,14 @@ func PostLoadRanks(w http.ResponseWriter, r *http.Request) {
 // PostRanksQuery godoc
 // @Summary Загрузку сохраненных рангов размещения.
 // @Description Динамический запрос на загрузку сохраненных данных. Логические операторы: eq ==, ne !=, gt >, lt <, ge >=, le <=, in in, isnil is nil.
+// @Security ApiKeyAuth
 // @ID routes-query-ranks
 // @Tags Справочники
 // @Param body body models.RankQuery true  "Запрос"
 // @Accept json
 // @Produce json
 // @Success 200 {object} models.CommonResponse
+// @Failure 401 "Error: Unauthorized"
 // @Router /api/v1/ranks/query [post]
 func PostRanksQuery(w http.ResponseWriter, r *http.Request) {
 	setupResponse(&w, r)

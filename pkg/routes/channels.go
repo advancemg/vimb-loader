@@ -11,12 +11,14 @@ import (
 // PostGetChannels godoc
 // @Summary Возвращает отфильтрованный по правам НВ список каналов (точек врезки) указанного направления продаж.
 // @Description Результат включает активные в настоящий момент для размещения каналы, а также каналы, которые станут активными в течение ближайших трех месяцев.
+// @Security ApiKeyAuth
 // @ID routes-get-channels
 // @Tags Справочники
 // @Param body body models.SwaggerGetChannelsRequest true  "Запрос"
 // @Accept json
 // @Produce json
 // @Success 200 {object} models.StreamResponse
+// @Failure 401 "Error: Unauthorized"
 // @Router /api/v1/channels [post]
 func PostGetChannels(w http.ResponseWriter, r *http.Request) {
 	setupResponse(&w, r)
@@ -52,12 +54,14 @@ func PostGetChannels(w http.ResponseWriter, r *http.Request) {
 // PostLoadChannels godoc
 // @Summary Создание задач, на загрузку каналов.
 // @Description Создание задач, на загрузку каналов, за выбранный период.
+// @Security ApiKeyAuth
 // @ID routes-load-channels
 // @Tags Справочники
 // @Param body body models.ChannelLoadRequest true  "Запрос"
 // @Accept json
 // @Produce json
 // @Success 200 {object} models.CommonResponse
+// @Failure 401 "Error: Unauthorized"
 // @Router /api/v1/channels/load [post]
 func PostLoadChannels(w http.ResponseWriter, r *http.Request) {
 	setupResponse(&w, r)
@@ -93,12 +97,14 @@ func PostLoadChannels(w http.ResponseWriter, r *http.Request) {
 // PostChannelsQuery godoc
 // @Summary Загрузку сохраненных каналов.
 // @Description Динамический запрос на загрузку сохраненных данных. Логические операторы: eq ==, ne !=, gt >, lt <, ge >=, le <=, in in, isnil is nil.
+// @Security ApiKeyAuth
 // @ID routes-query-channels
 // @Tags Справочники
 // @Param body body models.ChannelQuery true  "Запрос"
 // @Accept json
 // @Produce json
 // @Success 200 {object} models.CommonResponse
+// @Failure 401 "Error: Unauthorized"
 // @Router /api/v1/channels/query [post]
 func PostChannelsQuery(w http.ResponseWriter, r *http.Request) {
 	setupResponse(&w, r)

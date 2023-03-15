@@ -11,12 +11,14 @@ import (
 // DeleteMPlanFilm godoc
 // @Summary Удаляет ролик из медиаплана.
 // @Description Одним из требований для удаления является отсутствие соответствующего этому роличному сплиту размещения.
+// @Security ApiKeyAuth
 // @ID routes-delete-mediaplan-film
 // @Tags Медиапланы
 // @Param body body models.SwaggerDeleteMPlanFilmRequest true  "Запрос"
 // @Accept json
 // @Produce json
 // @Success 200 {object} models.StreamResponse
+// @Failure 401 "Error: Unauthorized"
 // @Router /api/v1/mediaplan/film [delete]
 func DeleteMPlanFilm(w http.ResponseWriter, r *http.Request) {
 	setupResponse(&w, r)

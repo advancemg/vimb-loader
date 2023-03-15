@@ -11,12 +11,14 @@ import (
 // PostChangeSpot godoc
 // @Summary Замена спота в блок.
 // @Description Замена спота в блок.
+// @Security ApiKeyAuth
 // @ID routes-change-spot
 // @Tags Споты
 // @Param body body models.SwaggerChangeSpotRequest true  "Запрос"
 // @Accept json
 // @Produce json
 // @Success 200 {object} models.StreamResponse
+// @Failure 401 "Error: Unauthorized"
 // @Router /api/v1/spot/change [post]
 func PostChangeSpot(w http.ResponseWriter, r *http.Request) {
 	setupResponse(&w, r)
