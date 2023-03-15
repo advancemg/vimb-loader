@@ -1,6 +1,6 @@
 module github.com/advancemg/vimb-loader
 
-go 1.20
+go 1.19
 
 require (
 	github.com/advancemg/badgerhold v1.0.1
